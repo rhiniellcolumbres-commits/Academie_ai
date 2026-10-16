@@ -1,0 +1,1358 @@
+/* =========================================================
+   ACTIVITY ROW
+========================================================= */
+
+.activity-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.activity-row .activity-form {
+    flex: 1;
+}
+
+.activity-item.activity-saving {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+
+/* =========================================================
+   LEARN BUTTON
+========================================================= */
+
+.learn-activity-btn {
+    border: 1px solid #2b3ee2;
+    background: #ffffff;
+    color: #111111;
+
+    border-radius: 10px;
+
+    padding: 0 16px;
+
+    font-size: 12px;
+    font-weight: 700;
+
+    cursor: pointer;
+
+    white-space: nowrap;
+
+    transition: .15s ease;
+}
+
+.learn-activity-btn:hover {
+    background: #f3f3f3;
+    border-color: #aaaaaa;
+}
+
+
+/* =========================================================
+   LESSON MODAL
+========================================================= */
+
+.lesson-modal {
+    position: fixed;
+
+    inset: 0;
+
+    background: rgba(0, 0, 0, .55);
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 9999;
+}
+
+
+.lesson-modal-content {
+    position: relative;
+
+    width: min(760px, 100%);
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 18px;
+
+    padding: 32px;
+
+    box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
+}
+
+
+.lesson-close {
+    position: absolute;
+
+    top: 16px;
+    right: 18px;
+
+    border: none;
+
+    background: transparent;
+
+    font-size: 28px;
+
+    cursor: pointer;
+
+    color: #777777;
+}
+
+
+/* =========================================================
+   LESSON SECTIONS
+========================================================= */
+
+.lesson-section {
+    margin-top: 24px;
+
+    padding: 20px;
+
+    background: #f7f7f5;
+
+    border-radius: 12px;
+}
+
+.lesson-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+
+    font-size: 15px;
+}
+
+.lesson-section p {
+    margin: 0;
+
+    line-height: 1.7;
+
+    color: #444444;
+}
+
+
+.lesson-section pre {
+    margin: 0;
+
+    padding: 16px;
+
+    background: #111111;
+
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    overflow-x: auto;
+
+    white-space: pre-wrap;
+
+    line-height: 1.6;
+}
+
+
+.lesson-section ul {
+    margin: 0;
+
+    padding-left: 20px;
+
+    line-height: 1.8;
+}
+
+
+.lesson-loading-icon {
+    font-size: 40px;
+
+    margin-bottom: 10px;
+}
+
+
+.lesson-error {
+    margin-top: 20px;
+
+    padding: 15px;
+
+    background: #fff1f1;
+
+    border: 1px solid #ffcccc;
+
+    border-radius: 10px;
+
+    color: #b00000;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .activity-row {
+        flex-direction: column;
+    }
+
+    .learn-activity-btn {
+        padding: 12px;
+
+        width: 100%;
+    }
+
+    .lesson-modal-content {
+        padding: 22px;
+    }
+
+}
+/* =========================================================
+   PAGE
+========================================================= */
+
+.roadmap-page {
+    min-height: 100vh;
+    background: #f7f7f5;
+}
+
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.main-navbar {
+    height: 72px;
+    padding: 0 6%;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e8e8e8;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    position: sticky;
+    top: 0;
+
+    z-index: 100;
+}
+
+.navbar-logo {
+    color: #111111;
+    text-decoration: none;
+
+    font-size: 21px;
+    font-weight: 800;
+    letter-spacing: -.5px;
+}
+
+.main-nav-links {
+    display: flex;
+    gap: 34px;
+}
+
+.main-nav-links a {
+    color: #666666;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.main-nav-links a:hover,
+.main-nav-links a.active {
+    color: #111111;
+}
+
+.navbar-logout {
+    color: #111111;
+    text-decoration: none;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+
+/* =========================================================
+   CONTAINER
+========================================================= */
+
+.roadmap-container {
+    width: min(1100px, 92%);
+
+    margin: 0 auto;
+
+    padding: 70px 0 100px;
+}
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.roadmap-header {
+    margin-bottom: 45px;
+}
+
+.eyebrow {
+    display: inline-block;
+
+    margin-bottom: 12px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #777777;
+}
+
+.roadmap-header h1 {
+    margin: 0 0 15px;
+
+    font-size: clamp(36px, 5vw, 56px);
+
+    line-height: 1.05;
+
+    letter-spacing: -2px;
+
+    color: #111111;
+}
+
+.roadmap-header p {
+    max-width: 680px;
+
+    margin: 0;
+
+    color: #666666;
+
+    font-size: 16px;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   SUMMARY
+========================================================= */
+
+.roadmap-summary {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 40px;
+
+    padding: 32px;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 18px;
+
+    margin-bottom: 60px;
+}
+
+.summary-label {
+    display: block;
+
+    font-size: 10px;
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    color: #888888;
+
+    margin-bottom: 8px;
+}
+
+.summary-career h2 {
+    margin: 0 0 8px;
+
+    font-size: 27px;
+
+    color: #111111;
+}
+
+.summary-career p {
+    margin: 0;
+
+    color: #777777;
+
+    font-size: 14px;
+}
+
+.summary-progress {
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+}
+
+.progress-top {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    margin-bottom: 12px;
+
+    font-size: 11px;
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: #777777;
+}
+
+.progress-top strong {
+    font-size: 22px;
+
+    color: #111111;
+}
+
+.roadmap-progress-bar {
+    width: 100%;
+
+    height: 8px;
+
+    background: #eeeeee;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.roadmap-progress-bar span {
+    display: block;
+
+    height: 100%;
+
+    background: #111111;
+
+    border-radius: 20px;
+
+    transition: width .3s ease;
+}
+
+.summary-progress small {
+    margin-top: 10px;
+
+    color: #888888;
+}
+
+
+/* =========================================================
+   SECTION
+========================================================= */
+
+.roadmap-section-header {
+    margin-bottom: 35px;
+}
+
+.roadmap-section-header h2 {
+    margin: 0 0 8px;
+
+    font-size: 30px;
+
+    letter-spacing: -1px;
+}
+
+.roadmap-section-header p {
+    margin: 0;
+
+    color: #777777;
+}
+
+
+/* =========================================================
+   TIMELINE
+========================================================= */
+
+.roadmap-timeline {
+    position: relative;
+}
+
+.roadmap-timeline::before {
+    content: "";
+
+    position: absolute;
+
+    left: 25px;
+
+    top: 28px;
+
+    bottom: 28px;
+
+    width: 2px;
+
+    background: #dddddd;
+}
+
+.roadmap-stage {
+    position: relative;
+
+    display: grid;
+
+    grid-template-columns: 52px 1fr;
+
+    gap: 25px;
+
+    margin-bottom: 38px;
+}
+
+
+/* =========================================================
+   MARKER
+========================================================= */
+
+.stage-marker {
+    width: 52px;
+    height: 52px;
+
+    border-radius: 50%;
+
+    background: #ffffff;
+
+    border: 2px solid #cccccc;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    font-weight: 800;
+
+    font-size: 14px;
+
+    color: #555555;
+
+    z-index: 2;
+}
+
+.roadmap-stage.current .stage-marker {
+    border-color: #111111;
+
+    color: #111111;
+}
+
+.roadmap-stage.completed .stage-marker {
+    background: #111111;
+
+    border-color: #111111;
+
+    color: #ffffff;
+}
+
+.roadmap-stage.locked .stage-marker {
+    background: #eeeeee;
+
+    border-color: #d5d5d5;
+
+    color: #999999;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   STAGE CONTENT
+========================================================= */
+
+.stage-content {
+    background: #ffffff;
+
+    border: 1px solid #e4e4e4;
+
+    border-radius: 18px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 4px 20px rgba(0,0,0,.025);
+
+    transition: .2s ease;
+}
+
+.roadmap-stage.current .stage-content {
+    border-color: #cfcfcf;
+
+    box-shadow:
+        0 8px 30px rgba(0,0,0,.06);
+}
+
+.roadmap-stage.locked .stage-content {
+    background: #f0f0ee;
+
+    border-color: #dddddd;
+
+    opacity: .72;
+}
+
+.roadmap-stage.completed .stage-content {
+    border-color: #d7d7d7;
+}
+
+
+/* =========================================================
+   STAGE TOP
+========================================================= */
+
+.stage-top {
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 12px;
+}
+
+.stage-category {
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 1.5px;
+
+    color: #777777;
+}
+
+.stage-status {
+    font-size: 11px;
+
+    font-weight: 700;
+
+    color: #999999;
+}
+
+.completed-status {
+    color: #111111;
+}
+
+.locked-status {
+    color: #888888;
+}
+
+
+/* =========================================================
+   TITLE
+========================================================= */
+
+.stage-content h2 {
+    margin: 0 0 12px;
+
+    font-size: 27px;
+
+    letter-spacing: -.8px;
+
+    color: #111111;
+}
+
+.stage-description {
+    margin: 0 0 25px;
+
+    color: #666666;
+
+    line-height: 1.7;
+}
+
+
+/* =========================================================
+   STAGE BOX
+========================================================= */
+
+.stage-box {
+    padding: 20px;
+
+    margin-top: 15px;
+
+    background: #f8f8f7;
+
+    border-radius: 12px;
+}
+
+.stage-box-title {
+    display: flex;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    text-transform: uppercase;
+
+    color: #555555;
+}
+
+.stage-box-title span {
+    color: #111111;
+}
+
+.stage-box p {
+    margin: 0;
+
+    font-size: 14px;
+
+    line-height: 1.7;
+
+    color: #555555;
+}
+
+
+/* =========================================================
+   TOPICS
+========================================================= */
+
+.topic-tags {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+}
+
+.topic-tags span {
+    padding: 7px 11px;
+
+    background: #ffffff;
+
+    border: 1px solid #e2e2e2;
+
+    border-radius: 7px;
+
+    font-size: 12px;
+
+    color: #555555;
+}
+
+
+/* =========================================================
+   LOCKED
+========================================================= */
+
+.locked-message {
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    padding: 20px;
+
+    margin-top: 20px;
+
+    background: #e5e5e3;
+
+    border: 1px solid #d7d7d5;
+
+    border-radius: 12px;
+}
+
+.locked-icon {
+    width: 42px;
+    height: 42px;
+
+    flex-shrink: 0;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #ffffff;
+
+    border-radius: 10px;
+
+    font-size: 18px;
+}
+
+.locked-message strong {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: #333333;
+}
+
+.locked-message p {
+    margin: 0;
+
+    font-size: 13px;
+
+    color: #777777;
+}
+
+
+/* =========================================================
+   READ STAGE
+========================================================= */
+
+.read-stage-box {
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 20px;
+
+    margin-top: 20px;
+
+    background: #111111;
+
+    border-radius: 12px;
+
+    color: #ffffff;
+}
+
+.read-stage-box strong {
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 15px;
+}
+
+.read-stage-box p {
+    margin: 0;
+
+    color: #bbbbbb;
+
+    font-size: 13px;
+}
+
+.read-stage-btn {
+    flex-shrink: 0;
+
+    border: none;
+
+    padding: 12px 18px;
+
+    border-radius: 8px;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.read-stage-btn:hover {
+    opacity: .9;
+}
+
+
+/* =========================================================
+   ACTIVITIES
+========================================================= */
+
+.activities-container {
+    background: #f8f8f7;
+}
+
+.activities-header {
+    display: flex;
+
+    align-items: flex-start;
+
+    justify-content: space-between;
+
+    gap: 20px;
+}
+
+.activities-header .stage-box-title {
+    margin-bottom: 5px;
+}
+
+.activities-subtitle {
+    margin: 0;
+
+    color: #888888;
+
+    font-size: 12px;
+}
+
+.activity-count {
+    flex-shrink: 0;
+
+    padding: 8px 12px;
+
+    background: #111111;
+
+    color: #ffffff;
+
+    border-radius: 8px;
+
+    font-size: 12px;
+
+    font-weight: 800;
+}
+
+
+/* =========================================================
+   ACTIVITY PROGRESS
+========================================================= */
+
+.activity-progress-container {
+    margin-top: 18px;
+
+    margin-bottom: 18px;
+}
+
+.activity-progress-bar {
+    width: 100%;
+
+    height: 6px;
+
+    background: #dededc;
+
+    border-radius: 20px;
+
+    overflow: hidden;
+}
+
+.activity-progress-bar span {
+    display: block;
+
+    height: 100%;
+
+    background: #111111;
+
+    border-radius: 20px;
+
+    transition: width .3s ease;
+}
+
+.activity-progress-container small {
+    display: block;
+
+    margin-top: 7px;
+
+    color: #888888;
+
+    font-size: 11px;
+}
+
+
+/* =========================================================
+   ACTIVITY LIST
+========================================================= */
+
+.activity-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+}
+
+.activity-form {
+    margin: 0;
+}
+
+.activity-item {
+    width: 100%;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 14px;
+
+    background: #ffffff;
+
+    border: 1px solid #e4e4e4;
+
+    border-radius: 10px;
+
+    text-align: left;
+
+    cursor: pointer;
+
+    transition: .15s ease;
+}
+
+.activity-item:hover {
+    border-color: #bdbdbd;
+
+    transform: translateX(2px);
+}
+
+.activity-item:disabled {
+    cursor: default;
+}
+
+.activity-item:disabled:hover {
+    transform: none;
+}
+
+.activity-checkbox {
+    width: 22px;
+    height: 22px;
+
+    flex-shrink: 0;
+
+    border: 2px solid #c7c7c7;
+
+    border-radius: 6px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 12px;
+
+    font-weight: 900;
+
+    color: #ffffff;
+}
+
+.activity-completed .activity-checkbox {
+    background: #111111;
+
+    border-color: #111111;
+}
+
+.activity-number {
+    width: 24px;
+
+    flex-shrink: 0;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    color: #999999;
+}
+
+.activity-text {
+    font-size: 13px;
+
+    line-height: 1.5;
+
+    color: #444444;
+}
+
+.activity-completed .activity-text {
+    color: #888888;
+
+    text-decoration: line-through;
+}
+
+
+/* =========================================================
+   OUTPUT
+========================================================= */
+
+.output-box {
+    background: #f5f5f4;
+}
+
+
+/* =========================================================
+   RESOURCES
+========================================================= */
+
+.resource-list {
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 9px;
+}
+
+.resource-item {
+    display: flex;
+
+    gap: 8px;
+
+    font-size: 13px;
+
+    color: #555555;
+}
+
+.resource-dot {
+    font-weight: 900;
+
+    color: #111111;
+}
+
+
+/* =========================================================
+   COMPLETED MESSAGE
+========================================================= */
+
+.stage-complete-message {
+    display: flex;
+
+    align-items: center;
+
+    gap: 14px;
+
+    margin-top: 20px;
+
+    padding: 18px;
+
+    background: #111111;
+
+    color: #ffffff;
+
+    border-radius: 12px;
+}
+
+.stage-complete-message > span {
+    width: 34px;
+    height: 34px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    background: #ffffff;
+
+    color: #111111;
+
+    border-radius: 50%;
+
+    font-weight: 900;
+}
+
+.stage-complete-message strong {
+    display: block;
+
+    margin-bottom: 3px;
+}
+
+.stage-complete-message p {
+    margin: 0;
+
+    color: #aaaaaa;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   HINT
+========================================================= */
+
+.stage-hint {
+    margin-top: 18px;
+
+    padding: 13px 15px;
+
+    border-left: 3px solid #111111;
+
+    background: #f5f5f4;
+
+    color: #777777;
+
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   EMPTY
+========================================================= */
+
+.roadmap-empty {
+    padding: 70px 30px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px solid #e5e5e5;
+
+    border-radius: 18px;
+}
+
+.empty-icon {
+    width: 50px;
+    height: 50px;
+
+    margin: 0 auto 20px;
+
+    border-radius: 50%;
+
+    background: #111111;
+
+    color: #ffffff;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 25px;
+}
+
+.roadmap-empty h2 {
+    margin-bottom: 10px;
+}
+
+.roadmap-empty p {
+    max-width: 500px;
+
+    margin: 0 auto 25px;
+
+    color: #777777;
+}
+
+.roadmap-primary-btn {
+    display: inline-block;
+
+    padding: 13px 20px;
+
+    border-radius: 9px;
+
+    background: #111111;
+
+    color: #ffffff;
+
+    text-decoration: none;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 768px) {
+
+    .main-navbar {
+        padding: 0 20px;
+    }
+
+    .main-nav-links {
+        gap: 12px;
+    }
+
+    .main-nav-links a {
+        font-size: 12px;
+    }
+
+    .navbar-logout {
+        display: none;
+    }
+
+    .roadmap-container {
+        padding-top: 45px;
+    }
+
+    .roadmap-summary {
+        grid-template-columns: 1fr;
+
+        gap: 25px;
+    }
+
+    .roadmap-stage {
+        grid-template-columns: 38px 1fr;
+
+        gap: 15px;
+    }
+
+    .roadmap-timeline::before {
+        left: 18px;
+    }
+
+    .stage-marker {
+        width: 38px;
+        height: 38px;
+
+        font-size: 12px;
+    }
+
+    .stage-content {
+        padding: 20px;
+    }
+
+    .stage-content h2 {
+        font-size: 22px;
+    }
+
+    .stage-top {
+        align-items: flex-start;
+
+        gap: 10px;
+    }
+
+    .read-stage-box {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .read-stage-btn {
+        width: 100%;
+    }
+
+    .activities-header {
+        flex-direction: column;
+    }
+
+    .activity-count {
+        align-self: flex-start;
+    }
+
+}
+
+.ai-why-box {
+    margin: 18px 0;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: rgba(99,102,241,.07);
+    border: 1px solid rgba(99,102,241,.14);
+}
+.ai-why-box p { margin: 6px 0 0; }
+.roadmap-source-badge { display: inline-block; margin-top: 10px; font-weight: 600; }
+
+/* =========================================================
+   COMPLETION UI
+========================================================= */
+.activity-item.activity-completed { background: #f0fdf4; border-color: #bbf7d0; cursor: default; }
+.activity-item.activity-completed:hover { border-color: #bbf7d0; transform: none; }
+.activity-item.activity-completed .activity-checkbox { background: #16a34a; border-color: #16a34a; }
+.activity-item.activity-completed .activity-text { color: #64748b; text-decoration: line-through; }
+.activity-item:disabled { opacity: 1; }
+.learn-activity-btn { min-height: 46px; border: 1px solid #bfdbfe; background: #eff6ff; color: #1d4ed8; }
+.learn-activity-btn:hover { background: #dbeafe; border-color: #93c5fd; }
+.mark-learned-btn { width: 100%; min-height: 48px; border: 0; border-radius: 10px; background: #2563eb; color: #fff; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s ease, transform .2s ease; }
+.mark-learned-btn:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-1px); }
+.mark-learned-btn:disabled { background: #94a3b8; cursor: default; }
+.mark-learned-btn.is-saving { background: #94a3b8; }
+.mark-learned-btn.learned { background: #16a34a; }
+.lesson-complete-action { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+.lesson-modal-content { border: 1px solid #dbe5f1; }

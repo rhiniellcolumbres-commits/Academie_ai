@@ -1,0 +1,37 @@
+/* Profile overview */
+.profile-page { max-width: 1120px; }
+.profile-overview { display:flex; align-items:center; gap:1.15rem; padding:clamp(1.1rem, 2.5vw, 1.6rem); }
+.profile-avatar { display:flex; flex:0 0 72px; width:72px; height:72px; align-items:center; justify-content:center; border-radius:22px; background:linear-gradient(135deg,#dbeafe,#ccfbf1); color:#1e3a8a; font-size:1.45rem; font-weight:800; letter-spacing:.04em; }
+.profile-overview-main { min-width:0; flex:1; }
+.profile-name-row { display:flex; align-items:center; flex-wrap:wrap; gap:.55rem; margin:.15rem 0 .25rem; }
+.profile-overview-main h2 { margin:0; color:#101828; font-size:1.35rem; font-weight:800; overflow-wrap:anywhere; }
+.profile-learning-track { display:inline-flex; align-items:center; max-width:100%; padding:.3rem .65rem; border:1px solid #bfdbfe; border-radius:999px; background:#eff6ff; color:#1d4ed8; font-size:.76rem; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
+.profile-overview-main p { margin:0 0 .25rem; color:#667085; overflow-wrap:anywhere; }
+.profile-member-since { color:#98a2b3; font-size:.78rem; }
+
+/* Achievements */
+.achievements-panel { padding:clamp(1.1rem, 2.5vw, 1.7rem); }
+.achievements-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.35rem; }
+.achievement-count { min-width:76px; padding:.65rem .8rem; border:1px solid #dbe5f0; border-radius:14px; background:#f8fafc; text-align:center; }
+.achievement-count strong { display:block; font-size:1.55rem; line-height:1.2; color:#172b4d; }
+.achievement-count span { display:block; margin-top:.2rem; color:#64748b; font-size:.75rem; }
+.achievement-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.9rem; }
+.achievement-card { display:flex; align-items:flex-start; gap:.9rem; padding:1rem; border:1px solid #dbece2; border-radius:14px; background:linear-gradient(135deg,#f7fff9,#fff); }
+.achievement-icon { display:flex; flex:0 0 46px; align-items:center; justify-content:center; width:46px; height:46px; border-radius:13px; background:#e8f7ed; font-size:1.45rem; }
+.achievement-card h3,.achievements-empty h3 { margin:0 0 .3rem; color:#182230; font-size:1rem; font-weight:700; }
+.achievement-card p,.achievements-empty p { margin:0 0 .45rem; color:#667085; font-size:.875rem; line-height:1.5; }
+.achievement-status { color:#15803d; font-size:.76rem; font-weight:700; }
+.achievements-empty { display:flex; align-items:flex-start; gap:1rem; padding:1.2rem; border:1px dashed #cbd5e1; border-radius:14px; background:#fafcff; }
+.achievements-empty .achievement-icon { background:#edf2ff; }
+.achievement-roadmap { display:block; margin:.2rem 0 .45rem; color:#667085; font-size:.76rem; overflow-wrap:anywhere; }
+.achievement-note { margin:1rem 0 0; color:#667085; font-size:.78rem; line-height:1.5; }
+
+@media (max-width:700px) {
+    .achievement-grid { grid-template-columns:1fr; }
+    .achievements-heading { align-items:flex-start; }
+}
+@media (max-width:480px) {
+    .profile-overview { align-items:flex-start; gap:.9rem; }
+    .profile-avatar { flex-basis:56px; width:56px; height:56px; border-radius:17px; }
+    .profile-overview-main { flex-basis:calc(100% - 80px); }
+}

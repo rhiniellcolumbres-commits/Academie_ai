@@ -1,0 +1,34 @@
+<?php
+// Shared footer for public and authenticated pages.
+// Build links from the project root so they also work on nested pages (for example admin/index.php).
+$scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+$scriptDirectory = rtrim($scriptDirectory, '/');
+if (basename($scriptDirectory) === 'admin') {
+    $scriptDirectory = rtrim(dirname($scriptDirectory), '/');
+}
+$appBaseUrl = ($scriptDirectory === '' || $scriptDirectory === '.') ? '' : $scriptDirectory;
+?>
+<footer class="site-footer">
+    <div class="site-footer-inner">
+        <aside class="site-disclaimer" aria-label="Academic project disclaimer">
+            <strong>Disclaimer:</strong>
+            StudyPath AI is developed for demonstration and academic purposes as part of a student project.
+            It is not an official educational institution or professional advisory service.
+            AI-generated learning paths and study materials are provided for educational guidance only and may require verification.
+        </aside>
+
+        <nav class="site-footer-links" aria-label="Footer navigation">
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/privacy-policy.php">Privacy Policy</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/terms.php">Terms</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/moderation.php">Moderation</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/copyright.php">Copyright</a>
+        </nav>
+
+        <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/js/main.js"></script>
+</body>
+</html>

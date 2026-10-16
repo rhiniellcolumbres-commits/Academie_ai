@@ -1,0 +1,5 @@
+# Secrets and per-machine settings: never commit these
+/config/gemini.local.php
+/config/database.local.php
+.env
+*.log
