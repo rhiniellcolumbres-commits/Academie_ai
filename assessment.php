@@ -8,7 +8,7 @@ $user = getUserById($pdo, $_SESSION['user_id']);
 
 if (!$user) {
     session_destroy();
-    header('Location: index.php');
+    header('Location: ./');
     exit;
 }
 
@@ -31,7 +31,7 @@ $isRetake = isset($_GET['retake']) && $_GET['retake'] === '1';
 
 // Students with an existing roadmap must intentionally choose to retake the assessment.
 if ($hasExistingRoadmap && !$isRetake) {
-    redirect('dashboard.php?notice=assessment_exists');
+    redirect('dashboard?notice=assessment_exists');
 }
 
 // Do not show the retake warning if the student has no roadmap to replace.
@@ -517,7 +517,7 @@ if (!$hasExistingRoadmap) {
             <div class="assessment-actions">
 
                 <a
-                    href="<?= $isRetake ? 'dashboard.php' : 'index.php' ?>"
+                    href="<?= $isRetake ? 'dashboard' : './' ?>"
                     class="assessment-back"
                 >
                     ← Back
@@ -540,6 +540,7 @@ if (!$hasExistingRoadmap) {
 
     <script>
 
+    // Attach client-side validation after the assessment form is in the page.
     document.addEventListener('DOMContentLoaded', function () {
 
         const form = document.getElementById('assessmentForm');
@@ -548,6 +549,7 @@ if (!$hasExistingRoadmap) {
             return;
         }
 
+        // Prevent submission when any required answer is missing.
         form.addEventListener('submit', function (event) {
 
             const level = form.querySelector(
@@ -559,6 +561,7 @@ if (!$hasExistingRoadmap) {
             );
 
             const requiredQuestions = ['q_interest', 'q_activity', 'q_strength', 'q_interest_area', 'q_goal'];
+            // Check each required question for a selected radio answer.
             const allAnswered = requiredQuestions.every(function (name) {
                 return form.querySelector('input[name="' + name + '"]:checked');
             });

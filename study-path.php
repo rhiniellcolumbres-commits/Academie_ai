@@ -7,7 +7,7 @@ require_once __DIR__ . '/includes/functions.php';
 $user = getUserById($pdo, $_SESSION['user_id']);
 
 if (!$user) {
-    redirect('index.php');
+    redirect('./');
 }
 $assessmentStmt = $pdo->prepare(
     'SELECT *
@@ -79,6 +79,7 @@ $topic['_progress'] = $progress;
     $topic['_activity_completed'] = count(
         array_filter(
             $topic['_progress'],
+            // Treat numeric 1 as a completed activity flag.
             fn($value) => (int)$value === 1
         )
     );
@@ -141,7 +142,7 @@ if ($selectedStage !== null) {
     }
 
     if (!$selectedTopic || !$selectedTopic['_is_unlocked']) {
-        redirect('study-path.php');
+        redirect('roadmap');
     }
 }
 
@@ -212,7 +213,7 @@ require_once __DIR__ . '/includes/header.php';
                 </p>
 
                 <a
-                    href="assessment.php"
+                    href="assessment"
                     class="roadmap-primary-btn"
                 >
                     Take Assessment →
@@ -261,7 +262,7 @@ require_once __DIR__ . '/includes/header.php';
 
                     <div class="mt-3">
                         <a
-                            href="assessment.php?retake=1"
+                            href="assessment?retake=1"
                             class="assessment-retake-link"
                             onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');"
                         >
@@ -365,7 +366,7 @@ require_once __DIR__ . '/includes/header.php';
                                         <p class="stage-hint"><strong>Achievement:</strong> <?= e($topic['expected_output']) ?></p>
                                     <?php endif; ?>
                                     <?php if ($isUnlocked): ?>
-                                        <a href="study-path.php?stage=<?= $stageNumber ?>" class="read-stage-btn">
+                                        <a href="roadmap?stage=<?= $stageNumber ?>" class="read-stage-btn">
                                             <?= $isCompleted ? 'Review Stage →' : 'Open Stage →' ?>
                                         </a>
                                     <?php else: ?>
@@ -381,7 +382,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <!-- SINGLE STAGE VIEW -->
                 <div style="margin-bottom: 18px;">
-                    <a href="study-path.php" class="read-stage-btn">← Back to Roadmap</a>
+                    <a href="roadmap" class="read-stage-btn">← Back to Roadmap</a>
                 </div>
 
                 <div class="roadmap-timeline">
@@ -1059,7 +1060,7 @@ require_once __DIR__ . '/includes/header.php';
                         <?php foreach ($topics as $nextTopic): ?>
                             <?php if ((int)$nextTopic['order_number'] === $nextStage): ?>
                                 <div style="margin-top: 24px;">
-                                    <a href="study-path.php?stage=<?= $nextStage ?>" class="read-stage-btn">
+                                    <a href="roadmap?stage=<?= $nextStage ?>" class="read-stage-btn">
                                         Next: Stage <?= $nextStage ?> →
                                     </a>
                                 </div>
@@ -1224,6 +1225,7 @@ require_once __DIR__ . '/includes/header.php';
 
 <script>
 
+// Fetch and display the AI lesson for the selected activity in the lesson modal.
 async function openLesson(topicId, activityIndex, activity) {
     const modal = document.getElementById('lessonModal');
     const loading = document.getElementById('lessonLoading');
@@ -1236,6 +1238,7 @@ async function openLesson(topicId, activityIndex, activity) {
 
     let alreadyLearned = false;
 
+    // Find out whether this activity is already marked learned before showing the button.
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');
         const formActivityIndex = form.querySelector('input[name="activity_index"]');
@@ -1300,6 +1303,7 @@ async function openLesson(topicId, activityIndex, activity) {
         const checklist = document.getElementById('lessonChecklist');
         checklist.innerHTML = '';
 
+        // Render checklist entries as text so returned content is not treated as HTML.
         (Array.isArray(data.checklist) ? data.checklist : []).forEach(function (item) {
             const li = document.createElement('li');
             li.textContent = item;
@@ -1309,6 +1313,7 @@ async function openLesson(topicId, activityIndex, activity) {
         const resources = document.getElementById('lessonResources');
         resources.innerHTML = '';
 
+        // Render resource names as a list beneath the lesson.
         (Array.isArray(data.resources) ? data.resources : []).forEach(function (item) {
             const li = document.createElement('li');
             li.textContent = item;
@@ -1324,6 +1329,7 @@ async function openLesson(topicId, activityIndex, activity) {
     }
 }
 
+// Save the current lesson's completion and update the modal button's state.
 async function markLessonAsLearned() {
     const button = document.getElementById('markLearnedBtn');
     const topicId = button.dataset.topicId;
@@ -1364,6 +1370,7 @@ async function markLessonAsLearned() {
         button.disabled = true;
 
         if (data.completed) {
+            // Reload after a short pause so the student can see the completion state.
             setTimeout(function () {
                 window.location.reload();
             }, 500);
@@ -1376,7 +1383,9 @@ async function markLessonAsLearned() {
     }
 }
 
+// Refresh activity checkmarks and progress indicators for one roadmap stage.
 function updateActivityUI(progress, topicId) {
+    // Update each activity button that belongs to the stage just saved.
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');
         const formActivityIndex = form.querySelector('input[name="activity_index"]');
@@ -1405,6 +1414,7 @@ function updateActivityUI(progress, topicId) {
         return;
     }
 
+    // Count completed activities to calculate the progress percentage.
     const completedCount = progress.filter(function (value) {
         return Number(value) === 1;
     }).length;
@@ -1429,12 +1439,15 @@ function updateActivityUI(progress, topicId) {
     }
 }
 
+// Hide the lesson dialog when the student closes it.
 function closeLesson() {
     document.getElementById('lessonModal').style.display = 'none';
 }
 
+// Attach save handlers once activity forms are available in the page.
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.activity-form').forEach(function (form) {
+        // Submit progress in the background so the page does not navigate away.
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -1478,6 +1491,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
 
                 if (data.completed) {
+                    // Reload shortly after the final activity is saved.
                     setTimeout(function () {
                         window.location.reload();
                     }, 500);

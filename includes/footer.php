@@ -18,10 +18,10 @@ $appBaseUrl = ($scriptDirectory === '' || $scriptDirectory === '.') ? '' : $scri
         </aside>
 
         <nav class="site-footer-links" aria-label="Footer navigation">
-            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/privacy-policy.php">Privacy Policy</a>
-            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/terms.php">Terms</a>
-            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/moderation.php">Moderation</a>
-            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/copyright.php">Copyright</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/privacy">Privacy Policy</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/terms">Terms</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/moderation">Moderation</a>
+            <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/copyright">Copyright</a>
         </nav>
 
         <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
@@ -29,6 +29,5 @@ $appBaseUrl = ($scriptDirectory === '' || $scriptDirectory === '.') ? '' : $scri
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/js/main.js"></script>
 </body>
 </html>

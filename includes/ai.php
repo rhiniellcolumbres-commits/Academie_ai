@@ -8,6 +8,7 @@ require_once __DIR__ . '/../config/gemini.php';
 |--------------------------------------------------------------------------
 */
 
+/** Describe the JSON fields Gemini must return for a personalized roadmap. */
 function ai_roadmap_schema()
 {
     return [
@@ -77,6 +78,7 @@ function ai_roadmap_schema()
 
 //ROADMAP
 
+/** Combine the student's profile with instructions for generating roadmap stages. */
 function ai_build_roadmap_prompt($user)
 {
     $level = trim((string)($user['current_level'] ?? 'Beginner'));
@@ -131,6 +133,7 @@ Rules:
 |--------------------------------------------------------------------------
 */
 
+/** Send a prompt to Gemini, optionally enforce a JSON schema, and normalize errors. */
 function gemini_interaction_request($prompt, $schema = null)
 {
     if (!gemini_is_configured()) {
@@ -290,6 +293,7 @@ if ($text === '' && !empty($response['steps'])) {
  Generate Personalized Roadmap
 */
 
+/** Ask Gemini for a roadmap, validate its shape, and normalize usable stages. */
 function ai_generate_roadmap($user)
 {
     $result = gemini_interaction_request(
@@ -421,6 +425,7 @@ function ai_generate_roadmap($user)
 }
 
 
+/** Generate and validate a lesson for one roadmap activity using the learner profile. */
 function ai_activity_lesson($user, $topic, $activity)
 {
     $schema = [
@@ -497,10 +502,12 @@ function ai_activity_lesson($user, $topic, $activity)
     $example = trim((string)($data['example'] ?? ''));
     $practice = trim((string)($data['practice'] ?? ''));
     $checklist = array_values(array_filter(array_map(
+        // Convert checklist entries to clean strings before returning them to the page.
         static fn($item) => trim((string)$item),
         is_array($data['checklist'] ?? null) ? $data['checklist'] : []
     )));
     $resources = array_values(array_filter(array_map(
+        // Normalize resource names the same way as the checklist entries.
         static fn($item) => trim((string)$item),
         is_array($data['resources'] ?? null) ? $data['resources'] : []
     )));

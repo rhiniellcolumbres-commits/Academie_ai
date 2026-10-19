@@ -1,7 +1,7 @@
 <?php
 session_start();
 if (!empty($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: dashboard');
     exit;
 }
 $error = $_SESSION['auth_error'] ?? '';
@@ -23,8 +23,8 @@ if (empty($_SESSION['csrf_token'])) {
 </head>
 <body class="auth-page">
 <header class="auth-topbar">
-    <a class="auth-brand" href="index.php" aria-label="Acadamie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span></a>
-    <a href="register.php" class="btn btn-outline-primary">Create account</a>
+    <a class="auth-brand" href="./" aria-label="Acadamie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span></a>
+    <a href="register" class="btn btn-outline-primary">Create account</a>
 </header>
 <main class="auth-main"><div class="auth-card">
     <span class="auth-eyebrow">WELCOME BACK</span>
@@ -47,7 +47,7 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
         <button class="btn btn-primary w-100 auth-submit" type="submit">Log in</button>
     </form>
-    <p class="auth-alt">Don't have an account? <a href="register.php">Register here</a></p>
+    <p class="auth-alt">Don't have an account? <a href="register">Register here</a></p>
 </div></main>
 <footer class="site-footer">
     <div class="site-footer-inner">
@@ -58,10 +58,10 @@ if (empty($_SESSION['csrf_token'])) {
             AI-generated learning paths and study materials are provided for educational guidance only and may require verification.
         </aside>
         <nav class="site-footer-links" aria-label="Footer navigation">
-            <a href="privacy-policy.php">Privacy Policy</a>
-            <a href="terms.php">Terms</a>
-            <a href="moderation.php">Moderation</a>
-            <a href="copyright.php">Copyright</a>
+            <a href="privacy">Privacy Policy</a>
+            <a href="terms">Terms</a>
+            <a href="moderation">Moderation</a>
+            <a href="copyright">Copyright</a>
         </nav>
         <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
     </div>
@@ -69,7 +69,9 @@ if (empty($_SESSION['csrf_token'])) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Eye icon toggles between showing and hiding the password.
+// Attach password visibility controls to every password field on the page.
 document.querySelectorAll('.toggle-password').forEach(function (button) {
+    // Switch the associated password input between hidden and readable text.
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);
         var show = input.type === 'password';

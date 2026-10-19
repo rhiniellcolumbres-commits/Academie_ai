@@ -9,7 +9,7 @@ $sessionExpired = $lastActivity > 0 && (time() - $lastActivity) > 1800;
 
 if (!$adminId || $sessionExpired) {
     unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_last_activity'], $_SESSION['admin_csrf_token']);
-    header('Location: login.php?expired=1');
+    header('Location: login?expired=1');
     exit;
 }
 
@@ -19,7 +19,7 @@ $check->execute([(int) $adminId]);
 $admin = $check->fetch(PDO::FETCH_ASSOC);
 if (!$admin) {
     unset($_SESSION['admin_id'], $_SESSION['admin_username'], $_SESSION['admin_last_activity'], $_SESSION['admin_csrf_token']);
-    header('Location: login.php');
+    header('Location: login');
     exit;
 }
 

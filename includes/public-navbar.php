@@ -12,15 +12,14 @@ if ($basePath === '/') {
     $basePath = '';
 }
 
-$dashboardUrl = $basePath . '/dashboard.php';
-$profileUrl = $basePath . '/profile.php';
-$loginUrl = $basePath . '/login.php';
-$registerUrl = $basePath . '/register.php';
+$dashboardUrl = $basePath . '/dashboard';
+$loginUrl = $basePath . '/login';
+$registerUrl = $basePath . '/register';
 $logoutUrl = $basePath . '/actions/logout.php';
 ?>
 <nav class="public-navbar" aria-label="Main navigation">
     <div class="public-navbar-inner">
-        <a href="<?= htmlspecialchars($basePath . '/index.php', ENT_QUOTES, 'UTF-8') ?>" class="public-brand" aria-label="StudyPath AI home">
+        <a href="<?= htmlspecialchars($basePath . '/', ENT_QUOTES, 'UTF-8') ?>" class="public-brand" aria-label="StudyPath AI home">
             <span class="public-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
             <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span>
         </a>
@@ -41,10 +40,12 @@ $logoutUrl = $basePath . '/actions/logout.php';
     </div>
 </nav>
 <script>
+// Find the mobile navigation controls after the navbar markup has loaded.
 document.addEventListener('DOMContentLoaded', function () {
     var toggle = document.querySelector('.public-nav-toggle');
     var links = document.getElementById('publicNavLinks');
     if (toggle && links) {
+        // Toggle the expanded mobile navigation when the menu button is clicked.
         toggle.addEventListener('click', function () {
             var expanded = toggle.getAttribute('aria-expanded') === 'true';
             toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');

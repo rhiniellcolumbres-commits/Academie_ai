@@ -6,7 +6,7 @@ require_once __DIR__ . '/includes/public-navbar.php';
 <?php
 // Use a reliable destination instead of browser history, which may be empty
 // when the policy page is opened directly or in a new tab.
-$backUrl = !empty($_SESSION['user_id']) ? 'dashboard.php' : 'index.php';
+$backUrl = !empty($_SESSION['user_id']) ? 'dashboard' : './';
 ?>
 <div class="legal-back-wrap">
     <a class="legal-back-button" href="<?= e($backUrl) ?>">

@@ -26,12 +26,33 @@
 .achievement-roadmap { display:block; margin:.2rem 0 .45rem; color:#667085; font-size:.76rem; overflow-wrap:anywhere; }
 .achievement-note { margin:1rem 0 0; color:#667085; font-size:.78rem; line-height:1.5; }
 
+/* Assessment details and saved roadmap progress shown on the profile page. */
+.learning-profile-panel,
+.roadmap-progress-panel { padding:clamp(1.1rem, 2.5vw, 1.7rem); }
+.profile-section-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.25rem; }
+.learning-details-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; margin:0; }
+.learning-detail { min-width:0; padding:.9rem 1rem; border:1px solid #e4eaf2; border-radius:12px; background:#f9fbfe; }
+.learning-detail dt { margin-bottom:.3rem; color:#667085; font-size:.76rem; font-weight:700; }
+.learning-detail dd { margin:0; color:#182230; font-size:.92rem; font-weight:600; overflow-wrap:anywhere; }
+.profile-progress-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.8rem; }
+.profile-progress-stats > div { display:flex; flex-direction:column; gap:.25rem; padding:.85rem 1rem; border:1px solid #e4eaf2; border-radius:12px; background:#f9fbfe; }
+.profile-progress-stats strong { color:#172b4d; font-size:1.15rem; }
+.profile-progress-stats span { color:#667085; font-size:.78rem; }
+.profile-progress-track { height:10px; margin-top:1rem; overflow:hidden; border-radius:999px; background:#e8eef6; }
+.profile-progress-track span { display:block; height:100%; border-radius:inherit; background:linear-gradient(90deg,#2563eb,#38bdf8); transition:width .25s ease; }
+.profile-no-roadmap { margin:0; }
+
 @media (max-width:700px) {
     .achievement-grid { grid-template-columns:1fr; }
     .achievements-heading { align-items:flex-start; }
+    .learning-details-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .profile-progress-stats { grid-template-columns:1fr; }
+    .profile-section-heading { align-items:flex-start; }
 }
 @media (max-width:480px) {
     .profile-overview { align-items:flex-start; gap:.9rem; }
     .profile-avatar { flex-basis:56px; width:56px; height:56px; border-radius:17px; }
     .profile-overview-main { flex-basis:calc(100% - 80px); }
+    .learning-details-grid { grid-template-columns:1fr; }
+    .profile-section-heading { flex-direction:column; }
 }

@@ -6,11 +6,13 @@ require_once __DIR__ . '/ai.php';
        Basic Helper Functions
 */
 
+/** Escape a value for safe display inside HTML text or an attribute. */
 function e($value)
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
+/** Stop the request unless the browser submitted it with the POST method. */
 function require_post()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -19,18 +21,19 @@ function require_post()
     }
 }
 
+/** Send the browser to another URL and stop running the current page. */
 function redirect($location)
 {
     header('Location: ' . $location);
     exit;
 }
 
+/** Load one user's account and assessment details from the database. */
 function getUserById($pdo, $userId)
 {
     $stmt = $pdo->prepare(
         'SELECT
             u.*,
-            a.course,
             a.career_goal,
             a.current_level,
             a.improvement_goal,
@@ -48,6 +51,7 @@ function getUserById($pdo, $userId)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+/** Trim a string and cap its length before it is stored or used. */
 function clean_text($value, $maxLength = 255)
 {
     if (!is_string($value)) {
@@ -63,6 +67,7 @@ function clean_text($value, $maxLength = 255)
     return $value;
 }
 
+/** Turn a comma-separated string into a trimmed list with empty items removed. */
 function split_list($value)
 {
     if (!is_string($value) || trim($value) === '') {
@@ -81,6 +86,7 @@ function split_list($value)
     Activity Helper
 */
 
+/** Normalize activity data from either a PHP array, JSON string, or plain string. */
 function getActivities($activity)
 {
     if (is_array($activity)) {
@@ -88,6 +94,7 @@ function getActivities($activity)
         return array_values(
             array_filter(
                 $activity,
+                // Keep only usable string activities from an already-decoded array.
                 function ($item) {
                     return is_string($item)
                         && trim($item) !== '';
@@ -110,6 +117,7 @@ function getActivities($activity)
         return array_values(
             array_filter(
                 $decoded,
+                // Apply the same validation after decoding activities stored as JSON.
                 function ($item) {
                     return is_string($item)
                         && trim($item) !== '';
@@ -131,6 +139,7 @@ function getActivities($activity)
 | both use this, so the counting code only exists in one place.
 */
 
+/** Count roadmap stages and activities, returning totals for progress displays. */
 function getRoadmapProgress(array $topics)
 {
     $progress = [
@@ -175,6 +184,7 @@ function getRoadmapProgress(array $topics)
 | getUserAchievements() returns every saved badge for the profile page.
 */
 
+/** Return the fixed badge definitions used when awarding and displaying achievements. */
 function getAchievementCatalog()
 {
     return [
@@ -186,6 +196,7 @@ function getAchievementCatalog()
     ];
 }
 
+/** Save any badges earned from the supplied progress without duplicating existing ones. */
 function syncAchievements($pdo, $userId, array $progress)
 {
     // Work out which badges the current progress qualifies for.
@@ -236,6 +247,7 @@ function syncAchievements($pdo, $userId, array $progress)
     }
 }
 
+/** Fetch a user's saved badges, newest first, for display on their profile. */
 function getUserAchievements($pdo, $userId)
 {
     $stmt = $pdo->prepare(
@@ -254,6 +266,7 @@ function getUserAchievements($pdo, $userId)
      Roadmap Stage Helper
 */
 
+/** Package one fallback roadmap stage into the structure used by the app. */
 function roadmap_stage(
     $category,
     $title,
@@ -281,6 +294,7 @@ function roadmap_stage(
 |--------------------------------------------------------------------------
 */
 
+/** Build a predefined roadmap for the student's career goal when AI is unavailable. */
 function generate_study_topics($user)
 {
     $career = trim(
@@ -1316,6 +1330,7 @@ function generate_study_topics($user)
 |
 */
 
+/** Generate or retrieve roadmap stages and persist them for this student. */
 function save_generated_topics($pdo, $userId, $user)
 {
     $aiResult = ai_generate_roadmap($user); 
@@ -1431,6 +1446,7 @@ function save_generated_topics($pdo, $userId, $user)
 |--------------------------------------------------------------------------
 */
 
+/** Fetch the saved roadmap stages and progress belonging to one student. */
 function getStudyTopics($pdo, $userId)
 {
     $stmt = $pdo->prepare(

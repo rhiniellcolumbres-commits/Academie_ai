@@ -3,7 +3,7 @@ session_start();
 
 // Logged-in students go straight to their dashboard; visitors see the landing page.
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: dashboard');
     exit;
 }
 ?>
@@ -36,10 +36,10 @@ if (isset($_SESSION['user_id'])) {
             <div>
                 <span class="eyebrow">AI-POWERED STUDENT ROADMAP</span>
                 <h1 class="hero-title">Build your own <span>learning path.</span></h1>
-                <p class="hero-description"><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span> analyzes your skills, interests, course, and career goals to create a personalized roadmap that helps you know what to learn next.</p>
+                <p class="hero-description"><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span> analyzes your skills, interests, and career goals to create a personalized roadmap that helps you know what to learn next.</p>
                 <div class="hero-actions">
-                    <a href="register.php" class="btn btn-primary btn-lg hero-btn-primary"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Get started free</a>
-                    <a href="login.php" class="btn btn-outline-primary btn-lg hero-btn-secondary">I already have an account</a>
+                    <a href="register" class="btn btn-primary btn-lg hero-btn-primary"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Get started free</a>
+                    <a href="login" class="btn btn-outline-primary btn-lg hero-btn-secondary">I already have an account</a>
                 </div>
                 <ul class="hero-points">
                     <li><i class="bi bi-check-circle-fill" aria-hidden="true"></i>IT Career assessment</li>
@@ -111,8 +111,8 @@ if (isset($_SESSION['user_id'])) {
                     </h4>
 
                     <p>
-                        Tell us about your course, career goal,
-                        interests, and current skills.
+                        Tell us about your career goal, interests,
+                        and current skills.
                     </p>
 
                 </div>
@@ -183,7 +183,7 @@ if (isset($_SESSION['user_id'])) {
             <div class="track-card"><span class="track-icon"><i class="bi bi-palette" aria-hidden="true"></i></span><h5>UI/UX Design</h5><p>Research, wireframing and designing experiences people enjoy using.</p></div>
             <div class="track-card"><span class="track-icon"><i class="bi bi-cpu" aria-hidden="true"></i></span><h5>AI &amp; Machine Learning</h5><p>Data, models and the foundations of building intelligent systems.</p></div>
             <div class="track-card"><span class="track-icon"><i class="bi bi-controller" aria-hidden="true"></i></span><h5>Game Development</h5><p>Game logic, engines and design to bring your own game ideas to life.</p></div>
-            <div class="track-card track-card-cta"><h5>Not sure yet?</h5><p>The assessment helps you discover which track matches your interests.</p><a href="register.php">Take the assessment <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
+            <div class="track-card track-card-cta"><h5>Not sure yet?</h5><p>The assessment helps you discover which track matches your interests.</p><a href="register">Take the assessment <i class="bi bi-arrow-right" aria-hidden="true"></i></a></div>
         </div>
     </div>
 </section>
@@ -195,7 +195,7 @@ if (isset($_SESSION['user_id'])) {
                 <span class="eyebrow">WHY ACADAMIE</span>
                 <h2>Everything you need to keep learning, in one place.</h2>
                 <p>Stop guessing what to study next. Acadamie turns your goals into a clear plan and walks with you through every stage.</p>
-                <a href="register.php" class="btn btn-primary px-4">Create your account</a>
+                <a href="register" class="btn btn-primary px-4">Create your account</a>
             </div>
             <div class="benefit-list">
                 <div class="benefit-item"><span class="benefit-icon"><i class="bi bi-signpost-split" aria-hidden="true"></i></span><div><h5>A clear, staged roadmap</h5><p>Five stages from foundation to professional, each with topics, activities and an expected output.</p></div></div>
@@ -236,7 +236,7 @@ if (isset($_SESSION['user_id'])) {
         </p>
 
              <a
-    href="register.php"
+    href="register"
     class="btn btn-light btn-lg px-4"   
             >
                 Get Started

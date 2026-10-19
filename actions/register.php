@@ -2,14 +2,15 @@
 session_start();
 require_once __DIR__ . '/../includes/db.php';
 
+/** Store a registration error for the next page load and redirect to the form. */
 function register_error(string $message): void {
     $_SESSION['auth_error'] = $message;
-    header('Location: ../register.php');
+    header('Location: ../register');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../register.php');
+    header('Location: ../register');
     exit;
 }
 if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
@@ -26,8 +27,8 @@ if ($firstName === '' || strlen($firstName) > 200 || $lastName === '' || strlen(
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 120) {
     register_error('Enter a valid email address.');
 }
-if (strlen($password) < 8) {
-    register_error('Your password must contain at least 8 characters.');
+if (!preg_match('/^(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}$/', $password)) {
+    register_error('Your password must be at least 8 characters and include an uppercase letter, a number, and a special character.');
 }
 if ($password !== $confirmPassword) {
     register_error('The passwords do not match.');
@@ -48,5 +49,5 @@ try {
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int)$pdo->lastInsertId();
 unset($_SESSION['csrf_token'], $_SESSION['auth_error']);
-header('Location: ../dashboard.php');
+header('Location: ../dashboard');
 exit;

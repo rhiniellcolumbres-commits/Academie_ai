@@ -14,7 +14,7 @@ require_once __DIR__ . '/../includes/audit.php';
 */
 
 if (!isset($_SESSION['user_id'])) {
-    redirect('../index.php');
+    redirect('../');
 }
 
 require_post();
@@ -29,7 +29,7 @@ $hasExistingRoadmap = (bool) $existingRoadmapStmt->fetchColumn();
 
 // An existing roadmap can only be replaced through the intentional retake flow.
 if ($hasExistingRoadmap && ($_POST['retake_assessment'] ?? '') !== '1') {
-    redirect('../dashboard.php?notice=assessment_exists');
+    redirect('../dashboard?notice=assessment_exists');
 }
 
 /*
@@ -37,9 +37,6 @@ if ($hasExistingRoadmap && ($_POST['retake_assessment'] ?? '') !== '1') {
 | Get Assessment Data
 |--------------------------------------------------------------------------
 */
-
-$courseInput = clean_text($_POST['course'] ?? '', 150);
-$course = $courseInput !== '' ? $courseInput : null; // Optional legacy field; course is no longer required.
 
 $currentLevel = clean_text(
     $_POST['current_level'] ?? '',
@@ -68,13 +65,14 @@ $answers = [];
 foreach ($questionFields as $field) {
     $answer = clean_text($_POST[$field] ?? '', 20);
     if (!array_key_exists($answer, $specializations)) {
-        redirect('../assessment.php?error=invalid');
+        redirect('../assessment?error=invalid');
     }
     $scores[$answer]++;
     $answers[$field] = $answer;
 }
 arsort($scores);
 $topScore = reset($scores);
+// Keep only career scores tied with the highest assessment score.
 $topMatches = array_keys(array_filter($scores, function ($score) use ($topScore) {
     return $score === $topScore;
 }));
@@ -143,21 +141,21 @@ if (
     $careerGoal === ''
 ) {
 
-    redirect('../assessment.php?error=empty');
+    redirect('../assessment?error=empty');
 
 }
 
 
 if (!in_array($currentLevel, $allowedLevels, true)) {
 
-    redirect('../assessment.php?error=invalid');
+    redirect('../assessment?error=invalid');
 
 }
 
 
 if (!in_array($improvementGoal, $allowedGoals, true)) {
 
-    redirect('../assessment.php?error=invalid');
+    redirect('../assessment?error=invalid');
 
 }
 
@@ -186,8 +184,7 @@ if ($assessment) {
     // Assessment already exists
     $stmt = $pdo->prepare(
         'UPDATE assessments
-         SET course = ?,
-             current_level = ?,
+         SET current_level = ?,
              improvement_goal = ?,
              career_goal = ?,
              interests = ?,
@@ -197,7 +194,6 @@ if ($assessment) {
     );
 
     $stmt->execute([
-        $course,
         $currentLevel,
         $improvementGoal,
         $careerGoal,
@@ -214,7 +210,6 @@ if ($assessment) {
         'INSERT INTO assessments
         (
             user_id,
-            course,
             current_level,
             improvement_goal,
             career_goal,
@@ -222,12 +217,11 @@ if ($assessment) {
             skills,
             assessment_answers
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+        VALUES (?, ?, ?, ?, ?, ?, ?)'
     );
 
     $stmt->execute([
         $userId,
-        $course,
         $currentLevel,
         $improvementGoal,
         $careerGoal,
@@ -254,7 +248,7 @@ if (!$user) {
 
     session_destroy();
 
-    redirect('../index.php');
+    redirect('../');
 
 }
 
@@ -279,4 +273,4 @@ log_ai_usage($pdo, $userId, 'assessment_roadmap', $generation['source'] === 'gem
 |--------------------------------------------------------------------------
 */
 
-redirect('../dashboard.php?success=assessment&source=' . urlencode($generation['source']));
+redirect('../dashboard?success=assessment&source=' . urlencode($generation['source']));

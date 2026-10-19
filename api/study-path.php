@@ -14,6 +14,7 @@ header('Content-Type: application/json; charset=UTF-8');
 |--------------------------------------------------------------------------
 */
 
+// Convert unexpected endpoint exceptions into a generic JSON error for the client.
 set_exception_handler(function (Throwable $e) {
 
     http_response_code(500);
@@ -558,7 +559,7 @@ if ($action === 'read') {
     ) {
 
         header(
-            'Location: ../study-path.php?stage='
+            'Location: ../roadmap?stage='
             . $stageNumber
         );
 

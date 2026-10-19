@@ -3,14 +3,15 @@ session_start();
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/audit.php';
 
+/** Store a login error for the next page load and redirect back to the form. */
 function login_error(string $message): void {
     $_SESSION['auth_error'] = $message;
-    header('Location: ../login.php');
+    header('Location: ../login');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ../login.php');
+    header('Location: ../login');
     exit;
 }
 if (!hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
@@ -63,5 +64,5 @@ session_regenerate_id(true);
 $_SESSION['user_id'] = (int)$user['id'];
 unset($_SESSION['csrf_token'], $_SESSION['auth_error']);
 log_user_activity($pdo, (int)$user['id'], 'login');
-header('Location: ../dashboard.php');
+header('Location: ../dashboard');
 exit;

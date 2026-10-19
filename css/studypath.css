@@ -218,63 +218,6 @@
 
 
 /* =========================================================
-   NAVBAR
-========================================================= */
-
-.main-navbar {
-    height: 72px;
-    padding: 0 6%;
-
-    background: #ffffff;
-    border-bottom: 1px solid #e8e8e8;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    position: sticky;
-    top: 0;
-
-    z-index: 100;
-}
-
-.navbar-logo {
-    color: #111111;
-    text-decoration: none;
-
-    font-size: 21px;
-    font-weight: 800;
-    letter-spacing: -.5px;
-}
-
-.main-nav-links {
-    display: flex;
-    gap: 34px;
-}
-
-.main-nav-links a {
-    color: #666666;
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.main-nav-links a:hover,
-.main-nav-links a.active {
-    color: #111111;
-}
-
-.navbar-logout {
-    color: #111111;
-    text-decoration: none;
-
-    font-size: 14px;
-    font-weight: 600;
-}
-
-
-/* =========================================================
    CONTAINER
 ========================================================= */
 
@@ -1251,21 +1194,12 @@
 ========================================================= */
 
 @media (max-width: 768px) {
-
-    .main-navbar {
-        padding: 0 20px;
-    }
-
     .main-nav-links {
         gap: 12px;
     }
 
     .main-nav-links a {
         font-size: 12px;
-    }
-
-    .navbar-logout {
-        display: none;
     }
 
     .roadmap-container {
@@ -1356,3 +1290,73 @@
 .mark-learned-btn.learned { background: #16a34a; }
 .lesson-complete-action { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
 .lesson-modal-content { border: 1px solid #dbe5f1; }
+
+/* Keep the authenticated roadmap usable on tablets and narrow phones. */
+@media (max-width: 900px) {
+    .roadmap-page { overflow-x: clip; }
+
+    .roadmap-container {
+        width: min(1100px, calc(100% - 36px));
+        padding-top: 38px;
+    }
+
+    .roadmap-summary {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+        padding: 24px;
+    }
+
+    .roadmap-stage {
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 14px;
+    }
+
+    .stage-content { min-width: 0; padding: 22px; }
+    .stage-top { flex-wrap: wrap; align-items: flex-start; gap: 8px 12px; }
+    .stage-category, .stage-status { overflow-wrap: anywhere; }
+    .stage-content h2 { overflow-wrap: anywhere; }
+    .stage-box, .ai-why-box { min-width: 0; overflow-wrap: anywhere; }
+    .activity-row { align-items: stretch; }
+    .activity-row .activity-form { min-width: 0; }
+    .activity-item { min-width: 0; }
+    .activity-text { min-width: 0; overflow-wrap: anywhere; }
+}
+
+@media (max-width: 700px) {
+    .roadmap-container { padding-bottom: 56px; }
+    .roadmap-header { margin-bottom: 30px; }
+    .roadmap-header h1 { font-size: clamp(32px, 9vw, 44px); letter-spacing: -1.2px; }
+    .roadmap-header p { font-size: 15px; }
+    .roadmap-summary { margin-bottom: 38px; }
+    .summary-career h2 { font-size: clamp(21px, 6vw, 27px); overflow-wrap: anywhere; }
+    .roadmap-stage { grid-template-columns: 36px minmax(0, 1fr); gap: 10px; margin-bottom: 24px; }
+    .roadmap-timeline::before { left: 17px; }
+    .stage-marker { width: 36px; height: 36px; }
+    .stage-content { padding: 18px; border-radius: 15px; }
+    .stage-content h2 { font-size: 21px; }
+    .activity-row { flex-direction: column; }
+    .learn-activity-btn { min-height: 44px; width: 100%; }
+    .lesson-modal { align-items: flex-end; padding: 0; }
+    .lesson-modal-content {
+        width: 100%;
+        max-height: 92dvh;
+        padding: 24px 18px calc(20px + env(safe-area-inset-bottom));
+        border-radius: 18px 18px 0 0;
+    }
+    .lesson-section { padding: 16px; }
+}
+
+@media (max-width: 520px) {
+    .roadmap-container { width: calc(100% - 24px); padding-top: 28px; }
+    .roadmap-summary { padding: 18px; gap: 18px; border-radius: 15px; }
+    .roadmap-stage { grid-template-columns: 30px minmax(0, 1fr); gap: 8px; }
+    .roadmap-timeline::before { left: 14px; }
+    .stage-marker { width: 30px; height: 30px; font-size: 11px; }
+    .stage-content { padding: 14px; border-radius: 13px; }
+    .stage-content h2 { font-size: 19px; }
+    .stage-description, .stage-box p, .stage-hint { font-size: 13px; }
+    .stage-box { padding: 14px; }
+    .activity-item { gap: 8px; padding: 11px 9px; }
+    .activity-number { width: 18px; }
+    .activity-text { font-size: 12px; }
+}

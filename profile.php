@@ -8,7 +8,7 @@ $userId = (int) $_SESSION['user_id'];
 $user   = getUserById($pdo, $userId);
 
 if (!$user) {
-    redirect('index.php');
+    redirect('./');
 }
 
 /*
@@ -28,6 +28,10 @@ syncAchievements($pdo, $userId, $progress);
 $earnedAchievements = getUserAchievements($pdo, $userId);
 
 $hasRoadmap = $progress['totalStages'] > 0;
+$hasAssessment = !empty($user['assessment_id']);
+$roadmapPercent = $hasRoadmap
+    ? (int) round(($progress['completedStages'] / $progress['totalStages']) * 100)
+    : 0;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,14 +39,11 @@ $hasRoadmap = $progress['totalStages'] > 0;
 |--------------------------------------------------------------------------
 */
 
-// getUserById() already joins the assessment, so career_goal and course are on $user.
+// getUserById() already joins the assessment, so career_goal is on $user.
 $displayName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
 $initials    = strtoupper(substr((string) ($user['first_name'] ?? 'S'), 0, 1) . substr((string) ($user['last_name'] ?? ''), 0, 1));
 
 $learningTrack = trim((string) ($user['career_goal'] ?? ''));
-if ($learningTrack === '') {
-    $learningTrack = trim((string) ($user['course'] ?? ''));
-}
 
 $createdAt = $user['created_at'] ?? null;
 
@@ -59,7 +60,7 @@ require_once __DIR__ . '/includes/navbar.php';
             <div>
                 <span class="eyebrow">YOUR SPACE</span>
                 <h1>My Profile</h1>
-                <p>View your student profile and the achievements you have earned.</p>
+                <p>Review your learning goals, roadmap progress, and achievements.</p>
             </div>
         </div>
 
@@ -79,7 +80,67 @@ require_once __DIR__ . '/includes/navbar.php';
             </div>
         </section>
 
-        <!-- 2. ACHIEVEMENTS -->
+        <!-- Learning goals collected by the assessment. -->
+        <section class="panel learning-profile-panel mt-4" aria-labelledby="learning-profile-title">
+            <div class="profile-section-heading">
+                <div>
+                    <span class="eyebrow">YOUR LEARNING PLAN</span>
+                    <h2 class="h4 mb-1" id="learning-profile-title">Learning Profile</h2>
+                    <p class="text-muted mb-0">Your goals and interests help shape your personalized roadmap.</p>
+                </div>
+                <?php if (!$hasAssessment): ?>
+                    <a class="btn btn-outline-primary btn-sm" href="assessment">Complete Assessment</a>
+                <?php endif; ?>
+            </div>
+
+            <dl class="learning-details-grid">
+                <div class="learning-detail"><dt>Career goal</dt><dd><?= e($user['career_goal'] ?: 'Not provided') ?></dd></div>
+                <div class="learning-detail"><dt>Current level</dt><dd><?= e($user['current_level'] ?: 'Not provided') ?></dd></div>
+                <div class="learning-detail"><dt>Improvement goal</dt><dd><?= e($user['improvement_goal'] ?: 'Not provided') ?></dd></div>
+                <div class="learning-detail"><dt>Interests</dt><dd><?= e($user['interests'] ?: 'Not provided') ?></dd></div>
+                <div class="learning-detail"><dt>Skills</dt><dd><?= e($user['skills'] ?: 'Not provided') ?></dd></div>
+            </dl>
+        </section>
+
+        <!-- Roadmap completion totals, calculated from saved stage and activity progress. -->
+        <section class="panel roadmap-progress-panel mt-4" aria-labelledby="profile-roadmap-title">
+            <div class="profile-section-heading">
+                <div>
+                    <span class="eyebrow">KEEP MOVING FORWARD</span>
+                    <h2 class="h4 mb-1" id="profile-roadmap-title">Roadmap Progress</h2>
+                    <p class="text-muted mb-0">A quick view of what you have completed so far.</p>
+                </div>
+                <?php if ($hasRoadmap): ?>
+                    <a class="btn btn-outline-primary btn-sm" href="roadmap">View Roadmap</a>
+                <?php endif; ?>
+            </div>
+
+            <?php if ($hasRoadmap): ?>
+                <div class="profile-progress-stats">
+                    <div><strong><?= (int) $progress['completedStages'] ?> / <?= (int) $progress['totalStages'] ?></strong><span>Stages completed</span></div>
+                    <div><strong><?= (int) $progress['completedActivities'] ?> / <?= (int) $progress['totalActivities'] ?></strong><span>Activities completed</span></div>
+                    <div><strong><?= $roadmapPercent ?>%</strong><span>Roadmap complete</span></div>
+                </div>
+                <div class="profile-progress-track" role="progressbar" aria-label="Roadmap completion" aria-valuenow="<?= $roadmapPercent ?>" aria-valuemin="0" aria-valuemax="100">
+                    <span style="width: <?= $roadmapPercent ?>%"></span>
+                </div>
+            <?php else: ?>
+                <div class="achievements-empty profile-no-roadmap">
+                    <div class="achievement-icon" aria-hidden="true"><i class="bi bi-signpost-split"></i></div>
+                    <div>
+                        <h3>No roadmap progress yet</h3>
+                        <p>Complete your assessment to create a personalized roadmap and start tracking your progress.</p>
+                        <?php if ($hasAssessment): ?>
+                            <a class="btn btn-dark btn-sm mt-2" href="roadmap">View Roadmap</a>
+                        <?php else: ?>
+                            <a class="btn btn-dark btn-sm mt-2" href="assessment">Start Assessment</a>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </section>
+
+        <!-- Earned badges remain saved on the student's profile. -->
         <section class="panel achievements-panel mt-4" aria-labelledby="achievements-title">
             <div class="achievements-heading">
                 <div>
@@ -109,27 +170,18 @@ require_once __DIR__ . '/includes/navbar.php';
                         </article>
                     <?php endforeach; ?>
                 </div>
-            <?php elseif ($hasRoadmap): ?>
+            <?php else: ?>
                 <div class="achievements-empty">
                     <div class="achievement-icon" aria-hidden="true"><i class="bi bi-bullseye"></i></div>
                     <div>
-                        <h3>Your first achievement is waiting!</h3>
-                        <p>Complete your first activity in the <a href="study-path.php">Study Path</a> to unlock the <strong>First Steps</strong> achievement.</p>
+                        <h3>No achievements yet</h3>
+                        <p>Complete activities in your learning roadmap to earn badges and track milestones.</p>
                     </div>
                 </div>
             <?php endif; ?>
 
             <?php if ($hasRoadmap): ?>
                 <p class="achievement-note">Achievements update automatically as you complete activities and stages. Finishing a roadmap shows completion; it does not by itself certify professional proficiency.</p>
-            <?php else: ?>
-                <div class="achievements-empty">
-                    <div class="achievement-icon" aria-hidden="true"><i class="bi bi-signpost-split"></i></div>
-                    <div>
-                        <h3>No current roadmap</h3>
-                        <p>Your previous achievements remain saved. Generate a new learning roadmap to continue making progress.</p>
-                        <a class="btn btn-dark btn-sm mt-2" href="assessment.php">Start Assessment</a>
-                    </div>
-                </div>
             <?php endif; ?>
         </section>
 

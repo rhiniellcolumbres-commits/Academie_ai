@@ -23,7 +23,7 @@ if (!$user) {
     session_regenerate_id(true);
 
     header(
-        'Location: index.php?error=session'
+        'Location: ./?error=session'
     );
 
     exit;
@@ -283,13 +283,13 @@ $fullName = trim(
 
                 <div class="dashboard-learning-actions">
                     <a
-                        href="study-path.php"
+                        href="roadmap"
                         class="dashboard-primary-btn"
                     >
                         Continue Learning →
                     </a>
                     <a
-                        href="assessment.php?retake=1"
+                        href="assessment?retake=1"
                         class="assessment-retake-link"
                         onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');"
                     >
@@ -309,7 +309,7 @@ $fullName = trim(
                 </p>
 
                 <a
-                    href="assessment.php"
+                    href="assessment"
                     class="dashboard-primary-btn"
                 >
                     Take Assessment →
@@ -490,7 +490,7 @@ $fullName = trim(
             <?php if (!empty($topics)): ?>
 
                 <a
-                    href="study-path.php"
+                    href="roadmap"
                     class="view-roadmap-link"
                 >
                     View Full Roadmap →
@@ -538,7 +538,7 @@ $fullName = trim(
 
                     </p>
                         <a
-                            href="study-path.php"
+                            href="roadmap"
                             class="dashboard-primary-btn"
                         >
                             Learn This →
@@ -571,7 +571,7 @@ $fullName = trim(
                     </p>
 
                     <a
-                        href="study-path.php"
+                        href="roadmap"
                         class="dashboard-primary-btn"
                     >
                         Review Roadmap →
@@ -599,7 +599,7 @@ $fullName = trim(
                 </p>
 
                 <a
-                    href="assessment.php"
+                    href="assessment"
                     class="dashboard-primary-btn"
                 >
                     Take Assessment →
@@ -641,7 +641,7 @@ $fullName = trim(
 
 
             <a
-                href="study-path.php"
+                href="roadmap"
                 class="dashboard-primary-btn"
             >
                 Open Roadmap →

@@ -7,7 +7,7 @@ if (session_status() === PHP_SESSION_NONE) {
 if (empty($_SESSION['user_id'])) {
     $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
     $baseDir = preg_replace('#/(admin|api|actions)$#', '', rtrim($scriptDir, '/'));
-    $loginUrl = rtrim((string)$baseDir, '/') . '/login.php';
-    header('Location: ' . ($loginUrl === '/login.php' ? '/login.php' : $loginUrl));
+    $loginUrl = rtrim((string)$baseDir, '/') . '/login';
+    header('Location: ' . $loginUrl);
     exit;
 }

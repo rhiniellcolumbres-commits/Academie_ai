@@ -1,7 +1,7 @@
 <?php
 // Shared navbar for every logged-in page (dashboard, roadmap, profile, assessment).
-// Pages load the student with getUserById(), which already includes career_goal and
-// course, so we reuse $user. If a page did not load it, we fetch it once here.
+// Pages load the student with getUserById(), which includes their career goal.
+// If a page did not load it, fetch the student once here.
 
 require_once __DIR__ . '/functions.php';
 
@@ -10,7 +10,7 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-$currentPage = basename($_SERVER['PHP_SELF'] ?? '');
+$currentPage = basename($_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF'] ?? '');
 
 $navbarUser = (isset($user) && is_array($user)) ? $user : [];
 
@@ -20,31 +20,25 @@ if (!$navbarUser && isset($pdo, $_SESSION['user_id'])) {
 
 $navbarName = trim((string) ($navbarUser['first_name'] ?? '') . ' ' . (string) ($navbarUser['last_name'] ?? ''));
 
-// Show the career goal; fall back to the course if no career goal was saved.
+// Use the student's career goal as the navbar subtitle when one is available.
 $navbarTrack = trim((string) ($navbarUser['career_goal'] ?? ''));
-if ($navbarTrack === '') {
-    $navbarTrack = trim((string) ($navbarUser['course'] ?? ''));
-}
-if ($navbarTrack === '') {
-    $navbarTrack = 'Course not specified';
-}
 
 ?>
 <nav class="main-navbar">
-    <a href="dashboard.php" class="main-logo">
+    <a href="dashboard" class="main-logo">
         <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span>
     </a>
 
     <div class="main-nav-links">
-        <a href="dashboard.php" class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i><span>Dashboard</span></a>
-        <a href="study-path.php" class="<?= $currentPage === 'study-path.php' ? 'active' : '' ?>"><i class="bi bi-signpost-split" aria-hidden="true"></i><span>Roadmap</span></a>
-        <a href="profile.php" class="<?= $currentPage === 'profile.php' ? 'active' : '' ?>"><i class="bi bi-person-circle" aria-hidden="true"></i><span>Profile</span></a>
+        <a href="dashboard" class="<?= $currentPage === 'dashboard.php' ? 'active' : '' ?>"><i class="bi bi-grid-1x2-fill" aria-hidden="true"></i><span>Dashboard</span></a>
+        <a href="roadmap" class="<?= $currentPage === 'study-path.php' ? 'active' : '' ?>"><i class="bi bi-signpost-split" aria-hidden="true"></i><span>Roadmap</span></a>
+        <a href="profile" class="<?= $currentPage === 'profile.php' ? 'active' : '' ?>"><i class="bi bi-person-circle" aria-hidden="true"></i><span>Profile</span></a>
     </div>
 
     <div class="navbar-account">
         <div class="navbar-user-info">
             <span class="navbar-user-name"><?= e($navbarName !== '' ? $navbarName : 'Student') ?></span>
-            <span class="navbar-user-course"><?= e($navbarTrack) ?></span>
+            <?php if ($navbarTrack !== ''): ?><span class="navbar-user-track"><?= e($navbarTrack) ?></span><?php endif; ?>
         </div>
         <form action="actions/logout.php" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">

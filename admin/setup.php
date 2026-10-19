@@ -3,6 +3,11 @@ session_start();
 require_once __DIR__ . '/../includes/db.php';
 
 $count = (int)$pdo->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
+if ($count > 0) {
+    http_response_code(404);
+    exit('Not found.');
+}
+
 $message = '';
 if (empty($_SESSION['admin_setup_csrf'])) {
     $_SESSION['admin_setup_csrf'] = bin2hex(random_bytes(32));
@@ -36,8 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $count === 0) {
 <body class="bg-light"><main class="container py-5" style="max-width:520px"><div class="card shadow-sm"><div class="card-body p-4">
 <h1 class="h3 mb-3">Create first admin</h1>
 <?php if ($message): ?><div class="alert alert-info"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
-<?php if ($count > 0): ?><p>An admin account already exists. For security, this setup page is disabled. Go to <a href="login.php">Admin Login</a>.</p>
-<?php else: ?><p class="text-muted">Run <code>admin_migration.sql</code> first. Choose a strong password and do not share it.</p>
+<?php if ($count > 0): ?><p>An admin account already exists. For security, this setup page is disabled. Go to <a href="login">Admin Login</a>.</p>
+<?php else: ?><p class="text-muted">Make sure the Academie database is configured and the <code>admin_users</code> table exists. Choose a strong password and keep it private.</p>
 <form method="post"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)($_SESSION['admin_setup_csrf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><label class="form-label" for="username">Admin username</label><input class="form-control mb-3" id="username" name="username" minlength="4" required>
 <label class="form-label" for="password">Admin password</label><input class="form-control mb-3" type="password" id="password" name="password" minlength="12" required>
 <button class="btn btn-primary w-100">Create Admin Account</button></form><?php endif; ?>

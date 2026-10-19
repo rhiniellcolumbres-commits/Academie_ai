@@ -38,6 +38,7 @@ $aiActivity = $pdo->query("
 ")->fetchAll(PDO::FETCH_ASSOC);
 $lastAiUse = $aiActivity[0]['created_at'] ?? null;
 
+/** Escape a database value before placing it in the admin dashboard's HTML. */
 function h($value): string { return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8'); }
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard | StudyPath</title>
