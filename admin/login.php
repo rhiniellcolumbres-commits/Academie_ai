@@ -65,11 +65,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Login | StudyPath</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<style>.admin-password-field{position:relative}.admin-password-field .form-control{height:48px;padding-right:48px;border:1px solid #d5e0f1;border-radius:12px;background:#fbfdff}.admin-password-field .form-control:focus{border-color:#2463c5;box-shadow:0 0 0 4px #2463c51f;background:#fff}.toggle-password{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:38px;height:38px;border:0;background:transparent;color:#6b7f9f;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:1.15rem;cursor:pointer}.toggle-password:hover,.toggle-password:focus-visible{background:#eef4ff;color:#2463c5;outline:none}.toggle-password:focus-visible{box-shadow:0 0 0 3px #2463c51f}</style></head>
 <body class="bg-light"><main class="container py-5" style="max-width:460px"><div class="card shadow-sm"><div class="card-body p-4">
 <h1 class="h3 mb-1">StudyPath Admin</h1><p class="text-muted mb-4">Sign in to monitor activity and AI usage.</p>
 <?php if ($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
 <form method="post"><input type="hidden" name="csrf_token" value="<?= htmlspecialchars((string)($_SESSION['admin_login_csrf'] ?? ''), ENT_QUOTES, 'UTF-8') ?>"><label class="form-label" for="username">Username</label><input class="form-control mb-3" id="username" name="username" maxlength="80" autocomplete="username" required>
-<label class="form-label" for="password">Password</label><input class="form-control mb-4" type="password" id="password" name="password" autocomplete="current-password" required>
+<label class="form-label" for="password">Password</label><div class="admin-password-field mb-4"><input class="form-control" type="password" id="password" name="password" autocomplete="current-password" required><button class="toggle-password" type="button" id="toggle-password" aria-controls="password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye-slash" aria-hidden="true"></i></button></div>
 <button class="btn btn-primary w-100">Log In</button></form><a class="d-inline-block mt-3" href="../">Back to home</a>
-</div></div></main></body></html>
+</div></div></main>
+<script>
+const passwordField = document.getElementById('password');
+const passwordToggle = document.getElementById('toggle-password');
+
+passwordToggle.addEventListener('click', function () {
+    const showPassword = passwordField.type === 'password';
+    passwordField.type = showPassword ? 'text' : 'password';
+    passwordToggle.firstElementChild.className = showPassword ? 'bi bi-eye' : 'bi bi-eye-slash';
+    passwordToggle.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+    passwordToggle.setAttribute('aria-pressed', String(showPassword));
+});
+</script>
+</body></html>

@@ -146,7 +146,7 @@ $fullName = trim(
     >
 
     <title>
-        Dashboard | Acadamie
+        Dashboard | Academie
     </title>
     <!-- Bootstrap Icons are required by the navbar and Learning Statistics icons. -->
     <link
@@ -203,7 +203,6 @@ $fullName = trim(
         </div>
 
     </div>
-
 
     <!-- =====================================================
          SUCCESS MESSAGE

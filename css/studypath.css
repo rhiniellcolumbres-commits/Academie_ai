@@ -1288,8 +1288,17 @@
 .mark-learned-btn:disabled { background: #94a3b8; cursor: default; }
 .mark-learned-btn.is-saving { background: #94a3b8; }
 .mark-learned-btn.learned { background: #16a34a; }
-.lesson-complete-action { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+.lesson-complete-action { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+.lesson-complete-action .mark-learned-btn { flex: 1; width: auto; }
+.next-lesson-btn { display: inline-flex; flex: 1; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border: 1px solid #bfdbfe; border-radius: 10px; background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
+.next-lesson-btn:hover { border-color: #93c5fd; background: #dbeafe; }
+.next-lesson-btn:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+.next-lesson-btn[hidden] { display: none; }
 .lesson-modal-content { border: 1px solid #dbe5f1; }
+
+@media (max-width: 520px) {
+    .lesson-complete-action { flex-direction: column; }
+}
 
 /* Keep the authenticated roadmap usable on tablets and narrow phones. */
 @media (max-width: 900px) {

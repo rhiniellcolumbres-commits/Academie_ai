@@ -53,7 +53,7 @@ if (!$hasExistingRoadmap) {
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Assessment | Acadamie</title>
+    <title>Assessment | Academie</title>
 
     <link
         rel="stylesheet"
@@ -77,7 +77,7 @@ if (!$hasExistingRoadmap) {
         <div class="assessment-intro">
 
             <span class="eyebrow">
-                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span>
+                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
             </span>
 
             <h1>
@@ -409,7 +409,7 @@ if (!$hasExistingRoadmap) {
                     <span class="question-number">03</span>
                     <div>
                         <h2>Discover your best-fit technology path</h2>
-                        <p>Choose the answer that fits you best. Your answers will be scored to recommend a specialization; you do not need to know your career goal yet.</p>
+                        <p>Answer five quick questions to get a technology path recommendation. Choose one option for each; there are no wrong answers, and you don’t need to know your career goal yet.</p>
                     </div>
                 </div>
                 <?php
@@ -460,13 +460,19 @@ if (!$hasExistingRoadmap) {
                         'SE' => 'A well-tested program that solves a practical problem'
                     ]]
                 ];
+                $questionIndex = 0;
                 foreach ($assessmentQuestions as $field => $question):
+                    $questionIndex++;
                 ?>
-                <div class="mb-4">
-                    <h3 class="h5"><?= e($question[0]) ?></h3>
-                    <div class="assessment-options">
+                <div class="path-question">
+                    <div class="path-question-heading">
+                        <span class="path-question-number"><?= sprintf('%02d', $questionIndex) ?></span>
+                        <h3><?= e($question[0]) ?></h3>
+                        <span class="path-single-choice">Choose one</span>
+                    </div>
+                    <div class="assessment-options path-choice-grid">
                         <?php foreach ($question[1] as $code => $label): ?>
-                        <label class="assessment-option">
+                        <label class="assessment-option path-choice">
                             <input type="radio" name="<?= e($field) ?>" value="<?= e($code) ?>" required <?= (($savedQuestionAnswers[$field] ?? '') === $code) ? 'checked' : '' ?>>
                             <span class="option-content"><strong><?= e($label) ?></strong></span>
                         </label>
@@ -490,20 +496,20 @@ if (!$hasExistingRoadmap) {
                     </span>
 
                     <div>
-                        <h2>Personalize your roadmap</h2>
-                        <p>These optional details help the AI personalize your roadmap and milestones.</p>
+                        <h2>Personalize your IT roadmap</h2>
+                        <p>Share the IT topics you want to explore and the technical skills you already have. These optional details help tailor your learning steps.</p>
                     </div>
 
                 </div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label" for="interests">Interests</label>
-                        <textarea class="form-control" id="interests" name="interests" rows="4" placeholder="e.g. drawing, design, business, robotics"><?= e($user['interests'] ?? '') ?></textarea>
+                        <label class="form-label" for="interests">IT interests</label>
+                        <textarea class="form-control" id="interests" name="interests" rows="4" placeholder="e.g. web development, cybersecurity, networking, data, or AI"><?= e($user['interests'] ?? '') ?></textarea>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label" for="skills">Skills you already have</label>
-                        <textarea class="form-control" id="skills" name="skills" rows="4" placeholder="e.g. basic drawing, HTML/CSS, public speaking"><?= e($user['skills'] ?? '') ?></textarea>
+                        <label class="form-label" for="skills">IT skills you already have</label>
+                        <textarea class="form-control" id="skills" name="skills" rows="4" placeholder="e.g. HTML/CSS, Python, SQL, troubleshooting, or computer hardware"><?= e($user['skills'] ?? '') ?></textarea>
                     </div>
                 </div>
 

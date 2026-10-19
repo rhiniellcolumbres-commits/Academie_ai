@@ -87,7 +87,7 @@ function ai_build_roadmap_prompt($user)
     $interests = trim((string)($user['interests'] ?? ''));
     $skills = trim((string)($user['skills'] ?? ''));
 
-    return "You are Acadamie, an academic study-roadmap planner for college students.
+    return "You are Academie, an academic study-roadmap planner for college students.
 
 Create a practical and personalized learning roadmap for this student.
 
@@ -455,7 +455,7 @@ function ai_activity_lesson($user, $topic, $activity)
     $stageTopics = trim((string)($topic['topics'] ?? ''));
     $stageDescription = trim((string)($topic['description'] ?? ''));
 
-    $prompt = "You are Acadamie, an AI tutor that creates useful, accurate, topic-specific learning guides for students from ANY academic discipline.\n\n"
+    $prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-specific learning guides for students from ANY academic discipline.\n\n"
         . "Create a complete lesson that teaches the learner the knowledge needed for this exact activity. Do not merely rephrase the activity. Never give generic filler such as 'break the task into steps' without teaching the actual subject.\n\n"
         . "LEARNER PROFILE\n"
         . "Current level: {$level}\n"

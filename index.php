@@ -14,7 +14,7 @@ if (isset($_SESSION['user_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Acadamie</title>
+    <title>Academie</title>
 
     <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
@@ -36,7 +36,7 @@ if (isset($_SESSION['user_id'])) {
             <div>
                 <span class="eyebrow">AI-POWERED STUDENT ROADMAP</span>
                 <h1 class="hero-title">Build your own <span>learning path.</span></h1>
-                <p class="hero-description"><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span> analyzes your skills, interests, and career goals to create a personalized roadmap that helps you know what to learn next.</p>
+                <p class="hero-description"><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span> analyzes your skills, interests, and career goals to create a personalized roadmap that helps you know what to learn next.</p>
                 <div class="hero-actions">
                     <a href="register" class="btn btn-primary btn-lg hero-btn-primary"><i class="bi bi-rocket-takeoff" aria-hidden="true"></i> Get started free</a>
                     <a href="login" class="btn btn-outline-primary btn-lg hero-btn-secondary">I already have an account</a>
@@ -90,7 +90,7 @@ if (isset($_SESSION['user_id'])) {
             </h2>
 
             <p class="text-secondary">
-               <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span> helps you understand what to learn
+               <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span> helps you understand what to learn
                 and where to go next.
             </p>
 
@@ -192,9 +192,9 @@ if (isset($_SESSION['user_id'])) {
     <div class="container">
         <div class="benefits-grid">
             <div class="benefits-intro">
-                <span class="eyebrow">WHY ACADAMIE</span>
+                <span class="eyebrow">WHY ACADEMIE</span>
                 <h2>Everything you need to keep learning, in one place.</h2>
-                <p>Stop guessing what to study next. Acadamie turns your goals into a clear plan and walks with you through every stage.</p>
+                <p>Stop guessing what to study next. Academie turns your goals into a clear plan and walks with you through every stage.</p>
                 <a href="register" class="btn btn-primary px-4">Create your account</a>
             </div>
             <div class="benefit-list">
@@ -214,7 +214,7 @@ if (isset($_SESSION['user_id'])) {
             <h2>Questions, answered.</h2>
         </div>
         <div class="accordion faq-accordion" id="homeFaq">
-            <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true">Who is Acadamie for?</button></h3><div id="q1" class="accordion-collapse collapse show" data-bs-parent="#homeFaq"><div class="accordion-body">Students and beginners who want a clear direction into a tech career and a structured way to learn, whatever their course or background.</div></div></div>
+            <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#q1" aria-expanded="true">Who is Academie for?</button></h3><div id="q1" class="accordion-collapse collapse show" data-bs-parent="#homeFaq"><div class="accordion-body">Students and beginners who want a clear direction into a tech career and a structured way to learn, whatever their course or background.</div></div></div>
             <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q2" aria-expanded="false">How is my roadmap created?</button></h3><div id="q2" class="accordion-collapse collapse" data-bs-parent="#homeFaq"><div class="accordion-body">You complete a short assessment about your interests and goals. We match you to a career track and generate a five-stage roadmap with AI, tailored to your level.</div></div></div>
             <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q3" aria-expanded="false">Do I need any experience?</button></h3><div id="q3" class="accordion-collapse collapse" data-bs-parent="#homeFaq"><div class="accordion-body">No. Roadmaps start from the fundamentals, so complete beginners can begin right away and move forward at their own pace.</div></div></div>
             <div class="accordion-item"><h3 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#q4" aria-expanded="false">Is my progress saved?</button></h3><div id="q4" class="accordion-collapse collapse" data-bs-parent="#homeFaq"><div class="accordion-body">Yes. Your assessment, roadmap, completed topics and achievements are saved to your account, so you can pick up where you left off.</div></div></div>

@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log in - Acadamie</title>
+    <title>Log in - Academie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
@@ -23,13 +23,13 @@ if (empty($_SESSION['csrf_token'])) {
 </head>
 <body class="auth-page">
 <header class="auth-topbar">
-    <a class="auth-brand" href="./" aria-label="Acadamie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span></a>
+    <a class="auth-brand" href="./" aria-label="Academie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
     <a href="register" class="btn btn-outline-primary">Create account</a>
 </header>
 <main class="auth-main"><div class="auth-card">
-    <span class="auth-eyebrow">WELCOME BACK</span>
+    <span class="auth-eyebrow">WELCOME TO ACADEMIE</span>
     <h1>Log in to your account</h1>
-    <p class="auth-sub">Continue your personalized learning journey.</p>
+    <p class="auth-sub">Sign in to continue, or create an account to start your learning journey.</p>
     <?php if ($error): ?><div class="alert alert-danger" role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
     <form method="post" action="actions/login.php">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">

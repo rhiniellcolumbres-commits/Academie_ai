@@ -15,7 +15,7 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create account - Acadamie</title>
+    <title>Create account - Academie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/index.css">
@@ -23,7 +23,7 @@ if (empty($_SESSION['csrf_token'])) {
 </head>
 <body class="auth-page">
 <header class="auth-topbar">
-    <a class="auth-brand" href="./" aria-label="Acadamie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span></a>
+    <a class="auth-brand" href="./" aria-label="Academie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
     <a href="login" class="btn btn-outline-primary">Log in</a>
 </header>
 <main class="auth-main"><div class="auth-card wide">

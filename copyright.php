@@ -31,7 +31,7 @@ $backUrl = !empty($_SESSION['user_id']) ? 'dashboard' : './';
         <h2>5. Counter-notice or correction</h2>
         <p>If you believe material was removed by mistake, contact the project team at <a href="mailto:rhiniellcolumbres@gmail.com">rhiniellcolumbres@gmail.com</a> with the relevant details so the issue can be reviewed.</p>
         <h2>6. Contact for copyright concerns</h2>
-        <p>Email: <a href="mailto:rhiniellcolumbres@gmail.com">rhiniellcolumbres@gmail.com</a><br>Project name: StudyPath AI (Acadamie)</p>
+        <p>Email: <a href="mailto:rhiniellcolumbres@gmail.com">rhiniellcolumbres@gmail.com</a><br>Project name: StudyPath AI (Academie)</p>
     </article>
 </main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

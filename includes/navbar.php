@@ -26,7 +26,7 @@ $navbarTrack = trim((string) ($navbarUser['career_goal'] ?? ''));
 ?>
 <nav class="main-navbar">
     <a href="dashboard" class="main-logo">
-        <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span>
+        <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
     </a>
 
     <div class="main-nav-links">

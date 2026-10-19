@@ -62,7 +62,7 @@ footer{background:#fff!important}
 @media(max-width:767px){.roadmap-item{grid-template-columns:35px minmax(0,1fr)}.roadmap-status{grid-column:2;justify-self:start;margin-top:2px}}
 @media(max-width:575px){.navbar{min-height:68px}.navbar-brand{font-size:21px}.navbar .btn{padding:.5rem .75rem;font-size:13px}.hero-section{padding:55px 0 60px}.hero-title{font-size:48px;letter-spacing:-2.5px}.hero-description{font-size:15px}.roadmap-preview{padding:22px}.floating-card{position:relative;right:auto;bottom:auto;display:inline-block;margin:12px 0 0 10px}.features-section{padding:70px 0}.feature-card{padding:24px}.cta-section{padding:70px 20px}}
 
-/* Acadamie brand */
+/* Academie brand */
 .brand-name{display:inline-flex;align-items:baseline;white-space:nowrap}
 .brand-acad{color:#2463c5}
 .brand-amie{color:#111827}

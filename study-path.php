@@ -858,6 +858,9 @@ require_once __DIR__ . '/includes/header.php';
                 <button
                     type="button"
                     class="learn-activity-btn"
+                    data-topic-id="<?= (int)$topic['id'] ?>"
+                    data-activity-index="<?= (int)$activityIndex ?>"
+                    data-activity-title="<?= e($activity) ?>"
                     onclick="openLesson(
                         <?= (int)$topic['id'] ?>,
                         <?= $activityIndex ?>,
@@ -1108,7 +1111,7 @@ require_once __DIR__ . '/includes/header.php';
             </div>
 
             <h2>
-                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">amie</span></span> is preparing your lesson...
+                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span> is preparing your lesson...
             </h2>
 
             <p>
@@ -1208,6 +1211,10 @@ require_once __DIR__ . '/includes/header.php';
         ✓ Mark as Learned
     </button>
 
+    <button type="button" id="nextLessonBtn" class="next-lesson-btn" hidden>
+        Next Lesson <span aria-hidden="true">→</span>
+    </button>
+
 </div>
 
         </div>
@@ -1232,9 +1239,23 @@ async function openLesson(topicId, activityIndex, activity) {
     const content = document.getElementById('lessonContent');
     const error = document.getElementById('lessonError');
     const markLearnedBtn = document.getElementById('markLearnedBtn');
+    const nextLessonBtn = document.getElementById('nextLessonBtn');
 
     markLearnedBtn.dataset.topicId = String(topicId);
     markLearnedBtn.dataset.activityIndex = String(activityIndex);
+
+    const lessonButtons = Array.from(document.querySelectorAll('.learn-activity-btn'));
+    const currentLessonIndex = lessonButtons.findIndex(function (lessonButton) {
+        return lessonButton.dataset.topicId === String(topicId)
+            && lessonButton.dataset.activityIndex === String(activityIndex);
+    });
+    const followingLesson = currentLessonIndex >= 0 ? lessonButtons[currentLessonIndex + 1] : null;
+    nextLessonBtn.hidden = !followingLesson;
+    if (followingLesson) {
+        nextLessonBtn.dataset.topicId = followingLesson.dataset.topicId;
+        nextLessonBtn.dataset.activityIndex = followingLesson.dataset.activityIndex;
+        nextLessonBtn.dataset.activityTitle = followingLesson.dataset.activityTitle;
+    }
 
     let alreadyLearned = false;
 
@@ -1509,6 +1530,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (markLearnedBtn) {
         markLearnedBtn.addEventListener('click', markLessonAsLearned);
+    }
+
+    const nextLessonBtn = document.getElementById('nextLessonBtn');
+    if (nextLessonBtn) {
+        nextLessonBtn.addEventListener('click', function () {
+            if (this.dataset.topicId && this.dataset.activityIndex && this.dataset.activityTitle) {
+                openLesson(this.dataset.topicId, this.dataset.activityIndex, this.dataset.activityTitle);
+            }
+        });
     }
 });
 </script>
