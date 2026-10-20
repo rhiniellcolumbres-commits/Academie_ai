@@ -1,9 +1,6 @@
 <?php
-/**
- * Lightweight audit logging for StudyPath.
- * Logging errors are intentionally swallowed so monitoring cannot break the student app.
- */
-/** Insert a student activity event into the audit log for future review. */
+/** These helpers save simple activity and AI-use records for admin monitoring. */
+// Save a student's login or logout time and basic browser information.
 function log_user_activity(PDO $pdo, int $userId, string $event): void
 {
     if (!in_array($event, ['login', 'logout'], true)) {
@@ -23,7 +20,7 @@ function log_user_activity(PDO $pdo, int $userId, string $event): void
     }
 }
 
-/** Record an AI request type, its outcome, and optional diagnostic details. */
+// Save whether a roadmap or lesson AI request succeeded, failed, or used fallback content.
 function log_ai_usage(PDO $pdo, int $userId, string $type, string $status = 'requested', ?string $details = null): void
 {
     if (!in_array($type, ['assessment_roadmap', 'ai_lesson'], true)) {

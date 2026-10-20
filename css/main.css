@@ -1357,6 +1357,33 @@ textarea.form-control {
         margin-bottom: 22px;
     }
 }
+
+/* Assessment wizard: keep each prompt focused and its progress easy to scan. */
+.assessment-step[hidden],
+.assessment-wizard-actions [hidden] { display: none !important; }
+.assessment-wizard-progress {
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+}
+.assessment-wizard-progress > div:first-child { display: flex; justify-content: space-between; gap: 12px; }
+.assessment-progress-track { height: 6px; margin-top: 9px; overflow: hidden; border-radius: 99px; background: #e5e7eb; }
+.assessment-progress-track span { display: block; width: 12.5%; height: 100%; border-radius: inherit; background: #111827; transition: width .2s ease; }
+.assessment-step-error { margin: 0 0 12px; color: #b42318; font-size: 14px; }
+.assessment-step-error[hidden] { display: none; }
+.assessment-wizard-actions { justify-content: space-between; gap: 12px; }
+.assessment-wizard-actions #assessmentSubmitBtn { margin-left: auto; }
+.path-question.assessment-section { padding-top: 22px; padding-bottom: 22px; }
+.path-question .path-question-heading { margin-bottom: 16px; }
+@media (max-width: 600px) {
+    .assessment-wizard-progress { margin-bottom: 12px; padding: 10px 12px; }
+    .assessment-wizard-actions { margin-top: 12px; }
+}
 .course-field {
     position: relative;
 }
@@ -3798,4 +3825,29 @@ a i {
         min-height: 68px;
         padding: 14px 44px 14px 14px;
     }
+}
+
+/* Compact the assessment on phones without shrinking readable text. */
+@media (max-width: 600px) {
+    .assessment-wrapper { padding: 26px 12px 40px; }
+    .assessment-intro { margin-bottom: 24px; }
+    .assessment-intro h1 { font-size: clamp(27px, 8vw, 32px); letter-spacing: -.5px; }
+    .assessment-intro p { font-size: 14px; line-height: 1.6; }
+    .assessment-section { margin-bottom: 14px; padding: 16px 14px; border-radius: 14px; }
+    .assessment-section-header { gap: 10px; margin-bottom: 16px; }
+    .assessment-section-header h2 { font-size: 19px; }
+    .assessment-section-header p { font-size: 14px; line-height: 1.55; }
+    .question-number { width: 32px; height: 32px; border-radius: 9px; }
+    .assessment-options { gap: 8px; }
+    .assessment-option { padding: 12px 13px; border-radius: 10px; }
+    .option-content { gap: 3px; }
+    .option-content strong { font-size: 15px; }
+    .option-content small { font-size: 13px; line-height: 1.5; }
+    .path-question { padding: 15px 0; }
+    .path-choice-grid { gap: 7px; }
+    .assessment-option.path-choice { min-height: 54px; padding: 10px 42px 10px 12px; }
+    .assessment-option.path-choice .option-content strong { font-size: 14px; }
+    .assessment-option.path-choice::after { right: 12px; width: 20px; height: 20px; }
+    .assessment-actions { margin-top: 18px; }
+    .assessment-back, .assessment-start { min-height: 44px; padding: 0 14px; }
 }

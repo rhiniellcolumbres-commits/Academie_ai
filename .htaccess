@@ -1,13 +1,13 @@
 RewriteEngine On
 
 # Keep clean page URLs without trailing slashes.
-RewriteRule ^(login|register|dashboard|assessment|roadmap|profile|privacy|terms|moderation|copyright)/$ $1 [R=302,L,NE]
+RewriteRule ^(login|register|dashboard|assessment|roadmap|lesson|profile|privacy|terms|moderation|copyright)/$ $1 [R=302,L,NE]
 RewriteRule ^admin/(login|dashboard|students|setup)/$ admin/$1 [R=302,L,NE]
 
 # Redirect legacy page URLs to their clean equivalents (never redirect form/API requests).
 RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
 RewriteCond %{THE_REQUEST} \s/+[^\s?]*\.php(?:[?\s]) [NC]
-RewriteRule ^(login|register|dashboard|assessment|roadmap|profile|privacy|terms|moderation|copyright)\.php$ $1 [R=302,L,NE]
+RewriteRule ^(login|register|dashboard|assessment|roadmap|lesson|profile|privacy|terms|moderation|copyright)\.php$ $1 [R=302,L,NE]
 RewriteCond %{REQUEST_METHOD} ^(?:GET|HEAD)$
 RewriteCond %{THE_REQUEST} \s/+[^\s?]*\.php(?:[?\s]) [NC]
 RewriteRule ^study-path\.php$ roadmap [R=302,L,NE]
@@ -27,6 +27,7 @@ RewriteRule ^register$ register.php [L,QSA]
 RewriteRule ^dashboard$ dashboard.php [L,QSA]
 RewriteRule ^assessment$ assessment.php [L,QSA]
 RewriteRule ^roadmap$ study-path.php [L,QSA]
+RewriteRule ^lesson$ lesson.php [L,QSA]
 RewriteRule ^profile$ profile.php [L,QSA]
 RewriteRule ^privacy$ privacy-policy.php [L,QSA]
 RewriteRule ^terms$ terms.php [L,QSA]

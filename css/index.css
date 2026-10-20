@@ -254,3 +254,26 @@ footer{background:#fff!important}
 .faq-accordion .accordion-body{color:#536681;line-height:1.7;padding:4px 22px 20px}
 @media(max-width:991px){.tracks-grid{grid-template-columns:repeat(2,1fr)}.benefits-grid{grid-template-columns:1fr;gap:36px}}
 @media(max-width:575px){.tracks-grid{grid-template-columns:1fr}.tracks-section,.benefits-section,.faq-section{padding:64px 0}}
+
+@media (max-width: 575px) {
+    .hero-section { padding: 38px 0 42px; }
+    .hero-grid { gap: 26px; }
+    .hero-title { font-size: clamp(36px, 10vw, 44px); line-height: 1.05; letter-spacing: -1.8px; }
+    .hero-description { margin-bottom: 20px; font-size: 14px; line-height: 1.6; }
+    .hero-actions { gap: 9px; margin-bottom: 18px; }
+    .hero-btn-primary, .hero-btn-secondary { width: 100%; min-height: 44px; padding: .65rem 1rem; font-size: 14px; }
+    .hero-points { gap: 8px 14px; font-size: 13px; }
+    .roadmap-preview { padding: 16px; border-radius: 16px; }
+    .roadmap-item { gap: 9px; padding: 12px 0; }
+    .roadmap-item small { line-height: 1.4; }
+    .roadmap-status { font-size: 10px; }
+    .features-section, .tracks-section, .benefits-section, .faq-section, .cta-section { padding-top: 48px; padding-bottom: 48px; }
+    .section-heading { margin-bottom: 24px; }
+    .section-heading h2, .tracks-section h2, .faq-section h2 { font-size: clamp(26px, 7vw, 32px); letter-spacing: -.8px; }
+    .feature-card, .track-card { padding: 18px; border-radius: 14px; }
+    .benefits-grid { gap: 22px; }
+    .benefit-list { gap: 10px; }
+    .benefit-item { gap: 12px; padding: 15px; }
+    .faq-accordion .accordion-button { padding: 14px 16px; }
+    .faq-accordion .accordion-body { padding: 0 16px 16px; }
+}

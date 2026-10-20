@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * AI integration helpers for Academie's roadmap and lesson features.
+ * These functions prepare prompts, call Gemini, validate its JSON output,
+ * and return consistent PHP arrays for the page handlers.
+ */
+
 require_once __DIR__ . '/../config/gemini.php';
 
 /*
@@ -8,7 +14,7 @@ require_once __DIR__ . '/../config/gemini.php';
 |--------------------------------------------------------------------------
 */
 
-/** Describe the JSON fields Gemini must return for a personalized roadmap. */
+// Tell Gemini which fields to include in its roadmap response.
 function ai_roadmap_schema()
 {
     return [
@@ -78,7 +84,7 @@ function ai_roadmap_schema()
 
 //ROADMAP
 
-/** Combine the student's profile with instructions for generating roadmap stages. */
+// Combine the student's answers with instructions for making a five-stage roadmap.
 function ai_build_roadmap_prompt($user)
 {
     $level = trim((string)($user['current_level'] ?? 'Beginner'));
@@ -133,7 +139,7 @@ Rules:
 |--------------------------------------------------------------------------
 */
 
-/** Send a prompt to Gemini, optionally enforce a JSON schema, and normalize errors. */
+// Send a request to Gemini, retry temporary failures, and return its text or an error message.
 function gemini_interaction_request($prompt, $schema = null)
 {
     if (!gemini_is_configured()) {
@@ -293,7 +299,7 @@ if ($text === '' && !empty($response['steps'])) {
  Generate Personalized Roadmap
 */
 
-/** Ask Gemini for a roadmap, validate its shape, and normalize usable stages. */
+// Ask Gemini for the roadmap, then clean and check the stages before the app saves them.
 function ai_generate_roadmap($user)
 {
     $result = gemini_interaction_request(
@@ -425,7 +431,7 @@ function ai_generate_roadmap($user)
 }
 
 
-/** Generate and validate a lesson for one roadmap activity using the learner profile. */
+// Ask Gemini to teach one activity, then check that it returned every useful lesson section.
 function ai_activity_lesson($user, $topic, $activity)
 {
     $schema = [

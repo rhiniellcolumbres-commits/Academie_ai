@@ -1,4 +1,9 @@
 <?php
+/**
+ * Navigation shown on public pages such as home, login, and registration.
+ * Reads the current session to decide whether to show student links or account actions,
+ * and builds URLs that work when the project is installed in a subdirectory.
+ */
 // Shared public navbar. Show account actions according to the current login session.
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

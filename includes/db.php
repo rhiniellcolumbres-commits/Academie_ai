@@ -1,5 +1,11 @@
 <?php
 
+/**
+ * Database bootstrap included by pages and API handlers.
+ * Loads configured credentials, creates the shared PDO connection, and stops with
+ * a generic message if MySQL cannot be reached so credentials/errors stay private.
+ */
+
 // Database settings live in config/database.php.
 // To use different credentials, create config/database.local.php (see the .example file).
 require_once __DIR__ . '/../config/database.php';

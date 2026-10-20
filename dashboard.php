@@ -1313,5 +1313,34 @@ $fullName = trim(
 
 }
 
+@media (max-width: 600px) {
+    .dashboard-content { width: calc(100% - 28px); padding: 24px 0 40px; }
+    .dashboard-heading { margin-bottom: 18px; }
+    .dashboard-heading h1 { font-size: clamp(28px, 8vw, 34px); letter-spacing: -1px; }
+    .dashboard-heading p { font-size: 14px; line-height: 1.5; }
+    .dashboard-overview { gap: 12px; margin-bottom: 16px; }
+    .overview-main, .overview-progress { padding: 18px; border-radius: 14px; }
+    .overview-main h2 { font-size: 21px; }
+    .dashboard-stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .dashboard-stat-card:last-child { grid-column: 1 / -1; }
+    .dashboard-stat-card { gap: 6px; padding: 13px; border-radius: 13px; }
+    .dashboard-stat-card strong { font-size: 23px; }
+    .dashboard-stat-card > span:last-child { font-size: 12px; }
+    .dashboard-stat-icon { flex-basis: 36px; width: 36px; height: 36px; font-size: 18px; }
+    .dashboard-learning-stats, .current-learning { margin-bottom: 24px; }
+    .dashboard-learning-stats .dashboard-section-title { margin-bottom: 10px; }
+    .dashboard-section-title h2 { font-size: 24px; letter-spacing: -.5px; }
+    .assessment-summary { margin-bottom: 24px; }
+    .assessment-summary > div { padding: 13px 16px; }
+    .current-stage-card { grid-template-columns: 42px minmax(0, 1fr); gap: 12px; padding: 16px; border-radius: 14px; }
+    .current-stage-number { width: 40px; height: 40px; font-size: 15px; }
+    .current-stage-content h3 { font-size: 19px; line-height: 1.35; }
+    .current-stage-content p { margin-bottom: 14px; font-size: 14px; line-height: 1.55; }
+    .dashboard-roadmap-banner { gap: 16px; padding: 20px; border-radius: 14px; }
+    .dashboard-roadmap-banner h2 { font-size: 22px; }
+    .dashboard-roadmap-banner .dashboard-primary-btn { white-space: normal; }
+    .learning-complete-card, .learning-empty-card { gap: 14px; padding: 20px; border-radius: 14px; }
+}
+
 </style>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

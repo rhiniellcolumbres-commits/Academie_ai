@@ -6,13 +6,13 @@ require_once __DIR__ . '/ai.php';
        Basic Helper Functions
 */
 
-/** Escape a value for safe display inside HTML text or an attribute. */
+// Turn a value into safe text before showing it on a web page.
 function e($value)
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-/** Stop the request unless the browser submitted it with the POST method. */
+// Stop the request if it was not sent using POST.
 function require_post()
 {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -21,14 +21,14 @@ function require_post()
     }
 }
 
-/** Send the browser to another URL and stop running the current page. */
+// Send the browser to another page, then stop this PHP request.
 function redirect($location)
 {
     header('Location: ' . $location);
     exit;
 }
 
-/** Load one user's account and assessment details from the database. */
+// Find one user and include their assessment answers if they have taken it.
 function getUserById($pdo, $userId)
 {
     $stmt = $pdo->prepare(
@@ -51,7 +51,7 @@ function getUserById($pdo, $userId)
     return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-/** Trim a string and cap its length before it is stored or used. */
+// Trim text and limit its length before saving it; this does not escape HTML.
 function clean_text($value, $maxLength = 255)
 {
     if (!is_string($value)) {
@@ -67,7 +67,7 @@ function clean_text($value, $maxLength = 255)
     return $value;
 }
 
-/** Turn a comma-separated string into a trimmed list with empty items removed. */
+// Turn text like "HTML, CSS, JavaScript" into a list of separate items.
 function split_list($value)
 {
     if (!is_string($value) || trim($value) === '') {
@@ -86,7 +86,7 @@ function split_list($value)
     Activity Helper
 */
 
-/** Normalize activity data from either a PHP array, JSON string, or plain string. */
+// Convert saved activity data into a regular list, whether it came from JSON or plain text.
 function getActivities($activity)
 {
     if (is_array($activity)) {
@@ -139,7 +139,7 @@ function getActivities($activity)
 | both use this, so the counting code only exists in one place.
 */
 
-/** Count roadmap stages and activities, returning totals for progress displays. */
+// Count completed roadmap stages and activities for progress bars and profile summaries.
 function getRoadmapProgress(array $topics)
 {
     $progress = [
@@ -184,7 +184,7 @@ function getRoadmapProgress(array $topics)
 | getUserAchievements() returns every saved badge for the profile page.
 */
 
-/** Return the fixed badge definitions used when awarding and displaying achievements. */
+// Keep each achievement's code, icon, title, and description in one place.
 function getAchievementCatalog()
 {
     return [
@@ -196,7 +196,7 @@ function getAchievementCatalog()
     ];
 }
 
-/** Save any badges earned from the supplied progress without duplicating existing ones. */
+// Check the student's progress and save any badges they have earned, without duplicates.
 function syncAchievements($pdo, $userId, array $progress)
 {
     // Work out which badges the current progress qualifies for.
@@ -247,7 +247,7 @@ function syncAchievements($pdo, $userId, array $progress)
     }
 }
 
-/** Fetch a user's saved badges, newest first, for display on their profile. */
+// Get the student's saved badges, with the newest one first.
 function getUserAchievements($pdo, $userId)
 {
     $stmt = $pdo->prepare(
@@ -266,7 +266,7 @@ function getUserAchievements($pdo, $userId)
      Roadmap Stage Helper
 */
 
-/** Package one fallback roadmap stage into the structure used by the app. */
+// Put one fallback stage into the same format used by AI-created stages.
 function roadmap_stage(
     $category,
     $title,
@@ -294,7 +294,7 @@ function roadmap_stage(
 |--------------------------------------------------------------------------
 */
 
-/** Build a predefined roadmap for the student's career goal when AI is unavailable. */
+// Build a ready-made roadmap for the student's goal when AI cannot make one.
 function generate_study_topics($user)
 {
     $career = trim(
@@ -1330,7 +1330,8 @@ function generate_study_topics($user)
 |
 */
 
-/** Generate or retrieve roadmap stages and persist them for this student. */
+// Create a new roadmap and replace the old one; a transaction keeps the database consistent.
+// Gemini is tried first, and the built-in roadmap is used if Gemini fails.
 function save_generated_topics($pdo, $userId, $user)
 {
     $aiResult = ai_generate_roadmap($user); 
@@ -1446,7 +1447,7 @@ function save_generated_topics($pdo, $userId, $user)
 |--------------------------------------------------------------------------
 */
 
-/** Fetch the saved roadmap stages and progress belonging to one student. */
+// Load this student's stages in order so pages can show their roadmap and progress.
 function getStudyTopics($pdo, $userId)
 {
     $stmt = $pdo->prepare(

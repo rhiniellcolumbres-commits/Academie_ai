@@ -1,4 +1,9 @@
 <?php
+/**
+ * Shared navigation for signed-in student pages.
+ * Uses the current page's $user when available, otherwise loads the signed-in
+ * user from the database; the CSRF token is included in the logout POST form.
+ */
 // Shared navbar for every logged-in page (dashboard, roadmap, profile, assessment).
 // Pages load the student with getUserById(), which includes their career goal.
 // If a page did not load it, fetch the student once here.

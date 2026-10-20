@@ -50,9 +50,18 @@
     .profile-section-heading { align-items:flex-start; }
 }
 @media (max-width:480px) {
-    .profile-overview { align-items:flex-start; gap:.9rem; }
+    .profile-page { padding: 18px 12px 38px; }
+    .profile-overview { align-items:flex-start; gap:.75rem; padding:1rem; }
     .profile-avatar { flex-basis:56px; width:56px; height:56px; border-radius:17px; }
     .profile-overview-main { flex-basis:calc(100% - 80px); }
-    .learning-details-grid { grid-template-columns:1fr; }
+    .achievements-panel,.learning-profile-panel,.roadmap-progress-panel { padding:1rem; }
+    .learning-details-grid { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; }
+    .learning-detail { padding:.7rem; }
+    .learning-detail dd { font-size:.86rem; }
+    .profile-progress-stats { grid-template-columns:repeat(2,minmax(0,1fr)); gap:.55rem; }
+    .profile-progress-stats > div { padding:.7rem; }
+    .profile-progress-stats > div:last-child { grid-column:1 / -1; }
+    .achievement-grid { gap:.65rem; }
+    .achievement-card { gap:.7rem; padding:.8rem; }
     .profile-section-heading { flex-direction:column; }
 }

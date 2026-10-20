@@ -87,6 +87,15 @@ $topic['_progress'] = $progress;
 
 unset($topic);
 
+$totalActivities = array_sum(array_map(
+    static fn($topic) => count($topic['_activities']),
+    $topics
+));
+$completedActivities = array_sum(array_map(
+    static fn($topic) => (int)$topic['_activity_completed'],
+    $topics
+));
+
 
 /*
 |--------------------------------------------------------------------------
@@ -208,7 +217,7 @@ require_once __DIR__ . '/includes/header.php';
                 </h2>
 
                 <p>
-                    Complete your assessment so StudyPath AI can create
+                    Complete your assessment so Academie can create
                     your personalized learning path.
                 </p>
 
@@ -287,7 +296,15 @@ require_once __DIR__ . '/includes/header.php';
 
                     </div>
 
-                    <div class="roadmap-progress-bar">
+                    <div
+                        class="roadmap-progress-bar"
+                        role="progressbar"
+                        aria-label="Roadmap stages completed"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                        aria-valuenow="<?= $percent ?>"
+                        aria-valuetext="<?= $percent ?> percent, <?= $completed ?> of <?= $total ?> stages completed"
+                    >
 
                         <span
                             style="width: <?= $percent ?>%;"
@@ -298,6 +315,9 @@ require_once __DIR__ . '/includes/header.php';
                     <small>
                         <?= $completed ?> of <?= $total ?>
                         stages completed
+                    </small>
+                    <small class="roadmap-activity-total">
+                        <?= $completedActivities ?> of <?= $totalActivities ?> activities completed
                     </small>
 
                 </div>
@@ -345,10 +365,11 @@ require_once __DIR__ . '/includes/header.php';
                             $isUnlocked = $topic['_is_unlocked'];
                             ?>
 
-                            <article class="roadmap-stage <?= $isCompleted ? 'completed' : '' ?> <?= !$isUnlocked ? 'locked' : '' ?>">
-                                <div class="stage-marker">
+                            <details class="roadmap-stage roadmap-stage-accordion <?= $isCompleted ? 'completed' : '' ?> <?= !$isUnlocked ? 'locked' : '' ?>" <?= ($isUnlocked && !$isCompleted) ? 'open' : '' ?>>
+                                <summary class="roadmap-stage-summary">
+                                  <div class="stage-marker">
                                     <?php if ($isCompleted): ?><i class="bi bi-check-lg" aria-hidden="true"></i><?php elseif (!$isUnlocked): ?><i class="bi bi-lock-fill" aria-hidden="true"></i><?php else: ?><?= $stageNumber ?><?php endif; ?>
-                                </div>
+                                  </div>
                                 <div class="stage-content">
                                     <div class="stage-top">
                                         <span class="stage-category"><?= e($topic['category'] ?: ('Stage ' . $stageNumber)) ?></span>
@@ -361,6 +382,10 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php endif; ?>
                                     </div>
                                     <h2><?= e($topic['title']) ?></h2>
+                                    <span class="roadmap-expand-hint">Details <i class="bi bi-chevron-down" aria-hidden="true"></i></span>
+                                </div>
+                                </summary>
+                                <div class="roadmap-stage-details">
                                     <p class="stage-description"><?= e($topic['description']) ?></p>
                                     <?php if (!empty($topic['expected_output'])): ?>
                                         <p class="stage-hint"><strong>Achievement:</strong> <?= e($topic['expected_output']) ?></p>
@@ -373,7 +398,7 @@ require_once __DIR__ . '/includes/header.php';
                                         <div class="stage-hint">Complete Stage <?= $stageNumber - 1 ?> first to unlock this stage.</div>
                                     <?php endif; ?>
                                 </div>
-                            </article>
+                            </details>
                         <?php endforeach; ?>
 
                     </div>
@@ -421,6 +446,14 @@ require_once __DIR__ . '/includes/header.php';
                                 * 100
                             )
                             : 0;
+
+                        $nextStageTopic = null;
+                        foreach ($topics as $candidateTopic) {
+                            if ((int)$candidateTopic['order_number'] > $stageNumber) {
+                                $nextStageTopic = $candidateTopic;
+                                break;
+                            }
+                        }
 
                         ?>
 
@@ -544,7 +577,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                 <?php if (!empty($topic['ai_why'])): ?>
                                     <div class="ai-why-box">
-                                        <div class="stage-box-title"><i class="bi bi-stars" aria-hidden="true"></i> Why StudyPath AI recommended this</div>
+                                        <div class="stage-box-title"><i class="bi bi-stars" aria-hidden="true"></i> Why Academie recommended this</div>
                                         <p><?= e($topic['ai_why']) ?></p>
                                     </div>
                                 <?php endif; ?>
@@ -710,7 +743,7 @@ require_once __DIR__ . '/includes/header.php';
                                                             activities-subtitle
                                                         "
                                                     >
-                                                        Complete all 6 activities
+                                                        Complete all <?= count($activities) ?> activities
                                                         to finish this stage.
                                                     </p>
 
@@ -744,6 +777,12 @@ require_once __DIR__ . '/includes/header.php';
                                                     class="
                                                         activity-progress-bar
                                                     "
+                                                    role="progressbar"
+                                                    aria-label="Activities completed in this stage"
+                                                    aria-valuemin="0"
+                                                    aria-valuemax="100"
+                                                    aria-valuenow="<?= $activityPercent ?>"
+                                                    aria-valuetext="<?= $activityCount ?> of <?= count($activities) ?> activities completed"
                                                 >
 
                                                     <span
@@ -855,24 +894,15 @@ require_once __DIR__ . '/includes/header.php';
 
             <!-- LEARNING GUIDE BUTTON -->
 
-                <button
-                    type="button"
+                <a
                     class="learn-activity-btn"
+                    href="lesson?topic_id=<?= (int)$topic['id'] ?>&amp;activity_index=<?= (int)$activityIndex ?>"
                     data-topic-id="<?= (int)$topic['id'] ?>"
                     data-activity-index="<?= (int)$activityIndex ?>"
                     data-activity-title="<?= e($activity) ?>"
-                    onclick="openLesson(
-                        <?= (int)$topic['id'] ?>,
-                        <?= $activityIndex ?>,
-                        <?= htmlspecialchars(
-                            json_encode($activity),
-                            ENT_QUOTES,
-                            'UTF-8'
-                        ) ?>
-                    )"
                 >
                     <i class="bi bi-book-half" aria-hidden="true"></i> Learn This
-                </button>
+                </a>
 
         </div>
 
@@ -1018,9 +1048,17 @@ require_once __DIR__ . '/includes/header.php';
                                                 </strong>
 
                                                 <p>
-                                                    Great job! The next
-                                                    stage is now unlocked.
+                                                    <?= $nextStageTopic
+                                                        ? 'Great job! The next stage is now unlocked.'
+                                                        : 'Great job! You completed your full roadmap.'
+                                                    ?>
                                                 </p>
+                                                <?php if ($nextStageTopic): ?>
+                                                    <a class="stage-next-link" href="roadmap?stage=<?= (int)$nextStageTopic['order_number'] ?>">
+                                                        Continue to Stage <?= (int)$nextStageTopic['order_number'] ?>
+                                                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                                                    </a>
+                                                <?php endif; ?>
 
                                             </div>
 
@@ -1058,19 +1096,6 @@ require_once __DIR__ . '/includes/header.php';
 
                     <?php endforeach; ?>
 
-                    <?php if ($selectedStage !== null && $selectedTopic['_is_completed']): ?>
-                        <?php $nextStage = $selectedStage + 1; ?>
-                        <?php foreach ($topics as $nextTopic): ?>
-                            <?php if ((int)$nextTopic['order_number'] === $nextStage): ?>
-                                <div style="margin-top: 24px;">
-                                    <a href="roadmap?stage=<?= $nextStage ?>" class="read-stage-btn">
-                                        Next: Stage <?= $nextStage ?> →
-                                    </a>
-                                </div>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    <?php endif; ?>
-
                 </div>
 
                 <?php endif; ?>
@@ -1083,464 +1108,70 @@ require_once __DIR__ . '/includes/header.php';
 
 </div>
 
-<!-- =====================================================
-     AI LEARNING GUIDE
-====================================================== -->
-
-<div
-    id="lessonModal"
-    class="lesson-modal"
-    style="display: none;"
->
-
-    <div class="lesson-modal-content">
-
-        <button
-            type="button"
-            class="lesson-close"
-            onclick="closeLesson()"
-        >
-            ×
-        </button>
-
-
-        <div id="lessonLoading">
-
-            <div class="lesson-loading-icon">
-                <i class="bi bi-stars" aria-hidden="true"></i>
-            </div>
-
-            <h2>
-                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span> is preparing your lesson...
-            </h2>
-
-            <p>
-                This may take a few seconds.
-            </p>
-
-        </div>
-
-
-        <div
-            id="lessonContent"
-            style="display: none;"
-        >   
-
-            <span class="eyebrow">
-                AI LEARNING GUIDE
-            </span>
-
-            <h2 id="lessonTitle">
-                Learn This
-            </h2>
-
-
-            <!-- LESSON -->
-
-            <section class="lesson-section">
-
-                <h3>
-                    <i class="bi bi-book-half" aria-hidden="true"></i> Learn
-                </h3>
-
-                <p id="lessonText"></p>
-
-            </section>
-
-
-            <!-- EXAMPLE -->
-
-            <section class="lesson-section">
-
-                <h3>
-                    <i class="bi bi-lightbulb" aria-hidden="true"></i> Example
-                </h3>
-
-                <pre id="lessonExample"></pre>
-
-            </section>
-
-
-            <!-- PRACTICE -->
-
-            <section class="lesson-section">
-
-                <h3>
-                    <i class="bi bi-bullseye" aria-hidden="true"></i> Practice
-                </h3>
-
-                <p id="lessonPractice"></p>
-
-            </section>
-
-
-            <!-- CHECKLIST -->
-
-            <section class="lesson-section">
-
-                <h3>
-                    <i class="bi bi-check2-square" aria-hidden="true"></i> Check Yourself
-                </h3>
-
-                <ul id="lessonChecklist"></ul>
-
-            </section>
-
-
-            <!-- RESOURCES -->
-
-            <section class="lesson-section">
-
-                <h3>
-                    <i class="bi bi-journals" aria-hidden="true"></i> Resources
-                </h3>
-
-                <ul id="lessonResources"></ul>
-
-            </section>
-
-            <!-- MARK AS LEARNED -->
-
-<div class="lesson-complete-action">
-
-    <button
-        type="button"
-        id="markLearnedBtn"
-        class="mark-learned-btn"
-    >
-        ✓ Mark as Learned
-    </button>
-
-    <button type="button" id="nextLessonBtn" class="next-lesson-btn" hidden>
-        Next Lesson <span aria-hidden="true">→</span>
-    </button>
-
-</div>
-
-        </div>
-
-
-        <div
-            id="lessonError"
-            class="lesson-error"
-            style="display: none;"
-        ></div>
-
-    </div>
-
-</div>
-
 <script>
-
-// Fetch and display the AI lesson for the selected activity in the lesson modal.
-async function openLesson(topicId, activityIndex, activity) {
-    const modal = document.getElementById('lessonModal');
-    const loading = document.getElementById('lessonLoading');
-    const content = document.getElementById('lessonContent');
-    const error = document.getElementById('lessonError');
-    const markLearnedBtn = document.getElementById('markLearnedBtn');
-    const nextLessonBtn = document.getElementById('nextLessonBtn');
-
-    markLearnedBtn.dataset.topicId = String(topicId);
-    markLearnedBtn.dataset.activityIndex = String(activityIndex);
-
-    const lessonButtons = Array.from(document.querySelectorAll('.learn-activity-btn'));
-    const currentLessonIndex = lessonButtons.findIndex(function (lessonButton) {
-        return lessonButton.dataset.topicId === String(topicId)
-            && lessonButton.dataset.activityIndex === String(activityIndex);
-    });
-    const followingLesson = currentLessonIndex >= 0 ? lessonButtons[currentLessonIndex + 1] : null;
-    nextLessonBtn.hidden = !followingLesson;
-    if (followingLesson) {
-        nextLessonBtn.dataset.topicId = followingLesson.dataset.topicId;
-        nextLessonBtn.dataset.activityIndex = followingLesson.dataset.activityIndex;
-        nextLessonBtn.dataset.activityTitle = followingLesson.dataset.activityTitle;
-    }
-
-    let alreadyLearned = false;
-
-    // Find out whether this activity is already marked learned before showing the button.
-    document.querySelectorAll('.activity-form').forEach(function (form) {
-        const formTopicId = form.querySelector('input[name="topic_id"]');
-        const formActivityIndex = form.querySelector('input[name="activity_index"]');
-        const activityButton = form.querySelector('.activity-item');
-
-        if (
-            formTopicId &&
-            formActivityIndex &&
-            activityButton &&
-            formTopicId.value === String(topicId) &&
-            formActivityIndex.value === String(activityIndex)
-        ) {
-            alreadyLearned = activityButton.classList.contains('activity-completed');
-        }
-    });
-
-    markLearnedBtn.disabled = alreadyLearned;
-    markLearnedBtn.classList.toggle('learned', alreadyLearned);
-    markLearnedBtn.textContent = alreadyLearned
-        ? '✓ Already Learned'
-        : '✓ Mark as Learned';
-
-    modal.style.display = 'flex';
-    loading.style.display = 'block';
-    content.style.display = 'none';
-    error.style.display = 'none';
-
-    try {
-        const formData = new FormData();
-        formData.append('topic_id', topicId);
-        formData.append('activity_index', activityIndex);
-
-        const response = await fetch('api/ai-lesson.php', {
-            method: 'POST',
-            body: formData,
-            headers: { 'Accept': 'application/json' }
-        });
-
-        const responseText = await response.text();
-        let data;
-
-        try {
-            data = JSON.parse(responseText);
-        } catch (parseError) {
-            console.error('AI lesson endpoint returned a non-JSON response:', response.status, responseText);
-            throw new Error(
-                response.status >= 500
-                    ? 'The server could not generate the lesson. Check the PHP error log and Gemini API configuration, then try again.'
-                    : 'The lesson response was invalid. Please try again.'
-            );
-        }
-
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || 'Unable to generate lesson.');
-        }
-
-        document.getElementById('lessonTitle').textContent = activity;
-        document.getElementById('lessonText').textContent = data.lesson || '';
-        document.getElementById('lessonExample').textContent = data.example || '';
-        document.getElementById('lessonPractice').textContent = data.practice || '';
-
-        const checklist = document.getElementById('lessonChecklist');
-        checklist.innerHTML = '';
-
-        // Render checklist entries as text so returned content is not treated as HTML.
-        (Array.isArray(data.checklist) ? data.checklist : []).forEach(function (item) {
-            const li = document.createElement('li');
-            li.textContent = item;
-            checklist.appendChild(li);
-        });
-
-        const resources = document.getElementById('lessonResources');
-        resources.innerHTML = '';
-
-        // Render resource names as a list beneath the lesson.
-        (Array.isArray(data.resources) ? data.resources : []).forEach(function (item) {
-            const li = document.createElement('li');
-            li.textContent = item;
-            resources.appendChild(li);
-        });
-
-        loading.style.display = 'none';
-        content.style.display = 'block';
-    } catch (err) {
-        loading.style.display = 'none';
-        error.style.display = 'block';
-        error.textContent = err.message;
-    }
-}
-
-// Save the current lesson's completion and update the modal button's state.
-async function markLessonAsLearned() {
-    const button = document.getElementById('markLearnedBtn');
-    const topicId = button.dataset.topicId;
-    const activityIndex = button.dataset.activityIndex;
-
-    if (!topicId || activityIndex === '') {
-        return;
-    }
-
-    button.disabled = true;
-    button.classList.add('is-saving');
-    button.classList.remove('learned');
-    button.textContent = 'Saving...';
-
-    try {
-        const formData = new FormData();
-        formData.append('action', 'complete_activity');
-        formData.append('topic_id', topicId);
-        formData.append('activity_index', activityIndex);
-
-        const response = await fetch('api/study-path.php', {
-            method: 'POST',
-            body: formData,
-            headers: { 'Accept': 'application/json' }
-        });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.success) {
-            throw new Error(data.message || 'Unable to mark activity as learned.');
-        }
-
-        updateActivityUI(data.activity_progress || [], topicId);
-
-        button.classList.remove('is-saving');
-        button.classList.add('learned');
-        button.textContent = '✓ Learned';
-        button.disabled = true;
-
-        if (data.completed) {
-            // Reload after a short pause so the student can see the completion state.
-            setTimeout(function () {
-                window.location.reload();
-            }, 500);
-        }
-    } catch (error) {
-        alert(error.message);
-        button.classList.remove('is-saving');
-        button.disabled = false;
-        button.textContent = '✓ Mark as Learned';
-    }
-}
-
-// Refresh activity checkmarks and progress indicators for one roadmap stage.
+// Save activity completion in the background and refresh the stage progress display.
 function updateActivityUI(progress, topicId) {
-    // Update each activity button that belongs to the stage just saved.
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');
         const formActivityIndex = form.querySelector('input[name="activity_index"]');
         const item = form.querySelector('.activity-item');
         const checkbox = form.querySelector('.activity-checkbox');
+        if (!formTopicId || !formActivityIndex || !item || !checkbox || formTopicId.value !== String(topicId)) return;
 
-        if (!formTopicId || !formActivityIndex || !item || !checkbox) {
-            return;
-        }
-
-        if (formTopicId.value !== String(topicId)) {
-            return;
-        }
-
-        const index = Number(formActivityIndex.value);
-        const learned = Number(progress[index]) === 1;
-
+        const learned = Number(progress[Number(formActivityIndex.value)]) === 1;
         item.disabled = learned;
         item.classList.toggle('activity-completed', learned);
         checkbox.textContent = learned ? '✓' : '';
     });
 
-    const activitiesContainer = document.querySelector('.activities-container');
+    const container = document.querySelector('.activities-container');
+    if (!container) return;
 
-    if (!activitiesContainer) {
-        return;
-    }
-
-    // Count completed activities to calculate the progress percentage.
-    const completedCount = progress.filter(function (value) {
-        return Number(value) === 1;
-    }).length;
-
-    const count = activitiesContainer.querySelector('.activity-count');
-    if (count) {
-        count.textContent = completedCount + ' / ' + progress.length;
-    }
-
-    const percent = progress.length
-        ? Math.round((completedCount / progress.length) * 100)
-        : 0;
-
-    const progressBar = activitiesContainer.querySelector('.activity-progress-bar span');
-    if (progressBar) {
-        progressBar.style.width = percent + '%';
-    }
-
-    const progressText = activitiesContainer.querySelector('.activity-progress-container small');
-    if (progressText) {
-        progressText.textContent = percent + '% complete';
-    }
+    const completedCount = progress.filter(function (value) { return Number(value) === 1; }).length;
+    const percent = progress.length ? Math.round((completedCount / progress.length) * 100) : 0;
+    const count = container.querySelector('.activity-count');
+    const bar = container.querySelector('.activity-progress-bar span');
+    const label = container.querySelector('.activity-progress-container small');
+    if (count) count.textContent = completedCount + ' / ' + progress.length;
+    if (bar) bar.style.width = percent + '%';
+    if (label) label.textContent = percent + '% complete';
 }
 
-// Hide the lesson dialog when the student closes it.
-function closeLesson() {
-    document.getElementById('lessonModal').style.display = 'none';
-}
-
-// Attach save handlers once activity forms are available in the page.
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.activity-form').forEach(function (form) {
-        // Submit progress in the background so the page does not navigate away.
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
-
             const button = form.querySelector('.activity-item');
-            if (!button || button.disabled) {
-                return;
-            }
+            if (!button || button.disabled) return;
 
             button.disabled = true;
             button.classList.add('activity-saving');
-
-            let data = null;
-
             try {
                 const response = await fetch(form.action, {
                     method: 'POST',
                     body: new FormData(form),
                     headers: { 'Accept': 'application/json' }
                 });
-
-                const text = await response.text();
-
+                const responseText = await response.text();
+                let data;
                 try {
-                    data = JSON.parse(text);
+                    data = JSON.parse(responseText);
                 } catch (parseError) {
-                    throw new Error('Unable to save activity progress.');
+                    throw new Error('The server returned an invalid response. Please try again.');
                 }
+                if (!response.ok || !data.success) throw new Error(data.message || 'Unable to save activity progress.');
 
-                if (!response.ok || !data.success) {
-                    throw new Error(data.message || 'Unable to save activity progress.');
-                }
-
-                const topicIdInput = form.querySelector('input[name="topic_id"]');
-                const activityIndexInput = form.querySelector('input[name="activity_index"]');
-
-                if (topicIdInput && activityIndexInput) {
-                    updateActivityUI(
-                        Array.isArray(data.activity_progress) ? data.activity_progress : [],
-                        topicIdInput.value
-                    );
-                }
-
-                if (data.completed) {
-                    // Reload shortly after the final activity is saved.
-                    setTimeout(function () {
-                        window.location.reload();
-                    }, 500);
-                }
+                const topicId = form.querySelector('input[name="topic_id"]');
+                updateActivityUI(Array.isArray(data.activity_progress) ? data.activity_progress : [], topicId.value);
+                if (data.completed) setTimeout(function () { window.location.reload(); }, 500);
             } catch (error) {
-                alert(error.message);
+                alert(error.message || 'Unable to save activity progress.');
                 button.disabled = false;
             } finally {
                 button.classList.remove('activity-saving');
             }
         });
     });
-
-    const markLearnedBtn = document.getElementById('markLearnedBtn');
-
-    if (markLearnedBtn) {
-        markLearnedBtn.addEventListener('click', markLessonAsLearned);
-    }
-
-    const nextLessonBtn = document.getElementById('nextLessonBtn');
-    if (nextLessonBtn) {
-        nextLessonBtn.addEventListener('click', function () {
-            if (this.dataset.topicId && this.dataset.activityIndex && this.dataset.activityTitle) {
-                openLesson(this.dataset.topicId, this.dataset.activityIndex, this.dataset.activityTitle);
-            }
-        });
-    }
 });
 </script>
-
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

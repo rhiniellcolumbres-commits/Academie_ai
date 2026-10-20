@@ -23,6 +23,10 @@
 ========================================================= */
 
 .learn-activity-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     border: 1px solid #2b3ee2;
     background: #ffffff;
     color: #111111;
@@ -37,6 +41,7 @@
     cursor: pointer;
 
     white-space: nowrap;
+    text-decoration: none;
 
     transition: .15s ease;
 }
@@ -44,65 +49,6 @@
 .learn-activity-btn:hover {
     background: #f3f3f3;
     border-color: #aaaaaa;
-}
-
-
-/* =========================================================
-   LESSON MODAL
-========================================================= */
-
-.lesson-modal {
-    position: fixed;
-
-    inset: 0;
-
-    background: rgba(0, 0, 0, .55);
-
-    display: flex;
-
-    align-items: center;
-    justify-content: center;
-
-    padding: 20px;
-
-    z-index: 9999;
-}
-
-
-.lesson-modal-content {
-    position: relative;
-
-    width: min(760px, 100%);
-
-    max-height: 90vh;
-
-    overflow-y: auto;
-
-    background: #ffffff;
-
-    border-radius: 18px;
-
-    padding: 32px;
-
-    box-shadow: 0 20px 60px rgba(0, 0, 0, .2);
-}
-
-
-.lesson-close {
-    position: absolute;
-
-    top: 16px;
-    right: 18px;
-
-    border: none;
-
-    background: transparent;
-
-    font-size: 28px;
-
-    cursor: pointer;
-
-    color: #777777;
 }
 
 
@@ -200,10 +146,6 @@
         padding: 12px;
 
         width: 100%;
-    }
-
-    .lesson-modal-content {
-        padding: 22px;
     }
 
 }
@@ -386,6 +328,13 @@
     margin-top: 10px;
 
     color: #888888;
+}
+
+.summary-progress .roadmap-activity-total {
+    margin-top: 4px;
+    color: #475569;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 
@@ -1101,6 +1050,21 @@
     font-size: 12px;
 }
 
+.stage-next-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 12px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: #fff;
+    color: #111827;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+}
+.stage-next-link:hover { background: #e2e8f0; color: #111827; }
+
 
 /* =========================================================
    HINT
@@ -1288,16 +1252,44 @@
 .mark-learned-btn:disabled { background: #94a3b8; cursor: default; }
 .mark-learned-btn.is-saving { background: #94a3b8; }
 .mark-learned-btn.learned { background: #16a34a; }
-.lesson-complete-action { display: flex; gap: 12px; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
-.lesson-complete-action .mark-learned-btn { flex: 1; width: auto; }
-.next-lesson-btn { display: inline-flex; flex: 1; min-height: 48px; align-items: center; justify-content: center; gap: 8px; border: 1px solid #bfdbfe; border-radius: 10px; background: #eff6ff; color: #1d4ed8; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .2s ease, border-color .2s ease; }
-.next-lesson-btn:hover { border-color: #93c5fd; background: #dbeafe; }
-.next-lesson-btn:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
-.next-lesson-btn[hidden] { display: none; }
-.lesson-modal-content { border: 1px solid #dbe5f1; }
+.lesson-complete-action { margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; }
+.lesson-complete-action .mark-learned-btn { width: 100%; }
 
-@media (max-width: 520px) {
-    .lesson-complete-action { flex-direction: column; }
+/* Roadmap overview cards use native disclosure controls to keep the timeline compact. */
+.roadmap-stage-accordion { display: block; margin-bottom: 18px; }
+.roadmap-stage-summary {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    align-items: start;
+    gap: 25px;
+    cursor: pointer;
+    list-style: none;
+}
+.roadmap-stage-summary::-webkit-details-marker { display: none; }
+.roadmap-stage-summary::marker { content: ""; }
+.roadmap-stage-summary .stage-content { min-width: 0; }
+.roadmap-stage-summary .stage-content h2 { margin-bottom: 0; }
+.roadmap-expand-hint { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; color: #555; font-size: 12px; font-weight: 700; }
+.roadmap-expand-hint i { transition: transform .18s ease; }
+.roadmap-stage-accordion[open] .roadmap-expand-hint i { transform: rotate(180deg); }
+.roadmap-stage-details {
+    margin: 12px 0 0 77px;
+    padding: 16px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+}
+.roadmap-stage-details .stage-description { margin-bottom: 14px; }
+
+@media (max-width: 600px) {
+    .roadmap-stage-summary { grid-template-columns: 28px minmax(0, 1fr); gap: 7px; }
+    .roadmap-stage-summary .stage-marker { width: 28px; height: 28px; font-size: 11px; }
+    .roadmap-stage-summary .stage-content { padding: 12px; border-radius: 12px; }
+    .roadmap-stage-summary .stage-content h2 { font-size: 18px; line-height: 1.35; }
+    .roadmap-stage-summary .stage-top { flex-wrap: wrap; }
+    .roadmap-stage-details { margin: 9px 0 0 35px; padding: 13px; border-radius: 12px; font-size: 14px; }
+    .stage-complete-message { align-items: flex-start; padding: 14px; }
+    .stage-next-link { min-height: 42px; }
 }
 
 /* Keep the authenticated roadmap usable on tablets and narrow phones. */
@@ -1345,27 +1337,84 @@
     .stage-content h2 { font-size: 21px; }
     .activity-row { flex-direction: column; }
     .learn-activity-btn { min-height: 44px; width: 100%; }
-    .lesson-modal { align-items: flex-end; padding: 0; }
-    .lesson-modal-content {
-        width: 100%;
-        max-height: 92dvh;
-        padding: 24px 18px calc(20px + env(safe-area-inset-bottom));
-        border-radius: 18px 18px 0 0;
-    }
     .lesson-section { padding: 16px; }
 }
 
 @media (max-width: 520px) {
-    .roadmap-container { width: calc(100% - 24px); padding-top: 28px; }
-    .roadmap-summary { padding: 18px; gap: 18px; border-radius: 15px; }
-    .roadmap-stage { grid-template-columns: 30px minmax(0, 1fr); gap: 8px; }
+    .roadmap-container { width: calc(100% - 20px); padding-top: 22px; padding-bottom: 40px; }
+    .roadmap-header { margin-bottom: 20px; }
+    .roadmap-header h1 { font-size: clamp(28px, 8vw, 36px); }
+    .roadmap-header p { font-size: 14px; line-height: 1.55; }
+    .roadmap-summary { padding: 15px; gap: 14px; margin-bottom: 24px; border-radius: 14px; }
+    .roadmap-stage { grid-template-columns: 28px minmax(0, 1fr); gap: 7px; margin-bottom: 16px; }
     .roadmap-timeline::before { left: 14px; }
-    .stage-marker { width: 30px; height: 30px; font-size: 11px; }
-    .stage-content { padding: 14px; border-radius: 13px; }
-    .stage-content h2 { font-size: 19px; }
-    .stage-description, .stage-box p, .stage-hint { font-size: 13px; }
-    .stage-box { padding: 14px; }
-    .activity-item { gap: 8px; padding: 11px 9px; }
-    .activity-number { width: 18px; }
+    .stage-marker { width: 28px; height: 28px; font-size: 11px; }
+    .stage-content { padding: 12px; border-radius: 12px; }
+    .stage-content h2 { font-size: 18px; line-height: 1.35; }
+    .stage-description, .stage-box p, .stage-hint { font-size: 13px; line-height: 1.5; }
+    .stage-box { margin-top: 12px; padding: 12px; }
+    .activity-row { flex-direction: row; align-items: stretch; gap: 7px; }
+    .activity-row .activity-form { flex: 1 1 auto; }
+    .activity-item { min-height: 44px; gap: 6px; padding: 8px 7px; }
+    .activity-number { width: 16px; }
     .activity-text { font-size: 12px; }
+    .learn-activity-btn { flex: 0 0 94px; width: 94px; min-height: 44px; padding: 7px 5px; font-size: 12px; }
+}
+
+/* A focused lesson page keeps navigation available while the learner reads. */
+.lesson-page-container {
+    width: min(860px, calc(100% - 40px));
+    min-height: calc(100vh - 80px);
+    margin: 0 auto;
+    padding: 42px 0 110px;
+}
+.lesson-page-heading { margin: 12px 0 28px; }
+.lesson-page-heading .eyebrow { color: #64748b; font-size: 11px; font-weight: 800; letter-spacing: .1em; }
+.lesson-page-heading h1 { margin: 8px 0; color: #111827; font-size: clamp(28px, 5vw, 42px); line-height: 1.15; overflow-wrap: anywhere; }
+.lesson-page-heading p { margin: 0; color: #64748b; }
+.lesson-page-content { display: block; }
+.lesson-page-content[hidden],
+.lesson-loading[hidden],
+.lesson-error[hidden] { display: none !important; }
+.lesson-section { margin-top: 16px; padding: 22px; border: 1px solid #e2e8f0; background: #fff; box-shadow: 0 4px 16px rgba(15, 23, 42, .035); }
+.lesson-section h2 { margin: 0 0 12px; font-size: 18px; }
+.lesson-section p { white-space: pre-line; }
+.lesson-loading { display: flex; align-items: center; gap: 12px; min-height: 110px; color: #334155; }
+.lesson-loading p { margin: 0; }
+.lesson-loading-icon { margin: 0; color: #4f46e5; }
+.lesson-error { margin-top: 16px; }
+.lesson-error p { margin: 0 0 12px; }
+.lesson-retry-btn { border: 0; border-radius: 8px; padding: 9px 14px; background: #1d4ed8; color: #fff; font-weight: 700; }
+.lesson-save-message { min-height: 1.4em; margin: 10px 0 0; color: #475569; font-size: 13px; }
+.lesson-page-actions {
+    position: sticky;
+    z-index: 10;
+    bottom: calc(8px + env(safe-area-inset-bottom));
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 28px;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, .96);
+    box-shadow: 0 8px 28px rgba(15, 23, 42, .12);
+    backdrop-filter: blur(10px);
+}
+.lesson-page-actions a,
+.lesson-page-actions span { display: inline-flex; min-height: 46px; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 0 16px; font-size: 14px; font-weight: 750; text-decoration: none; }
+.lesson-action-secondary { border: 1px solid #cbd5e1; background: #fff; color: #334155; }
+.lesson-action-primary { border: 1px solid #1d4ed8; background: #1d4ed8; color: #fff; }
+.lesson-action-primary:hover { background: #1e40af; color: #fff; }
+.lesson-action-primary.is-locked { border-color: #cbd5e1; background: #e2e8f0; color: #64748b; cursor: not-allowed; }
+.lesson-action-primary.is-saving { opacity: .7; cursor: wait; }
+
+@media (max-width: 600px) {
+    .lesson-page-container { width: calc(100% - 24px); min-height: calc(100vh - 64px); padding: 24px 0 100px; }
+    .lesson-page-heading { margin: 8px 0 18px; }
+    .lesson-section { margin-top: 12px; padding: 16px; border-radius: 12px; }
+    .lesson-section h2 { font-size: 16px; }
+    .lesson-page-actions { gap: 8px; padding: 8px; }
+    .lesson-page-actions a,
+    .lesson-page-actions span { flex: 1; min-height: 44px; padding: 0 8px; font-size: 12px; }
 }

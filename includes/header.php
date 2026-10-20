@@ -1,4 +1,9 @@
 <?php
+/**
+ * Shared HTML document head for Academie pages.
+ * Pages can set $pageTitle and $pageCss before including this file; the version
+ * query uses each stylesheet's modification time so browsers reload edited CSS.
+ */
 require_once __DIR__ . '/functions.php';
 
 if (!isset($pageTitle)) {
