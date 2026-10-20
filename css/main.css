@@ -423,7 +423,7 @@ textarea.form-control {
 }
 
 .assessment-step {
-    display: none;
+    display: block;
 
     padding: 35px;
 
@@ -1361,6 +1361,32 @@ textarea.form-control {
 /* Assessment wizard: keep each prompt focused and its progress easy to scan. */
 .assessment-step[hidden],
 .assessment-wizard-actions [hidden] { display: none !important; }
+.assessment-retake-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin: 0 0 18px;
+    padding: 18px 20px;
+    border: 1px solid #f0d38a;
+    border-left: 4px solid #d89b18;
+    border-radius: 14px;
+    background: linear-gradient(120deg, #fff9e8, #fffdf7);
+    color: #443313;
+}
+.assessment-retake-icon {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border-radius: 11px;
+    background: #ffefbf;
+    color: #9b6900;
+}
+.assessment-retake-icon svg { display: block; width: 21px; height: 21px; }
+.assessment-retake-copy h2 { margin: 0 0 5px; color: #34270e; font-size: 16px; font-weight: 750; }
+.assessment-retake-copy p { margin: 0 0 7px; color: #59451f; font-size: 14px; line-height: 1.55; }
+.assessment-retake-hint { display: block; color: #745e35; font-size: 13px; line-height: 1.5; }
 .assessment-wizard-progress {
     margin: 0 0 18px;
     padding: 12px 14px;
@@ -1381,6 +1407,11 @@ textarea.form-control {
 .path-question.assessment-section { padding-top: 22px; padding-bottom: 22px; }
 .path-question .path-question-heading { margin-bottom: 16px; }
 @media (max-width: 600px) {
+    .assessment-retake-notice { gap: 11px; margin-bottom: 14px; padding: 14px; border-radius: 12px; }
+    .assessment-retake-icon { flex-basis: 34px; width: 34px; height: 34px; border-radius: 10px; }
+    .assessment-retake-copy h2 { font-size: 15px; }
+    .assessment-retake-copy p { font-size: 13px; }
+    .assessment-retake-hint { font-size: 12px; }
     .assessment-wizard-progress { margin-bottom: 12px; padding: 10px 12px; }
     .assessment-wizard-actions { margin-top: 12px; }
 }
@@ -3723,7 +3754,7 @@ a i {
 }
 
 .path-question {
-    padding: 24px 0;
+    padding: 24px 30px;
     border-top: 1px solid #e2e8f0;
 }
 
@@ -3769,14 +3800,20 @@ a i {
 }
 
 .path-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 12px;
 }
 
 .assessment-option.path-choice {
     display: flex;
-    min-height: 76px;
+    min-height: 68px;
     align-items: center;
-    padding: 15px 48px 15px 17px;
+    padding: 12px 44px 12px 15px;
+}
+.path-question-item + .path-question-item {
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
 }
 
 .assessment-option.path-choice::after {
@@ -3804,8 +3841,10 @@ a i {
 }
 
 @media (max-width: 650px) {
+    .path-choice-grid { grid-template-columns: 1fr; }
+    .path-question-item + .path-question-item { margin-top: 18px; padding-top: 18px; }
     .path-question {
-        padding: 20px 0;
+        padding: 18px 16px;
     }
 
     .path-question-heading {
@@ -3843,7 +3882,7 @@ a i {
     .option-content { gap: 3px; }
     .option-content strong { font-size: 15px; }
     .option-content small { font-size: 13px; line-height: 1.5; }
-    .path-question { padding: 15px 0; }
+    .path-question { padding: 15px 14px; }
     .path-choice-grid { gap: 7px; }
     .assessment-option.path-choice { min-height: 54px; padding: 10px 42px 10px 12px; }
     .assessment-option.path-choice .option-content strong { font-size: 14px; }

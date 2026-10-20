@@ -17,7 +17,7 @@ $appBaseUrl = ($scriptDirectory === '' || $scriptDirectory === '.') ? '' : $scri
     <div class="site-footer-inner">
         <aside class="site-disclaimer" aria-label="Academic project disclaimer">
             <strong>Disclaimer:</strong>
-            StudyPath AI is developed for demonstration and academic purposes as part of a student project.
+            Academie is developed for demonstration and academic purposes as part of a student project.
             It is not an official educational institution or professional advisory service.
             AI-generated learning paths and study materials are provided for educational guidance only and may require verification.
         </aside>
@@ -29,7 +29,7 @@ $appBaseUrl = ($scriptDirectory === '' || $scriptDirectory === '.') ? '' : $scri
             <a href="<?= htmlspecialchars($appBaseUrl, ENT_QUOTES, 'UTF-8') ?>/copyright">Copyright</a>
         </nav>
 
-        <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
+        <p class="site-copyright">&copy; <?= date('Y') ?> Academie</p>
     </div>
 </footer>
 

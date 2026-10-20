@@ -98,10 +98,18 @@ if (!$hasExistingRoadmap) {
         <?php endif; ?>
 
         <?php if ($isRetake): ?>
-            <div class="alert alert-warning mb-4" role="alert">
-                <strong>You're retaking your assessment.</strong>
-                Your current roadmap and its stage/activity progress will be replaced when you generate the new roadmap.
-                Your previous answers are prefilled so you can update only what has changed.
+            <div class="assessment-retake-notice" role="alert">
+                <span class="assessment-retake-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3.5 2.9 19.2a1.5 1.5 0 0 0 1.3 2.3h15.6a1.5 1.5 0 0 0 1.3-2.3L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                        <path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <div class="assessment-retake-copy">
+                    <h2>You're updating your assessment</h2>
+                    <p>Generating a new roadmap will replace your current roadmap and reset its stage and activity progress.</p>
+                    <span class="assessment-retake-hint">Your previous answers are filled in. Review them and change anything that has changed.</span>
+                </div>
             </div>
         <?php endif; ?>
 
@@ -112,8 +120,8 @@ if (!$hasExistingRoadmap) {
         >
             <input type="hidden" name="retake_assessment" value="<?= $isRetake ? '1' : '0' ?>">
             <div class="assessment-wizard-progress" aria-live="polite" aria-label="Assessment progress">
-                <div><span id="assessmentStepLabel">Step 1 of 8</span><span id="assessmentProgressPercent">13%</span></div>
-                <div class="assessment-progress-track"><span id="assessmentProgressBar"></span></div>
+                <div><span id="assessmentStepLabel">Step 1 of 4</span><span id="assessmentProgressPercent">25%</span></div>
+                <div class="assessment-progress-track"><span id="assessmentProgressBar" style="width:25%"></span></div>
             </div>
             <p class="assessment-step-error" id="assessmentStepError" role="alert" hidden></p>
             <!-- =========================
@@ -457,26 +465,38 @@ if (!$hasExistingRoadmap) {
                         'SE' => 'A well-tested program that solves a practical problem'
                     ]]
                 ];
-                $questionIndex = 0;
-                foreach ($assessmentQuestions as $field => $question):
-                    $questionIndex++;
                 ?>
                 <section class="assessment-section assessment-step path-question" data-assessment-step>
-                    <div class="path-question-heading">
-                        <span class="path-question-number"><?= sprintf('%02d', $questionIndex) ?></span>
-                        <h3><?= e($question[0]) ?></h3>
-                        <span class="path-single-choice">Choose one</span>
+                    <div class="assessment-section-header">
+                        <span class="question-number">03</span>
+                        <div>
+                            <h2>Discover your best-fit technology</h2>
+                            <p>Answer these five questions based on what interests you. Your choices help us recommend a technology specialization and shape your roadmap.</p>
+                        </div>
                     </div>
-                    <div class="assessment-options path-choice-grid">
-                        <?php foreach ($question[1] as $code => $label): ?>
-                        <label class="assessment-option path-choice">
-                            <input type="radio" name="<?= e($field) ?>" value="<?= e($code) ?>" required <?= (($savedQuestionAnswers[$field] ?? '') === $code) ? 'checked' : '' ?>>
-                            <span class="option-content"><strong><?= e($label) ?></strong></span>
-                        </label>
-                        <?php endforeach; ?>
+
+                    <?php
+                    $questionIndex = 0;
+                    foreach ($assessmentQuestions as $field => $question):
+                        $questionIndex++;
+                    ?>
+                    <div class="path-question-item">
+                        <div class="path-question-heading">
+                            <span class="path-question-number"><?= sprintf('%02d', $questionIndex) ?></span>
+                            <h3><?= e($question[0]) ?></h3>
+                            <span class="path-single-choice">Choose one</span>
+                        </div>
+                        <div class="assessment-options path-choice-grid">
+                            <?php foreach ($question[1] as $code => $label): ?>
+                            <label class="assessment-option path-choice">
+                                <input type="radio" name="<?= e($field) ?>" value="<?= e($code) ?>" required <?= (($savedQuestionAnswers[$field] ?? '') === $code) ? 'checked' : '' ?>>
+                                <span class="option-content"><strong><?= e($label) ?></strong></span>
+                            </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
+                    <?php endforeach; ?>
                 </section>
-                <?php endforeach; ?>
                 <input type="hidden" name="career_goal" value="">
 
             <!-- =========================
@@ -559,9 +579,22 @@ if (!$hasExistingRoadmap) {
             });
         }
 
+        function firstUnansweredRadio(step) {
+            const requiredRadios = Array.from(step.querySelectorAll('input[type="radio"][required]'));
+            const groupNames = [...new Set(requiredRadios.map(function (input) { return input.name; }))];
+            const unansweredName = groupNames.find(function (name) {
+                return !step.querySelector('input[name="' + name + '"]:checked');
+            });
+            return unansweredName
+                ? step.querySelector('input[name="' + unansweredName + '"][required]')
+                : null;
+        }
+
         function renderStep() {
             steps.forEach(function (step, index) {
-                step.hidden = index !== activeStep;
+                const isActive = index === activeStep;
+                step.hidden = !isActive;
+                step.classList.toggle('active', isActive);
             });
 
             const current = activeStep + 1;
@@ -577,16 +610,17 @@ if (!$hasExistingRoadmap) {
 
         nextButton.addEventListener('click', function () {
             if (!stepIsComplete(steps[activeStep])) {
-                errorMessage.textContent = 'Choose an answer before continuing.';
+                errorMessage.textContent = steps[activeStep].classList.contains('path-question')
+                    ? 'Please answer all five questions before continuing.'
+                    : 'Choose an answer before continuing.';
                 errorMessage.hidden = false;
-                const firstRadio = steps[activeStep].querySelector('input[type="radio"][required]');
-                if (firstRadio) firstRadio.focus();
+                const firstUnanswered = firstUnansweredRadio(steps[activeStep]);
+                if (firstUnanswered) firstUnanswered.focus();
                 return;
             }
             if (activeStep < steps.length - 1) {
                 activeStep++;
                 renderStep();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
@@ -594,7 +628,6 @@ if (!$hasExistingRoadmap) {
             if (activeStep > 0) {
                 activeStep--;
                 renderStep();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         });
 
@@ -604,9 +637,12 @@ if (!$hasExistingRoadmap) {
                 event.preventDefault();
                 activeStep = incompleteIndex;
                 renderStep();
-                errorMessage.textContent = 'Choose an answer before continuing.';
+                errorMessage.textContent = steps[incompleteIndex].classList.contains('path-question')
+                    ? 'Please answer all five questions before continuing.'
+                    : 'Choose an answer before continuing.';
                 errorMessage.hidden = false;
-                window.scrollTo({ top: 0, behavior: 'smooth' });
+                const firstUnanswered = firstUnansweredRadio(steps[incompleteIndex]);
+                if (firstUnanswered) firstUnanswered.focus();
             }
         });
 
