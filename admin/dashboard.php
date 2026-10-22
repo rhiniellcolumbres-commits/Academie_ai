@@ -1,13 +1,20 @@
 <?php
 require_once __DIR__ . '/_auth.php';
+
 require_once __DIR__ . '/../includes/db.php';
 
 $totalUsers = (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+
 $totalAssessments = (int)$pdo->query('SELECT COUNT(*) FROM assessments')->fetchColumn();
+
 $totalRoadmaps = (int)$pdo->query("SELECT COUNT(*) FROM ai_usage_logs WHERE usage_type='assessment_roadmap'")->fetchColumn();
+
 $totalLessons = (int)$pdo->query("SELECT COUNT(*) FROM ai_usage_logs WHERE usage_type='ai_lesson'")->fetchColumn();
+
 $fallbackRequests = (int)$pdo->query("SELECT COUNT(*) FROM ai_usage_logs WHERE status='fallback'")->fetchColumn();
+
 $failedRequests = (int)$pdo->query("SELECT COUNT(*) FROM ai_usage_logs WHERE status='failed'")->fetchColumn();
+
 $loginsToday = (int)$pdo->query("SELECT COUNT(*) FROM user_activity_logs WHERE event_type='login' AND created_at >= CURDATE()")->fetchColumn();
 
 $usage = $pdo->query("
@@ -38,9 +45,10 @@ $aiActivity = $pdo->query("
     ORDER BY l.created_at DESC, l.id DESC
     LIMIT 50
 ")->fetchAll(PDO::FETCH_ASSOC);
+
 $lastAiUse = $aiActivity[0]['created_at'] ?? null;
 
-/** Escape a database value before placing it in the admin dashboard's HTML. */
+// Escapes text for safe HTML output.
 function h($value): string { return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8'); }
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard | StudyPath</title>

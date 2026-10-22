@@ -1,11 +1,14 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
+
 if (!empty($_SESSION['user_id'])) {
     header('Location: dashboard');
     exit;
 }
+
 $error = $_SESSION['auth_error'] ?? '';
 unset($_SESSION['auth_error']);
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -68,10 +71,7 @@ if (empty($_SESSION['csrf_token'])) {
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Eye icon toggles between showing and hiding the password.
-// Attach password visibility controls to every password field on the page.
 document.querySelectorAll('.toggle-password').forEach(function (button) {
-    // Switch the associated password input between hidden and readable text.
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);
         var show = input.type === 'password';

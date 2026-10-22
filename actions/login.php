@@ -1,9 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/audit.php';
 
-/** Store a login error for the next page load and redirect back to the form. */
+// Saves a login error and returns to the login form.
 function login_error(string $message): void {
     $_SESSION['auth_error'] = $message;
     header('Location: ../login');
@@ -23,8 +23,6 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL) || $password === '') {
     login_error('Invalid email or password.');
 }
 
-// Rate-limit by the combination of normalized email and client IP.
-// Store only a SHA-256 key, not the raw email/IP combination.
 $clientIp = (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 $limiterKey = hash('sha256', $email . '|' . $clientIp);
 $limitStmt = $pdo->prepare(
@@ -42,7 +40,7 @@ $stmt = $pdo->prepare('SELECT id, email, password FROM users WHERE email = ? LIM
 $stmt->execute([$email]);
 $user = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$user || !password_verify($password, $user['password'])) {
-    // Five failed attempts in a 15-minute window trigger a 15-minute block.
+    
     $withinWindow = $limitRow && (strtotime($limitRow['window_started_at']) > ($now - 900));
     $attempts = $withinWindow ? ((int)$limitRow['attempts'] + 1) : 1;
     $windowStartedAt = $withinWindow ? $limitRow['window_started_at'] : date('Y-m-d H:i:s');
@@ -57,9 +55,9 @@ if (!$user || !password_verify($password, $user['password'])) {
     login_error('Invalid email or password.');
 }
 
-// Clear the failed-attempt counter after a successful login.
 $clearLimit = $pdo->prepare('DELETE FROM security_login_attempts WHERE limiter_key = ?');
 $clearLimit->execute([$limiterKey]);
+
 session_regenerate_id(true);
 $_SESSION['user_id'] = (int)$user['id'];
 unset($_SESSION['csrf_token'], $_SESSION['auth_error']);

@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/includes/auth.php';
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -12,12 +13,19 @@ if (!$user) {
     exit;
 }
 
+$savedLevel = $user['current_level'] ?? '';
+$savedGoal = $user['improvement_goal'] ?? '';
+
 $assessmentStmt = $pdo->prepare(
     'SELECT * FROM assessments WHERE user_id = ? LIMIT 1'
 );
+
 $assessmentStmt->execute([(int) $_SESSION['user_id']]);
+
 $savedAssessment = $assessmentStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
 $savedAnswerData = json_decode((string) ($savedAssessment['assessment_answers'] ?? ''), true);
+
 $savedQuestionAnswers = is_array($savedAnswerData['answers'] ?? null)
     ? $savedAnswerData['answers']
     : [];
@@ -25,16 +33,17 @@ $savedQuestionAnswers = is_array($savedAnswerData['answers'] ?? null)
 $roadmapStmt = $pdo->prepare(
     'SELECT id FROM study_paths WHERE user_id = ? LIMIT 1'
 );
+
 $roadmapStmt->execute([(int) $_SESSION['user_id']]);
+
 $hasExistingRoadmap = (bool) $roadmapStmt->fetchColumn();
+
 $isRetake = isset($_GET['retake']) && $_GET['retake'] === '1';
 
-// Students with an existing roadmap must intentionally choose to retake the assessment.
 if ($hasExistingRoadmap && !$isRetake) {
     redirect('dashboard?notice=assessment_exists');
 }
 
-// Do not show the retake warning if the student has no roadmap to replace.
 if (!$hasExistingRoadmap) {
     $isRetake = false;
 }
@@ -64,15 +73,9 @@ if (!$hasExistingRoadmap) {
 
 <body class="assessment-page">
 
-    <!-- Shared student navbar -->
-    <?php require __DIR__ . '/includes/navbar.php'; ?>
+<?php require __DIR__ . '/includes/navbar.php'; ?>
 
-
-    <!-- =========================
-         ASSESSMENT
-    ========================== -->
-
-    <main class="assessment-wrapper">
+<main class="assessment-wrapper">
 
         <div class="assessment-intro">
 
@@ -90,8 +93,7 @@ if (!$hasExistingRoadmap) {
 
         </div>
 
-
-        <?php if (isset($_GET['error'])): ?>
+<?php if (isset($_GET['error'])): ?>
             <div class="alert alert-warning text-center mb-4">
                 Please complete all assessment questions.
             </div>
@@ -124,11 +126,8 @@ if (!$hasExistingRoadmap) {
                 <div class="assessment-progress-track"><span id="assessmentProgressBar" style="width:25%"></span></div>
             </div>
             <p class="assessment-step-error" id="assessmentStepError" role="alert" hidden></p>
-            <!-- =========================
-                 CURRENT LEVEL
-            ========================== -->
 
-            <section class="assessment-section assessment-step" data-assessment-step>
+<section class="assessment-section assessment-step" data-assessment-step>
 
                 <div class="assessment-section-header">
 
@@ -150,17 +149,15 @@ if (!$hasExistingRoadmap) {
 
                 </div>
 
+<div class="assessment-options">
 
-                <div class="assessment-options">
-
-
-                    <label class="assessment-option">
+<label class="assessment-option">
 
                         <input
                             type="radio"
                             name="current_level"
                             value="Complete Beginner"
-                            required <?= (($user['current_level'] ?? '') === 'Complete Beginner') ? 'checked' : '' ?>
+                            required <?= $savedLevel === 'Complete Beginner' ? 'checked' : '' ?>
                         >
 
                         <span class="option-content">
@@ -178,13 +175,12 @@ if (!$hasExistingRoadmap) {
 
                     </label>
 
-
-                    <label class="assessment-option">
+<label class="assessment-option">
 
                         <input
                             type="radio"
                             name="current_level"
-                            value="Beginner" <?= (($user['current_level'] ?? '') === 'Beginner') ? 'checked' : '' ?>
+                            value="Beginner" <?= $savedLevel === 'Beginner' ? 'checked' : '' ?>
                         >
 
                         <span class="option-content">
@@ -202,13 +198,12 @@ if (!$hasExistingRoadmap) {
 
                     </label>
 
-
-                    <label class="assessment-option">
+<label class="assessment-option">
 
                         <input
                             type="radio"
                             name="current_level"
-                            value="Intermediate" <?= (($user['current_level'] ?? '') === 'Intermediate') ? 'checked' : '' ?>
+                            value="Intermediate" <?= $savedLevel === 'Intermediate' ? 'checked' : '' ?>
                         >
 
                         <span class="option-content">
@@ -226,13 +221,12 @@ if (!$hasExistingRoadmap) {
 
                     </label>
 
-
-                    <label class="assessment-option">
+<label class="assessment-option">
 
                         <input
                             type="radio"
                             name="current_level"
-                            value="Advanced" <?= (($user['current_level'] ?? '') === 'Advanced') ? 'checked' : '' ?>
+                            value="Advanced" <?= $savedLevel === 'Advanced' ? 'checked' : '' ?>
                         >
 
                         <span class="option-content">
@@ -250,19 +244,9 @@ if (!$hasExistingRoadmap) {
 
                     </label>
 
-
-                </div>
+</div>
 
             </section>
-
-
-            <!-- =========================
-                 IMPROVEMENT GOAL
-            ========================== -->
-
-            <!-- =========================
-     IMPROVEMENT GOAL
-========================== -->
 
 <section class="assessment-section assessment-step" data-assessment-step>
 
@@ -286,17 +270,15 @@ if (!$hasExistingRoadmap) {
 
     </div>
 
+<div class="assessment-options">
 
-    <div class="assessment-options">
-
-
-        <label class="assessment-option">
+<label class="assessment-option">
 
             <input
                 type="radio"
                 name="improvement_goal"
                 value="Learn the Fundamentals"
-                required <?= (($user['improvement_goal'] ?? '') === 'Learn the Fundamentals') ? 'checked' : '' ?>
+                required <?= $savedGoal === 'Learn the Fundamentals' ? 'checked' : '' ?>
             >
 
             <span class="option-content">
@@ -314,13 +296,12 @@ if (!$hasExistingRoadmap) {
 
         </label>
 
-
-        <label class="assessment-option">
+<label class="assessment-option">
 
             <input
                 type="radio"
                 name="improvement_goal"
-                value="Improve My Skills" <?= (($user['improvement_goal'] ?? '') === 'Improve My Skills') ? 'checked' : '' ?>
+                value="Improve My Skills" <?= $savedGoal === 'Improve My Skills' ? 'checked' : '' ?>
             >
 
             <span class="option-content">
@@ -338,13 +319,12 @@ if (!$hasExistingRoadmap) {
 
         </label>
 
-
-        <label class="assessment-option">
+<label class="assessment-option">
 
             <input
                 type="radio"
                 name="improvement_goal"
-                value="Build Practical Experience" <?= (($user['improvement_goal'] ?? '') === 'Build Practical Experience') ? 'checked' : '' ?>
+                value="Build Practical Experience" <?= $savedGoal === 'Build Practical Experience' ? 'checked' : '' ?>
             >
 
             <span class="option-content">
@@ -362,13 +342,12 @@ if (!$hasExistingRoadmap) {
 
         </label>
 
-
-        <label class="assessment-option">
+<label class="assessment-option">
 
             <input
                 type="radio"
                 name="improvement_goal"
-                value="Prepare for a Career" <?= (($user['improvement_goal'] ?? '') === 'Prepare for a Career') ? 'checked' : '' ?>
+                value="Prepare for a Career" <?= $savedGoal === 'Prepare for a Career' ? 'checked' : '' ?>
             >
 
             <span class="option-content">
@@ -386,13 +365,12 @@ if (!$hasExistingRoadmap) {
 
         </label>
 
-
-        <label class="assessment-option">
+<label class="assessment-option">
 
             <input
                 type="radio"
                 name="improvement_goal"
-                value="Prepare for Further Studies" <?= (($user['improvement_goal'] ?? '') === 'Prepare for Further Studies') ? 'checked' : '' ?>
+                value="Prepare for Further Studies" <?= $savedGoal === 'Prepare for Further Studies' ? 'checked' : '' ?>
             >
 
             <span class="option-content">
@@ -410,14 +388,11 @@ if (!$hasExistingRoadmap) {
 
         </label>
 
-
-    </div>
+</div>
 
 </section>
 
-
-            <!-- Each path question is its own step so learners see a focused screen. -->
-                <?php
+<?php
                 $assessmentQuestions = [
                     'q_interest' => ['What would you most enjoy creating?', [
                         'FULLSTACK' => 'A complete website or application, from screen to database',
@@ -497,13 +472,8 @@ if (!$hasExistingRoadmap) {
                     </div>
                     <?php endforeach; ?>
                 </section>
-                <input type="hidden" name="career_goal" value="">
 
-            <!-- =========================
-                 PERSONAL DETAILS FOR AI
-            ========================== -->
-
-            <section class="assessment-section assessment-step" data-assessment-step>
+<section class="assessment-section assessment-step" data-assessment-step>
 
                 <div class="assessment-section-header">
 
@@ -531,12 +501,7 @@ if (!$hasExistingRoadmap) {
 
             </section>
 
-
-            <!-- =========================
-                 BUTTONS
-            ========================== -->
-
-            <div class="assessment-actions assessment-wizard-actions">
+<div class="assessment-actions assessment-wizard-actions">
                 <button type="button" class="assessment-back" id="assessmentBackBtn" disabled>← Previous</button>
                 <button type="button" class="assessment-start" id="assessmentNextBtn">Next →</button>
                 <button type="submit" class="assessment-start" id="assessmentSubmitBtn" hidden>
@@ -544,61 +509,77 @@ if (!$hasExistingRoadmap) {
                 </button>
             </div>
 
-
-        </form>
+</form>
 
     </main>
 
+<script>
 
-    <script>
-
-    // Show one assessment step at a time and validate each required answer before advancing.
     document.addEventListener('DOMContentLoaded', function () {
 
-        const form = document.getElementById('assessmentForm');
+        var form = document.getElementById('assessmentForm');
 
         if (!form) {
             return;
         }
 
-        const steps = Array.from(form.querySelectorAll('[data-assessment-step]'));
-        const backButton = document.getElementById('assessmentBackBtn');
-        const nextButton = document.getElementById('assessmentNextBtn');
-        const submitButton = document.getElementById('assessmentSubmitBtn');
-        const stepLabel = document.getElementById('assessmentStepLabel');
-        const percentLabel = document.getElementById('assessmentProgressPercent');
-        const progressBar = document.getElementById('assessmentProgressBar');
-        const errorMessage = document.getElementById('assessmentStepError');
-        let activeStep = 0;
+        var steps = form.querySelectorAll('[data-assessment-step]');
+        var backButton = document.getElementById('assessmentBackBtn');
+        var nextButton = document.getElementById('assessmentNextBtn');
+        var submitButton = document.getElementById('assessmentSubmitBtn');
+        var stepLabel = document.getElementById('assessmentStepLabel');
+        var percentLabel = document.getElementById('assessmentProgressPercent');
+        var progressBar = document.getElementById('assessmentProgressBar');
+        var errorMessage = document.getElementById('assessmentStepError');
+        var activeStep = 0;
 
-        function stepIsComplete(step) {
-            const requiredRadios = Array.from(step.querySelectorAll('input[type="radio"][required]'));
-            const groupNames = [...new Set(requiredRadios.map(function (input) { return input.name; }))];
-            return groupNames.every(function (name) {
-                return step.querySelector('input[name="' + name + '"]:checked');
-            });
-        }
-
+        // Finds the first unanswered required question in a step.
         function firstUnansweredRadio(step) {
-            const requiredRadios = Array.from(step.querySelectorAll('input[type="radio"][required]'));
-            const groupNames = [...new Set(requiredRadios.map(function (input) { return input.name; }))];
-            const unansweredName = groupNames.find(function (name) {
-                return !step.querySelector('input[name="' + name + '"]:checked');
-            });
-            return unansweredName
-                ? step.querySelector('input[name="' + unansweredName + '"][required]')
-                : null;
+            var radios = step.querySelectorAll('input[type="radio"][required]');
+            var checkedGroups = {};
+
+            for (var i = 0; i < radios.length; i++) {
+                var radio = radios[i];
+
+                if (!checkedGroups[radio.name]) {
+                    checkedGroups[radio.name] = true;
+
+                    if (!step.querySelector('input[name="' + radio.name + '"]:checked')) {
+                        return radio;
+                    }
+                }
+            }
+
+            return null;
         }
 
-        function renderStep() {
-            steps.forEach(function (step, index) {
-                const isActive = index === activeStep;
-                step.hidden = !isActive;
-                step.classList.toggle('active', isActive);
-            });
+        // Checks whether all required questions in a step are answered.
+        function stepIsComplete(step) {
+            return firstUnansweredRadio(step) === null;
+        }
 
-            const current = activeStep + 1;
-            const percent = Math.round((current / steps.length) * 100);
+        // Returns the validation message for an assessment step.
+        function getErrorText(step) {
+            if (step.classList.contains('path-question')) {
+                return 'Please answer all five questions before continuing.';
+            }
+            return 'Choose an answer before continuing.';
+        }
+
+        // Displays the current assessment step and progress.
+        function renderStep() {
+            for (var i = 0; i < steps.length; i++) {
+                if (i === activeStep) {
+                    steps[i].hidden = false;
+                    steps[i].classList.add('active');
+                } else {
+                    steps[i].hidden = true;
+                    steps[i].classList.remove('active');
+                }
+            }
+
+            var current = activeStep + 1;
+            var percent = Math.round((current / steps.length) * 100);
             stepLabel.textContent = 'Step ' + current + ' of ' + steps.length;
             percentLabel.textContent = percent + '%';
             progressBar.style.width = percent + '%';
@@ -610,11 +591,9 @@ if (!$hasExistingRoadmap) {
 
         nextButton.addEventListener('click', function () {
             if (!stepIsComplete(steps[activeStep])) {
-                errorMessage.textContent = steps[activeStep].classList.contains('path-question')
-                    ? 'Please answer all five questions before continuing.'
-                    : 'Choose an answer before continuing.';
+                errorMessage.textContent = getErrorText(steps[activeStep]);
                 errorMessage.hidden = false;
-                const firstUnanswered = firstUnansweredRadio(steps[activeStep]);
+                var firstUnanswered = firstUnansweredRadio(steps[activeStep]);
                 if (firstUnanswered) firstUnanswered.focus();
                 return;
             }
@@ -632,23 +611,31 @@ if (!$hasExistingRoadmap) {
         });
 
         form.addEventListener('submit', function (event) {
-            const incompleteIndex = steps.findIndex(function (step) { return !stepIsComplete(step); });
+            var incompleteIndex = -1;
+            for (var i = 0; i < steps.length; i++) {
+                if (!stepIsComplete(steps[i])) {
+                    incompleteIndex = i;
+                    break;
+                }
+            }
+
             if (incompleteIndex !== -1) {
                 event.preventDefault();
                 activeStep = incompleteIndex;
                 renderStep();
-                errorMessage.textContent = steps[incompleteIndex].classList.contains('path-question')
-                    ? 'Please answer all five questions before continuing.'
-                    : 'Choose an answer before continuing.';
+                errorMessage.textContent = getErrorText(steps[incompleteIndex]);
                 errorMessage.hidden = false;
-                const firstUnanswered = firstUnansweredRadio(steps[incompleteIndex]);
+                var firstUnanswered = firstUnansweredRadio(steps[incompleteIndex]);
                 if (firstUnanswered) firstUnanswered.focus();
             }
         });
 
-        // If the server returned an error, take the learner to the first unanswered step.
-        const firstIncomplete = steps.findIndex(function (step) { return !stepIsComplete(step); });
-        activeStep = firstIncomplete === -1 ? 0 : firstIncomplete;
+        for (var i = 0; i < steps.length; i++) {
+            if (!stepIsComplete(steps[i])) {
+                activeStep = i;
+                break;
+            }
+        }
         renderStep();
 
     });

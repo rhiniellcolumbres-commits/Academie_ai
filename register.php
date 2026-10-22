@@ -1,11 +1,14 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
+
 if (!empty($_SESSION['user_id'])) {
     header('Location: dashboard');
     exit;
 }
+
 $error = $_SESSION['auth_error'] ?? '';
 unset($_SESSION['auth_error']);
+
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
@@ -83,7 +86,6 @@ if (empty($_SESSION['csrf_token'])) {
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-// Check email availability when the student leaves the email field.
 const registrationForm = document.querySelector('form[action="actions/register.php"]');
 const emailInput = document.getElementById('email');
 const emailFeedback = document.getElementById('email-feedback');
@@ -93,7 +95,6 @@ const confirmPasswordInput = document.getElementById('confirm_password');
 const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
 let emailCheckSequence = 0;
 
-// Ask the server whether a valid email is already registered; the submit handler also checks it.
 emailInput.addEventListener('blur', async function () {
     const email = emailInput.value.trim();
     const sequence = ++emailCheckSequence;
@@ -124,14 +125,13 @@ emailInput.addEventListener('blur', async function () {
     }
 });
 
-// Clear stale duplicate-email feedback as soon as the email is edited.
 emailInput.addEventListener('input', function () {
     emailCheckSequence++;
     emailInput.setCustomValidity('');
     emailFeedback.textContent = '';
 });
 
-// Show which password rules are still missing while the student types.
+// Checks that the password meets the required rules.
 function validatePasswordPattern() {
     const password = passwordInput.value;
     const missing = [];
@@ -155,7 +155,7 @@ function validatePasswordPattern() {
 
 passwordInput.addEventListener('input', validatePasswordPattern);
 
-// Keep the confirmation field's browser validation in sync with the password field.
+// Checks that both password fields match.
 function validatePasswordMatch() {
     const matches = confirmPasswordInput.value === passwordInput.value;
     confirmPasswordInput.setCustomValidity(matches ? '' : 'The passwords do not match.');
@@ -165,10 +165,7 @@ function validatePasswordMatch() {
 passwordInput.addEventListener('input', validatePasswordMatch);
 confirmPasswordInput.addEventListener('input', validatePasswordMatch);
 
-// Eye icon toggles between showing and hiding the password.
-// Attach password visibility controls to every password field on the page.
 document.querySelectorAll('.toggle-password').forEach(function (button) {
-    // Switch the associated password input between hidden and readable text.
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);
         var show = input.type === 'password';

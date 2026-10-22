@@ -1,36 +1,46 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/bootstrap.php';
+
 require_once __DIR__ . '/../includes/db.php';
 
 $count = (int)$pdo->query('SELECT COUNT(*) FROM admin_users')->fetchColumn();
 if ($count > 0) {
+    
     http_response_code(404);
     exit('Not found.');
 }
 
 $message = '';
+
 if (empty($_SESSION['admin_setup_csrf'])) {
     $_SESSION['admin_setup_csrf'] = bin2hex(random_bytes(32));
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $count === 0) {
+    
     $submittedToken = (string) ($_POST['csrf_token'] ?? '');
     if ($submittedToken === '' || !hash_equals((string) $_SESSION['admin_setup_csrf'], $submittedToken)) {
         http_response_code(403);
         exit('Invalid security token. Reload the page and try again.');
     }
+    
     $username = trim($_POST['username'] ?? '');
     $password = $_POST['password'] ?? '';
+    
     if (!preg_match('/^[A-Za-z0-9_.-]{4,80}$/', $username) || strlen($password) < 12) {
         $message = 'Username must be 4–80 characters (letters, numbers, dots, underscores, or hyphens). Password must be at least 12 characters.';
     } else {
         try {
+            
             $stmt = $pdo->prepare('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)');
+            
             $stmt->execute([$username, password_hash($password, PASSWORD_DEFAULT)]);
+            
             $message = 'Admin account created. Setup is now disabled. Remove admin/setup.php from the server after setup.';
             $count = 1;
             unset($_SESSION['admin_setup_csrf']);
         } catch (PDOException $e) {
+            
             $message = 'Could not create admin account. Check whether the username is already used.';
         }
     }

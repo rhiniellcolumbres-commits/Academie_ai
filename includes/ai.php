@@ -1,22 +1,11 @@
 <?php
 
-/**
- * AI integration helpers for Academie's roadmap and lesson features.
- * These functions prepare prompts, call Gemini, validate its JSON output,
- * and return consistent PHP arrays for the page handlers.
- */
-
 require_once __DIR__ . '/../config/gemini.php';
 
-/*
-|--------------------------------------------------------------------------
-| AI Roadmap Schema
-|--------------------------------------------------------------------------
-*/
-
-// Tell Gemini which fields to include in its roadmap response.
+// Defines the expected structure of an AI generated roadmap.
 function ai_roadmap_schema()
 {
+    
     return [
         'type' => 'object',
         'properties' => [
@@ -82,18 +71,17 @@ function ai_roadmap_schema()
     ];
 }
 
-//ROADMAP
-
-// Combine the student's answers with instructions for making a five-stage roadmap.
+// Builds the prompt used to generate a personalized roadmap.
 function ai_build_roadmap_prompt($user)
 {
+    
     $level = trim((string)($user['current_level'] ?? 'Beginner'));
     $goal = trim((string)($user['improvement_goal'] ?? 'Improve My Skills'));
     $career = trim((string)($user['career_goal'] ?? ''));
     $interests = trim((string)($user['interests'] ?? ''));
     $skills = trim((string)($user['skills'] ?? ''));
 
-    return "You are Academie, an academic study-roadmap planner for college students.
+return "You are Academie, an academic study-roadmap planner for college students.
 
 Create a practical and personalized learning roadmap for this student.
 
@@ -132,16 +120,10 @@ Rules:
 - Return only the requested structured JSON data.";
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Send Prompt to Gemini
-|--------------------------------------------------------------------------
-*/
-
-// Send a request to Gemini, retry temporary failures, and return its text or an error message.
+// Sends a prompt to Gemini and returns its response.
 function gemini_interaction_request($prompt, $schema = null)
 {
+    
     if (!gemini_is_configured()) {
         return [
             'success' => false,
@@ -150,7 +132,7 @@ function gemini_interaction_request($prompt, $schema = null)
         ];
     }
 
-    if (!function_exists('curl_init')) {
+if (!function_exists('curl_init')) {
         return [
             'success' => false,
             'configured' => true,
@@ -158,14 +140,14 @@ function gemini_interaction_request($prompt, $schema = null)
         ];
     }
 
-    $url = 'https://generativelanguage.googleapis.com/v1beta/interactions';
+$url = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 
     $payload = [
         'model' => 'gemini-3.5-flash-lite',
         'input' => $prompt
     ];
 
-    if ($schema !== null) {
+if ($schema !== null) {
         $payload['response_format'] = [
             'type' => 'text',
             'mime_type' => 'application/json',
@@ -173,17 +155,15 @@ function gemini_interaction_request($prompt, $schema = null)
         ];
     }
 
-    //SEND THE GEMINI PROMPT
-
-    $maxAttempts = 3;
+$maxAttempts = 3;
     $lastMessage = 'Gemini API request failed.';
     $lastHttpCode = 0;
 
     for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
 
-        $ch = curl_init($url);
+$ch = curl_init($url);
 
-        curl_setopt_array($ch, [
+curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_TIMEOUT => 45,
@@ -197,25 +177,25 @@ function gemini_interaction_request($prompt, $schema = null)
             )
         ]);
 
-        $raw = curl_exec($ch);
+$raw = curl_exec($ch);
         $curlError = curl_error($ch);
         $httpCode = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
-        curl_close($ch);
+curl_close($ch);
 
-        if ($raw === false || $curlError !== '') {
+if ($raw === false || $curlError !== '') {
             $lastMessage = 'Gemini request failed: ' . $curlError;
             $lastHttpCode = $httpCode;
         } else {
 
-            $response = json_decode($raw, true);
-                //SUCCESS RESPONSE
+$response = json_decode($raw, true);
+                
             if ($httpCode >= 200 && $httpCode < 300) {
 
-                
 $text = '';
 
 if (!empty($response['candidates'][0]['content']['parts'])) {
+    
     foreach ($response['candidates'][0]['content']['parts'] as $part) {
         if (isset($part['text']) && is_string($part['text'])) {
             $text .= $part['text'];
@@ -224,6 +204,7 @@ if (!empty($response['candidates'][0]['content']['parts'])) {
 }
 
 if ($text === '' && !empty($response['steps'])) {
+    
     foreach (array_reverse($response['steps']) as $step) {
         if (
             ($step['type'] ?? '') === 'model_output' &&
@@ -240,6 +221,7 @@ if ($text === '' && !empty($response['steps'])) {
 }
 
                 if ($text === '') {
+                    
                     return [
                         'success' => false,
                         'configured' => true,
@@ -248,19 +230,18 @@ if ($text === '' && !empty($response['steps'])) {
                     ];
                 }
 
-                return [
+return [
                     'success' => true,
                     'configured' => true,
                     'text' => $text
                 ];
             }
 
-
-            $lastMessage =
+$lastMessage =
                 $response['error']['message']
                 ?? 'Gemini API returned an error.';
 
-            $lastHttpCode = $httpCode;
+$lastHttpCode = $httpCode;
 
             if (
                 in_array(
@@ -272,7 +253,7 @@ if ($text === '' && !empty($response['steps'])) {
 
                 if ($attempt < $maxAttempts) {
 
-                    sleep($attempt * 2);
+sleep($attempt * 2);
 
                     continue;
                 }
@@ -282,11 +263,12 @@ if ($text === '' && !empty($response['steps'])) {
         }
 
         if ($attempt < $maxAttempts) {
+            
             sleep($attempt * 2);
         }
     }
 
-    return [
+return [
         'success' => false,
         'configured' => true,
         'message' => $lastMessage,
@@ -294,26 +276,22 @@ if ($text === '' && !empty($response['steps'])) {
     ];
 }
 
-
-/*
- Generate Personalized Roadmap
-*/
-
-// Ask Gemini for the roadmap, then clean and check the stages before the app saves them.
+// Generates and validates a personalized roadmap.
 function ai_generate_roadmap($user)
 {
+    
     $result = gemini_interaction_request(
     ai_build_roadmap_prompt($user),
     ai_roadmap_schema()
 );
 
-    if (!$result['success']) {
+if (!$result['success']) {
         return $result;
     }
 
-    $data = json_decode($result['text'], true);
+$data = json_decode($result['text'], true);
 
-    if (
+if (
         !is_array($data) ||
         !isset($data['stages']) ||
         !is_array($data['stages'])
@@ -325,11 +303,11 @@ function ai_generate_roadmap($user)
         ];
     }
 
-    $stages = [];
+$stages = [];
 
-    foreach (array_slice($data['stages'], 0, 7) as $stage) {
+foreach (array_slice($data['stages'], 0, 7) as $stage) {
 
-        $activities = array_values(
+$activities = array_values(
             array_filter(
                 array_map(
                     'trim',
@@ -356,7 +334,7 @@ function ai_generate_roadmap($user)
             )
         );
 
-        $title = trim(
+$title = trim(
             (string)($stage['title'] ?? '')
         );
 
@@ -368,14 +346,14 @@ function ai_generate_roadmap($user)
             continue;
         }
 
-        $activities = array_slice($activities, 0, 6);
+$activities = array_slice($activities, 0, 6);
 
         while (count($activities) < 6) {
             $activities[] =
                 'Review the concepts from this stage and practice them in a small task.';
         }
 
-        $stages[] = [
+$stages[] = [
             'category' => strtoupper(
                 substr(
                     trim((string)($stage['category'] ?? '')),
@@ -412,7 +390,7 @@ function ai_generate_roadmap($user)
         ];
     }
 
-    if (count($stages) < 5) {
+if (count($stages) < 5) {
         return [
             'success' => false,
             'configured' => true,
@@ -420,7 +398,7 @@ function ai_generate_roadmap($user)
         ];
     }
 
-    return [
+return [
         'success' => true,
         'configured' => true,
         'summary' => trim(
@@ -430,10 +408,10 @@ function ai_generate_roadmap($user)
     ];
 }
 
-
-// Ask Gemini to teach one activity, then check that it returned every useful lesson section.
+// Generates a lesson for a roadmap activity.
 function ai_activity_lesson($user, $topic, $activity)
 {
+    
     $schema = [
         'type' => 'object',
         'properties' => [
@@ -452,7 +430,7 @@ function ai_activity_lesson($user, $topic, $activity)
         'required' => ['lesson', 'example', 'practice', 'checklist', 'resources']
     ];
 
-    $level = trim((string)($user['current_level'] ?? 'Beginner'));
+$level = trim((string)($user['current_level'] ?? 'Beginner'));
     $career = trim((string)($user['career_goal'] ?? ''));
     $goal = trim((string)($user['improvement_goal'] ?? ''));
     $interests = trim((string)($user['interests'] ?? ''));
@@ -461,7 +439,7 @@ function ai_activity_lesson($user, $topic, $activity)
     $stageTopics = trim((string)($topic['topics'] ?? ''));
     $stageDescription = trim((string)($topic['description'] ?? ''));
 
-    $prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-specific learning guides for students from ANY academic discipline.\n\n"
+$prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-specific learning guides for students from ANY academic discipline.\n\n"
         . "Create a complete lesson that teaches the learner the knowledge needed for this exact activity. Do not merely rephrase the activity. Never give generic filler such as 'break the task into steps' without teaching the actual subject.\n\n"
         . "LEARNER PROFILE\n"
         . "Current level: {$level}\n"
@@ -484,8 +462,7 @@ function ai_activity_lesson($user, $topic, $activity)
 
     $result = gemini_interaction_request($prompt, $schema);
 
-    // Do not label generic filler as an AI-generated lesson if Gemini fails.
-    if (empty($result['success'])) {
+if (empty($result['success'])) {
         return [
             'success' => false,
             'configured' => $result['configured'] ?? true,
@@ -507,19 +484,28 @@ function ai_activity_lesson($user, $topic, $activity)
     $lesson = trim((string)($data['lesson'] ?? ''));
     $example = trim((string)($data['example'] ?? ''));
     $practice = trim((string)($data['practice'] ?? ''));
-    $checklist = array_values(array_filter(array_map(
-        // Convert checklist entries to clean strings before returning them to the page.
-        static fn($item) => trim((string)$item),
-        is_array($data['checklist'] ?? null) ? $data['checklist'] : []
-    )));
-    $resources = array_values(array_filter(array_map(
-        // Normalize resource names the same way as the checklist entries.
-        static fn($item) => trim((string)$item),
-        is_array($data['resources'] ?? null) ? $data['resources'] : []
-    )));
+    
+    $checklist = [];
+    if (is_array($data['checklist'] ?? null)) {
+        foreach ($data['checklist'] as $item) {
+            $item = trim((string) $item);
+            if ($item !== '' && $item !== '0') {
+                $checklist[] = $item;
+            }
+        }
+    }
 
-    // Reject incomplete output instead of presenting it as a complete guide.
-    if ((function_exists('mb_strlen') ? mb_strlen($lesson) : strlen($lesson)) < 700
+$resources = [];
+    if (is_array($data['resources'] ?? null)) {
+        foreach ($data['resources'] as $item) {
+            $item = trim((string) $item);
+            if ($item !== '' && $item !== '0') {
+                $resources[] = $item;
+            }
+        }
+    }
+
+if ((function_exists('mb_strlen') ? mb_strlen($lesson) : strlen($lesson)) < 700
         || (function_exists('mb_strlen') ? mb_strlen($example) : strlen($example)) < 80
         || (function_exists('mb_strlen') ? mb_strlen($practice) : strlen($practice)) < 80
         || count($checklist) < 4 || count($resources) < 2) {

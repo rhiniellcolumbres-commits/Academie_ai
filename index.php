@@ -1,9 +1,10 @@
 <?php
-session_start();
+require_once __DIR__ . '/includes/bootstrap.php';
 
-// Logged-in students go straight to their dashboard; visitors see the landing page.
 if (isset($_SESSION['user_id'])) {
+    
     header('Location: dashboard');
+    
     exit;
 }
 ?>
@@ -28,7 +29,6 @@ if (isset($_SESSION['user_id'])) {
 <body>
 
 <?php require_once __DIR__ . '/includes/public-navbar.php'; ?>
-
 
 <section class="hero-section">
     <div class="container">
@@ -96,8 +96,7 @@ if (isset($_SESSION['user_id'])) {
 
         </div>
 
-
-        <div class="features-grid">
+<div class="features-grid">
 
             <div>
                 <div class="feature-card">
@@ -119,8 +118,7 @@ if (isset($_SESSION['user_id'])) {
 
             </div>
 
-
-            <div>
+<div>
                 <div class="feature-card">
 
                     <div class="feature-number">
@@ -140,8 +138,7 @@ if (isset($_SESSION['user_id'])) {
 
             </div>
 
-
-            <div>
+<div>
                 <div class="feature-card">
 
                     <div class="feature-number">
@@ -166,7 +163,6 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
 </section>
-
 
 <section class="tracks-section">
     <div class="container">
@@ -245,6 +241,5 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
 </section>
-
 
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

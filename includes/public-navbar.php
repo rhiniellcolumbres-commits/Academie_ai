@@ -1,19 +1,16 @@
 <?php
-/**
- * Navigation shown on public pages such as home, login, and registration.
- * Reads the current session to decide whether to show student links or account actions,
- * and builds URLs that work when the project is installed in a subdirectory.
- */
-// Shared public navbar. Show account actions according to the current login session.
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
+require_once __DIR__ . '/bootstrap.php';
 
 $isLoggedIn = !empty($_SESSION['user_id']);
+
 $scriptDir = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+
 $baseDir = preg_replace('#/(admin|api|actions)$#', '', rtrim($scriptDir, '/'));
+
 $basePath = rtrim((string) $baseDir, '/');
 if ($basePath === '/') {
+    
     $basePath = '';
 }
 
@@ -45,12 +42,10 @@ $logoutUrl = $basePath . '/actions/logout.php';
     </div>
 </nav>
 <script>
-// Find the mobile navigation controls after the navbar markup has loaded.
 document.addEventListener('DOMContentLoaded', function () {
     var toggle = document.querySelector('.public-nav-toggle');
     var links = document.getElementById('publicNavLinks');
     if (toggle && links) {
-        // Toggle the expanded mobile navigation when the menu button is clicked.
         toggle.addEventListener('click', function () {
             var expanded = toggle.getAttribute('aria-expanded') === 'true';
             toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');

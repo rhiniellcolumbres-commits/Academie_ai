@@ -1,7 +1,6 @@
 <?php
-/** Shared tools used to protect sessions, forms, and sign-in requests. */
-// Start the user's session with safer cookie settings and sign them out after 30 minutes idle.
-// Admin inactivity is checked separately in admin/_auth.php.
+
+// Starts a secure session and checks student inactivity.
 function security_start_session(): void {
     if (session_status() === PHP_SESSION_ACTIVE) return;
     ini_set('session.use_strict_mode', '1');
@@ -15,7 +14,6 @@ function security_start_session(): void {
         'samesite' => 'Lax',
     ]);
     session_start();
-    // Idle timeout for student sessions; admin sessions are checked in admin/_auth.php.
     if (!empty($_SESSION['user_id'])) {
         if (isset($_SESSION['user_last_activity']) && time() - (int)$_SESSION['user_last_activity'] > 1800) {
             unset($_SESSION['user_id'], $_SESSION['user_last_activity'], $_SESSION['csrf_token']);
@@ -27,9 +25,9 @@ function security_start_session(): void {
         }
     }
 }
-// Keep PHP errors in server logs instead of showing them to visitors, and set browser protections.
+
+// Sets browser security headers and hides PHP errors.
 function security_headers(): void {
-    // Never display internal warnings, paths, SQL errors, or stack traces to visitors.
     ini_set('display_errors', '0');
     ini_set('display_startup_errors', '0');
     ini_set('log_errors', '1');
@@ -39,9 +37,9 @@ function security_headers(): void {
     header('Referrer-Policy: strict-origin-when-cross-origin');
     header('Permissions-Policy: camera=(), microphone=(), geolocation=()');
     header('Cross-Origin-Opener-Policy: same-origin');
-    // Do not add HSTS on localhost/HTTP development.
 }
-// Make a secret value for this session; forms send it back to help block forged requests.
+
+// Returns a session token for protecting form requests.
 function csrf_token(): string {
     security_start_session();
     if (empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
@@ -49,25 +47,28 @@ function csrf_token(): string {
     }
     return $_SESSION['csrf_token'];
 }
-// Check that the form's token matches the secret saved in the user's session.
+
+// Checks whether a submitted form token matches the session.
 function csrf_valid($token): bool {
     security_start_session();
     return is_string($token) && isset($_SESSION['csrf_token'])
         && is_string($_SESSION['csrf_token'])
         && hash_equals($_SESSION['csrf_token'], $token);
 }
-// Allow a form submission only when it uses POST and contains the correct CSRF token.
+
+// Requires a POST request with a valid CSRF token.
 function require_csrf_post(): void {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_valid($_POST['csrf_token'] ?? null)) {
         http_response_code($_SERVER['REQUEST_METHOD'] === 'POST' ? 403 : 405);
         exit('Invalid request. Refresh the page and try again.');
     }
 }
-// Block browser changes (POST/PUT/etc.) coming from a different website.
+
+// Blocks write requests from another website.
 function require_same_origin_for_write(): void {
     if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST','PUT','PATCH','DELETE'], true)) return;
     $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-    if ($origin === '') return; // Non-browser clients may omit Origin; CSRF token is still required where applicable.
+    if ($origin === '') return; 
     $host = $_SERVER['HTTP_HOST'] ?? '';
     $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
     $expected = $scheme . '://' . $host;
@@ -76,12 +77,11 @@ function require_same_origin_for_write(): void {
         exit('Cross-origin request blocked.');
     }
 }
-// Count attempts for an action (like login) and block more after the allowed limit.
+
+// Tracks requests and blocks attempts over the limit.
 function rate_limit(PDO $pdo, string $scope, string $identity, int $maxAttempts, int $windowSeconds): bool {
-    // Returns true when allowed. Uses the security_rate_limits table added to database.sql.
     $key = hash('sha256', $scope . '|' . $identity);
     $now = time();
-    // Keep the local rate-limit table from growing indefinitely.
     if (random_int(1, 100) === 1) {
         $cleanup = $pdo->prepare('DELETE FROM security_rate_limits WHERE window_started < ?');
         $cleanup->execute([$now - 172800]);
@@ -99,8 +99,8 @@ function rate_limit(PDO $pdo, string $scope, string $identity, int $maxAttempts,
     $up->execute([$key]);
     return true;
 }
-// Get the visitor's IP address for rate limiting; don't trust an IP sent by the browser.
+
+// Returns the client address used for rate limiting.
 function rate_limit_identity(): string {
-    // Do not trust X-Forwarded-For on localhost; REMOTE_ADDR is the direct peer.
     return (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
 }

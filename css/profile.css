@@ -1,4 +1,4 @@
-/* Profile overview */
+
 .profile-page { max-width: 1120px; }
 .profile-overview { display:flex; align-items:center; gap:1.15rem; padding:clamp(1.1rem, 2.5vw, 1.6rem); }
 .profile-avatar { display:flex; flex:0 0 72px; width:72px; height:72px; align-items:center; justify-content:center; border-radius:22px; background:linear-gradient(135deg,#dbeafe,#ccfbf1); color:#1e3a8a; font-size:1.45rem; font-weight:800; letter-spacing:.04em; }
@@ -9,7 +9,7 @@
 .profile-overview-main p { margin:0 0 .25rem; color:#667085; overflow-wrap:anywhere; }
 .profile-member-since { color:#98a2b3; font-size:.78rem; }
 
-/* Achievements */
+
 .achievements-panel { padding:clamp(1.1rem, 2.5vw, 1.7rem); }
 .achievements-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.35rem; }
 .achievement-count { min-width:76px; padding:.65rem .8rem; border:1px solid #dbe5f0; border-radius:14px; background:#f8fafc; text-align:center; }
@@ -26,7 +26,7 @@
 .achievement-roadmap { display:block; margin:.2rem 0 .45rem; color:#667085; font-size:.76rem; overflow-wrap:anywhere; }
 .achievement-note { margin:1rem 0 0; color:#667085; font-size:.78rem; line-height:1.5; }
 
-/* Assessment details and saved roadmap progress shown on the profile page. */
+
 .learning-profile-panel,
 .roadmap-progress-panel { padding:clamp(1.1rem, 2.5vw, 1.7rem); }
 .profile-section-heading { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:1.25rem; }

@@ -1,10 +1,9 @@
 <?php
-session_start();
+require_once __DIR__ . '/../includes/bootstrap.php';
 require_once __DIR__ . '/../includes/db.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
-// Only accept requests from the registration form with its session token.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST'
     || !hash_equals($_SESSION['csrf_token'] ?? '', $_POST['csrf_token'] ?? '')) {
     http_response_code($_SERVER['REQUEST_METHOD'] === 'POST' ? 403 : 405);
@@ -12,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST'
     exit;
 }
 
-// Validate and normalize the submitted address before checking the unique email field.
 $email = strtolower(trim((string)($_POST['email'] ?? '')));
 if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 120) {
     http_response_code(422);

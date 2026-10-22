@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/auth.php';
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -8,6 +9,7 @@ $topicId = filter_input(INPUT_GET, 'topic_id', FILTER_VALIDATE_INT);
 $activityIndex = filter_input(INPUT_GET, 'activity_index', FILTER_VALIDATE_INT);
 
 if (!$topicId || $activityIndex === false || $activityIndex === null || $activityIndex < 0) {
+
     redirect('roadmap');
 }
 
@@ -17,12 +19,14 @@ $selectedTopic = null;
 $selectedTopicIndex = null;
 
 foreach ($topics as $index => &$topic) {
+
     $topic['_is_unlocked'] = $previousCompleted;
     $topic['_is_read'] = (int)($topic['is_read'] ?? 0) === 1;
     $topic['_is_completed'] = (int)($topic['completed'] ?? 0) === 1;
     $previousCompleted = $topic['_is_completed'];
 
     if ((int)$topic['id'] === $topicId) {
+
         $selectedTopic = $topic;
         $selectedTopicIndex = $index;
     }
@@ -30,15 +34,18 @@ foreach ($topics as $index => &$topic) {
 unset($topic);
 
 if (!$selectedTopic || !$selectedTopic['_is_unlocked'] || !$selectedTopic['_is_read']) {
+
     redirect('roadmap');
 }
 
 $activities = array_slice(getActivities($selectedTopic['activity'] ?? ''), 0, 6);
 if (!isset($activities[$activityIndex])) {
+
     redirect('roadmap?stage=' . (int)$selectedTopic['order_number']);
 }
 
 $activity = $activities[$activityIndex];
+
 $activityProgress = json_decode((string)($selectedTopic['activity_progress'] ?? ''), true);
 $alreadyLearned = is_array($activityProgress) && !empty($activityProgress[$activityIndex]);
 $nextLessonUrl = null;
@@ -48,6 +55,7 @@ $nextLessonStartsStageId = null;
 if (isset($activities[$activityIndex + 1])) {
     $nextLessonUrl = 'lesson?topic_id=' . $topicId . '&activity_index=' . ($activityIndex + 1);
 } elseif (isset($topics[$selectedTopicIndex + 1])) {
+
     $nextTopic = $topics[$selectedTopicIndex + 1];
     $nextLessonUrl = 'lesson?topic_id=' . (int)$nextTopic['id'] . '&activity_index=0';
     $nextLessonRequiresStageCompletion = !$selectedTopic['_is_completed'];
@@ -141,7 +149,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const saveMessage = document.getElementById('lessonSaveMessage');
     const nextLink = document.getElementById('nextLessonLink');
 
-    async function readJsonResponse(response, fallbackMessage) {
+// Reads a JSON response and handles invalid response data.
+async function readJsonResponse(response, fallbackMessage) {
         const responseText = await response.text();
         try {
             return JSON.parse(responseText);
@@ -150,7 +159,8 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    async function loadLesson() {
+// Loads and displays the lesson for the current activity.
+async function loadLesson() {
         loading.hidden = false;
         content.hidden = true;
         errorBox.hidden = true;
@@ -181,6 +191,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
+    // Displays a list of lesson items.
     function renderList(id, items) {
         const list = document.getElementById(id);
         list.replaceChildren();

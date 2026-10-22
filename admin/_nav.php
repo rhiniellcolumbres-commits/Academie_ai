@@ -1,7 +1,7 @@
 <?php
-// Shared navigation for every admin page. Admin is a separate area from the student site.
+
 $adminPage = basename($_SERVER['SCRIPT_FILENAME'] ?? $_SERVER['PHP_SELF'] ?? '');
-// Build one admin navigation link and mark it active when it matches this page.
+
 $adminLink = function (string $file, string $label) use ($adminPage): string {
     $active = $adminPage === $file ? 'btn-primary' : 'btn-outline-secondary';
     $route = pathinfo($file, PATHINFO_FILENAME);

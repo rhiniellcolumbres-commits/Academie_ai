@@ -1,10 +1,13 @@
 <?php
 require_once __DIR__ . '/_auth.php';
+
 require_once __DIR__ . '/../includes/db.php';
 
-/** Escape a value before displaying it in the admin students table. */
+// Escapes text for safe HTML output.
 function admin_students_h($value): string { return htmlspecialchars((string)($value ?? ''), ENT_QUOTES, 'UTF-8'); }
+
 $search = trim((string)($_GET['q'] ?? ''));
+
 $sql = "SELECT u.id, u.first_name, u.last_name, u.email, u.created_at,
                a.career_goal,
                sp.title AS roadmap_title,
@@ -14,16 +17,23 @@ $sql = "SELECT u.id, u.first_name, u.last_name, u.email, u.created_at,
         FROM users u
         LEFT JOIN assessments a ON a.user_id = u.id
         LEFT JOIN study_paths sp ON sp.user_id = u.id";
+
 $params = [];
 if ($search !== '') {
+    
     $sql .= " WHERE u.first_name LIKE ? OR u.last_name LIKE ? OR u.email LIKE ? OR CAST(u.id AS CHAR) LIKE ?";
+    
     $term = '%' . $search . '%';
     $params = [$term, $term, $term, $term];
 }
+
 $sql .= ' ORDER BY u.created_at DESC LIMIT 300';
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
+
 $students = $stmt->fetchAll();
+
 $totalStudents = (int)$pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
 ?>
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Student Management | StudyPath Admin</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"><style>body{background:#f5f7fb;color:#202938}.panel{background:#fff;border:1px solid #e7eaf0;border-radius:14px;padding:18px}.muted{color:#6b7280;font-size:.9rem}</style></head><body>

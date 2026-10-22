@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/includes/auth.php';
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
@@ -8,39 +9,27 @@ $userId = (int) $_SESSION['user_id'];
 $user   = getUserById($pdo, $userId);
 
 if (!$user) {
+    
     redirect('./');
 }
 
-/*
-|--------------------------------------------------------------------------
-| Roadmap progress and achievements
-|--------------------------------------------------------------------------
-| 1. Load the student's roadmap stages.
-| 2. Count finished stages/activities.
-| 3. Save any badge the student has newly earned.
-| 4. Load all saved badges to show on the page.
-*/
-
 $topics   = getStudyTopics($pdo, $userId);
+
 $progress = getRoadmapProgress($topics);
 
 syncAchievements($pdo, $userId, $progress);
 $earnedAchievements = getUserAchievements($pdo, $userId);
 
 $hasRoadmap = $progress['totalStages'] > 0;
+
 $hasAssessment = !empty($user['assessment_id']);
+
 $roadmapPercent = $hasRoadmap
     ? (int) round(($progress['completedStages'] / $progress['totalStages']) * 100)
     : 0;
 
-/*
-|--------------------------------------------------------------------------
-| Values shown in the profile header
-|--------------------------------------------------------------------------
-*/
-
-// getUserById() already joins the assessment, so career_goal is on $user.
 $displayName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+
 $initials    = strtoupper(substr((string) ($user['first_name'] ?? 'S'), 0, 1) . substr((string) ($user['last_name'] ?? ''), 0, 1));
 
 $learningTrack = trim((string) ($user['career_goal'] ?? ''));
@@ -64,8 +53,7 @@ require_once __DIR__ . '/includes/navbar.php';
             </div>
         </div>
 
-        <!-- 1. PROFILE HEADER -->
-        <section class="panel profile-overview mt-4" aria-label="Profile overview">
+<section class="panel profile-overview mt-4" aria-label="Profile overview">
             <div class="profile-avatar" aria-hidden="true"><?= e($initials !== '' ? $initials : 'S') ?></div>
             <div class="profile-overview-main">
                 <span class="eyebrow">STUDENT ACCOUNT</span>
@@ -80,8 +68,7 @@ require_once __DIR__ . '/includes/navbar.php';
             </div>
         </section>
 
-        <!-- Learning goals collected by the assessment. -->
-        <section class="panel learning-profile-panel mt-4" aria-labelledby="learning-profile-title">
+<section class="panel learning-profile-panel mt-4" aria-labelledby="learning-profile-title">
             <div class="profile-section-heading">
                 <div>
                     <span class="eyebrow">YOUR LEARNING PLAN</span>
@@ -102,8 +89,7 @@ require_once __DIR__ . '/includes/navbar.php';
             </dl>
         </section>
 
-        <!-- Roadmap completion totals, calculated from saved stage and activity progress. -->
-        <section class="panel roadmap-progress-panel mt-4" aria-labelledby="profile-roadmap-title">
+<section class="panel roadmap-progress-panel mt-4" aria-labelledby="profile-roadmap-title">
             <div class="profile-section-heading">
                 <div>
                     <span class="eyebrow">KEEP MOVING FORWARD</span>
@@ -140,8 +126,7 @@ require_once __DIR__ . '/includes/navbar.php';
             <?php endif; ?>
         </section>
 
-        <!-- Earned badges remain saved on the student's profile. -->
-        <section class="panel achievements-panel mt-4" aria-labelledby="achievements-title">
+<section class="panel achievements-panel mt-4" aria-labelledby="achievements-title">
             <div class="achievements-heading">
                 <div>
                     <span class="eyebrow">YOUR PROGRESS</span>

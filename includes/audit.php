@@ -1,6 +1,5 @@
 <?php
-/** These helpers save simple activity and AI-use records for admin monitoring. */
-// Save a student's login or logout time and basic browser information.
+// Records a student login or logout event.
 function log_user_activity(PDO $pdo, int $userId, string $event): void
 {
     if (!in_array($event, ['login', 'logout'], true)) {
@@ -16,11 +15,11 @@ function log_user_activity(PDO $pdo, int $userId, string $event): void
         $agent = substr($_SERVER['HTTP_USER_AGENT'] ?? '', 0, 255);
         $stmt->execute([$userId, $event, $ip, $agent ?: null]);
     } catch (Throwable $e) {
-        // Keep the user-facing flow working if audit logging is unavailable.
+        
     }
 }
 
-// Save whether a roadmap or lesson AI request succeeded, failed, or used fallback content.
+// Records the result of an AI request.
 function log_ai_usage(PDO $pdo, int $userId, string $type, string $status = 'requested', ?string $details = null): void
 {
     if (!in_array($type, ['assessment_roadmap', 'ai_lesson'], true)) {
@@ -33,6 +32,6 @@ function log_ai_usage(PDO $pdo, int $userId, string $type, string $status = 'req
         );
         $stmt->execute([$userId, $type, substr($status, 0, 30), $details ? substr($details, 0, 255) : null]);
     } catch (Throwable $e) {
-        // Keep the student app working if usage logging is unavailable.
+        
     }
 }

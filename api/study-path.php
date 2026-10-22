@@ -1,98 +1,60 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../includes/bootstrap.php';
 
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
-
-/*
-|--------------------------------------------------------------------------
-| Handle Server Errors
-|--------------------------------------------------------------------------
-*/
-
-// Convert unexpected endpoint exceptions into a generic JSON error for the client.
 set_exception_handler(function (Throwable $e) {
 
-    http_response_code(500);
+http_response_code(500);
 
-    echo json_encode([
+echo json_encode([
         'success' => false,
         'message' => 'Server error while processing the request.'
     ]);
 
-    exit;
+exit;
 });
-
-
-/*
-|--------------------------------------------------------------------------
-| Authentication
-|--------------------------------------------------------------------------
-*/
 
 if (!isset($_SESSION['user_id'])) {
 
-    http_response_code(401);
+http_response_code(401);
 
-    echo json_encode([
+echo json_encode([
         'success' => false,
         'message' => 'Authentication required.'
     ]);
 
-    exit;
+exit;
 }
 
 $userId = (int)$_SESSION['user_id'];
 
-
-/*
-|--------------------------------------------------------------------------
-| GET
-|--------------------------------------------------------------------------
-| Get the logged-in user's study topics.
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
-    $topics = getStudyTopics(
+$topics = getStudyTopics(
         $pdo,
         $userId
     );
 
-    echo json_encode([
+echo json_encode([
         'success' => true,
         'data' => $topics
     ]);
 
-    exit;
+exit;
 }
-
-/*
-|--------------------------------------------------------------------------
-| PUT
-|--------------------------------------------------------------------------
-| Update an existing study topic.
-|--------------------------------------------------------------------------
-*/
 
 if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
 
-    /*
-     * Read the request body.
-     */
-    $rawInput = file_get_contents('php://input');
+$rawInput = file_get_contents('php://input');
 
-    $data = [];
+$data = [];
 
-    /*
-     * Support JSON requests.
-     */
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
 
     if (stripos($contentType, 'application/json') !== false) {
 
@@ -102,25 +64,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         );
 
         if (is_array($decoded)) {
+            
             $data = $decoded;
         }
 
     } else {
 
-        /*
-         * Support form-urlencoded requests.
-         */
-        parse_str(
+parse_str(
             $rawInput,
             $data
         );
     }
 
-
-    /*
-     * Get submitted values.
-     */
-    $topicId = isset($data['topic_id'])
+$topicId = isset($data['topic_id'])
         ? (int)$data['topic_id']
         : 0;
 
@@ -132,44 +88,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $data['description'] ?? ''
     );
 
+if ($topicId <= 0) {
 
-    /*
-     * Validate topic ID.
-     */
-    if ($topicId <= 0) {
-
-        http_response_code(400);
+http_response_code(400);
 
         echo json_encode([
             'success' => false,
             'message' => 'Invalid topic ID.'
         ]);
 
-        exit;
+exit;
     }
 
+if ($title === '') {
 
-    /*
-     * Validate title.
-     */
-    if ($title === '') {
-
-        http_response_code(400);
+http_response_code(400);
 
         echo json_encode([
             'success' => false,
             'message' => 'Title is required.'
         ]);
 
-        exit;
+exit;
     }
 
-
-    /*
-     * Make sure the topic belongs
-     * to the logged-in user.
-     */
-    $check = $pdo->prepare(
+$check = $pdo->prepare(
         'SELECT st.id
          FROM study_topics st
          INNER JOIN study_paths sp
@@ -196,11 +139,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         exit;
     }
 
-
-    /*
-     * Update the topic.
-     */
-    $update = $pdo->prepare(
+$update = $pdo->prepare(
         'UPDATE study_topics
          SET title = ?,
              description = ?
@@ -213,8 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
         $topicId
     ]);
 
-
-    echo json_encode([
+echo json_encode([
         'success' => true,
         'message' => 'Study topic updated successfully.'
     ]);
@@ -222,20 +160,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
     exit;
 }
 
-/*
-|--------------------------------------------------------------------------
-| DELETE
-|--------------------------------------------------------------------------
-| Delete an existing study topic.
-|--------------------------------------------------------------------------
-*/
-
 if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
-    /*
-     * Read the request body.
-     */
-    $rawInput = file_get_contents('php://input');
+$rawInput = file_get_contents('php://input');
 
     $data = [];
 
@@ -260,19 +187,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         );
     }
 
-
-    /*
-     * Get topic ID.
-     */
-    $topicId = isset($data['topic_id'])
+$topicId = isset($data['topic_id'])
         ? (int)$data['topic_id']
         : 0;
 
-
-    /*
-     * Validate topic ID.
-     */
-    if ($topicId <= 0) {
+if ($topicId <= 0) {
 
         http_response_code(400);
 
@@ -284,12 +203,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         exit;
     }
 
-
-    /*
-     * Make sure the topic belongs
-     * to the logged-in user.
-     */
-    $check = $pdo->prepare(
+$check = $pdo->prepare(
         'SELECT st.id
          FROM study_topics st
          INNER JOIN study_paths sp
@@ -304,8 +218,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $userId
     ]);
 
-
-    if (!$check->fetch(PDO::FETCH_ASSOC)) {
+if (!$check->fetch(PDO::FETCH_ASSOC)) {
 
         http_response_code(404);
 
@@ -317,11 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         exit;
     }
 
-
-    /*
-     * Delete the topic.
-     */
-    $delete = $pdo->prepare(
+$delete = $pdo->prepare(
         'DELETE FROM study_topics
          WHERE id = ?'
     );
@@ -330,20 +239,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
         $topicId
     ]);
 
-
-    echo json_encode([
+echo json_encode([
         'success' => true,
         'message' => 'Study topic deleted successfully.'
     ]);
 
     exit;
 }
-
-/*
-|--------------------------------------------------------------------------
-| Only POST is handled below this point.
-|--------------------------------------------------------------------------
-*/
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
@@ -357,13 +259,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| POST Data
-|--------------------------------------------------------------------------
-*/
-
 $action = $_POST['action'] ?? '';
 
 $topicId = filter_input(
@@ -371,13 +266,6 @@ $topicId = filter_input(
     'topic_id',
     FILTER_VALIDATE_INT
 );
-
-
-/*
-|--------------------------------------------------------------------------
-| Validate Topic ID
-|--------------------------------------------------------------------------
-*/
 
 if (!$topicId) {
 
@@ -390,16 +278,6 @@ if (!$topicId) {
 
     exit;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Get Topic
-|--------------------------------------------------------------------------
-| Only allow access to topics belonging
-| to the logged-in user's study path.
-|--------------------------------------------------------------------------
-*/
 
 $stmt = $pdo->prepare(
     'SELECT st.*
@@ -420,7 +298,6 @@ $topic = $stmt->fetch(
     PDO::FETCH_ASSOC
 );
 
-
 if (!$topic) {
 
     http_response_code(404);
@@ -433,17 +310,9 @@ if (!$topic) {
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Determine Previous Stage
-|--------------------------------------------------------------------------
-*/
-
 $stageNumber = (int)$topic['order_number'];
 
 $previousCompleted = true;
-
 
 if ($stageNumber > 1) {
 
@@ -468,8 +337,7 @@ if ($stageNumber > 1) {
         PDO::FETCH_ASSOC
     );
 
-
-    if (!$previousStage) {
+if (!$previousStage) {
 
         http_response_code(400);
 
@@ -481,17 +349,9 @@ if ($stageNumber > 1) {
         exit;
     }
 
-
-    $previousCompleted =
+$previousCompleted =
         (int)$previousStage['completed'] === 1;
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Prevent Access to Locked Stages
-|--------------------------------------------------------------------------
-*/
 
 if (!$previousCompleted) {
 
@@ -506,21 +366,9 @@ if (!$previousCompleted) {
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| ACTION: READ
-|--------------------------------------------------------------------------
-| Mark the stage as read/opened.
-|--------------------------------------------------------------------------
-*/
-
 if ($action === 'read') {
 
-    /*
-     * Stage was already opened.
-     */
-    if ((int)$topic['is_read'] === 1) {
+if ((int)$topic['is_read'] === 1) {
 
         echo json_encode([
             'success' => true,
@@ -530,11 +378,7 @@ if ($action === 'read') {
         exit;
     }
 
-
-    /*
-     * Mark stage as read.
-     */
-    $update = $pdo->prepare(
+$update = $pdo->prepare(
         'UPDATE study_topics
          SET is_read = 1
          WHERE id = ?
@@ -546,11 +390,7 @@ if ($action === 'read') {
         $topic['study_path_id']
     ]);
 
-
-    /*
-     * Return JSON when requested by JavaScript.
-     */
-    if (
+if (
         !isset($_SERVER['HTTP_ACCEPT']) ||
         strpos(
             $_SERVER['HTTP_ACCEPT'],
@@ -566,8 +406,7 @@ if ($action === 'read') {
         exit;
     }
 
-
-    echo json_encode([
+echo json_encode([
         'success' => true,
         'message' => 'Stage opened successfully.'
     ]);
@@ -575,22 +414,9 @@ if ($action === 'read') {
     exit;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| ACTION: COMPLETE ACTIVITY
-|--------------------------------------------------------------------------
-| Mark one activity as completed.
-| This does not toggle it back to incomplete.
-|--------------------------------------------------------------------------
-*/
-
 if ($action === 'complete_activity') {
 
-    /*
-     * Student must read the stage first.
-     */
-    if ((int)$topic['is_read'] !== 1) {
+if ((int)$topic['is_read'] !== 1) {
 
         http_response_code(403);
 
@@ -603,16 +429,11 @@ if ($action === 'complete_activity') {
         exit;
     }
 
-
-    /*
-     * Get the available activities.
-     */
-    $activities = getActivities(
+$activities = getActivities(
         $topic['activity'] ?? ''
     );
 
-
-    if (count($activities) === 0) {
+if (count($activities) === 0) {
 
         http_response_code(400);
 
@@ -625,21 +446,13 @@ if ($action === 'complete_activity') {
         exit;
     }
 
-
-    /*
-     * Get activity index.
-     */
-    $activityIndex = filter_input(
+$activityIndex = filter_input(
         INPUT_POST,
         'activity_index',
         FILTER_VALIDATE_INT
     );
 
-
-    /*
-     * Check that the activity exists.
-     */
-    if (
+if (
         $activityIndex === false ||
         $activityIndex === null ||
         $activityIndex < 0 ||
@@ -656,11 +469,7 @@ if ($action === 'complete_activity') {
         exit;
     }
 
-
-    /*
-     * Get current progress.
-     */
-    $progress = [];
+$progress = [];
 
     if (!empty($topic['activity_progress'])) {
 
@@ -674,12 +483,7 @@ if ($action === 'complete_activity') {
         }
     }
 
-
-    /*
-     * Create progress values
-     * for all activities.
-     */
-    $activityCount = count($activities);
+$activityCount = count($activities);
 
     for ($i = 0; $i < $activityCount; $i++) {
 
@@ -689,18 +493,9 @@ if ($action === 'complete_activity') {
                 : 0;
     }
 
+$progress[$activityIndex] = 1;
 
-    /*
-     * Mark this activity as completed.
-     */
-    $progress[$activityIndex] = 1;
-
-
-    /*
-     * Check whether all activities
-     * are now completed.
-     */
-    $allCompleted = true;
+$allCompleted = true;
 
     for ($i = 0; $i < $activityCount; $i++) {
 
@@ -712,12 +507,7 @@ if ($action === 'complete_activity') {
         }
     }
 
-
-    /*
-     * Complete the stage when
-     * all activities are finished.
-     */
-    if ($allCompleted) {
+if ($allCompleted) {
 
         $update = $pdo->prepare(
             'UPDATE study_topics
@@ -737,8 +527,7 @@ if ($action === 'complete_activity') {
             $topic['study_path_id']
         ]);
 
-
-        echo json_encode([
+echo json_encode([
             'success' => true,
             'completed' => true,
             'activity_progress' => $progress,
@@ -749,11 +538,7 @@ if ($action === 'complete_activity') {
         exit;
     }
 
-
-    /*
-     * Save activity progress.
-     */
-    $update = $pdo->prepare(
+$update = $pdo->prepare(
         'UPDATE study_topics
          SET activity_progress = ?
          WHERE id = ?
@@ -769,8 +554,7 @@ if ($action === 'complete_activity') {
         $topic['study_path_id']
     ]);
 
-
-    echo json_encode([
+echo json_encode([
         'success' => true,
         'completed' => false,
         'activity_progress' => $progress,
@@ -779,12 +563,6 @@ if ($action === 'complete_activity') {
 
     exit;
 }
-
-/*
-|--------------------------------------------------------------------------
-| Unknown Action
-|--------------------------------------------------------------------------
-*/
 
 http_response_code(400);
 

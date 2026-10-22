@@ -1,15 +1,9 @@
 <?php
 
 require_once __DIR__ . '/includes/auth.php';
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
-
-
-/*
-|--------------------------------------------------------------------------
-| Get User
-|--------------------------------------------------------------------------
-*/
 
 $user = getUserById(
     $pdo,
@@ -18,9 +12,9 @@ $user = getUserById(
 
 if (!$user) {
 
-    unset($_SESSION['user_id']);
+unset($_SESSION['user_id']);
 
-    session_regenerate_id(true);
+session_regenerate_id(true);
 
     header(
         'Location: ./?error=session'
@@ -28,11 +22,6 @@ if (!$user) {
 
     exit;
 }
-/*
-|--------------------------------------------------------------------------
-| Get Assessment
-|--------------------------------------------------------------------------
-*/
 
 $assessmentStmt = $pdo->prepare(
     'SELECT *
@@ -49,8 +38,10 @@ $assessment = $assessmentStmt->fetch();
 
 $alternativeRecommendations = [];
 if (!empty($assessment['assessment_answers'])) {
+    
     $savedAssessmentAnswers = json_decode($assessment['assessment_answers'], true);
     $savedScores = $savedAssessmentAnswers['scores'] ?? [];
+    
     $savedLabels = [
         'SE' => 'Software Engineering / Core Developer',
         'FULLSTACK' => 'Full-Stack Development',
@@ -61,7 +52,9 @@ if (!empty($assessment['assessment_answers'])) {
         'GAMEDEV' => 'Game Development'
     ];
     if (is_array($savedScores)) {
+        
         arsort($savedScores);
+        
         foreach ($savedScores as $code => $score) {
             if (isset($savedLabels[$code]) && $savedLabels[$code] !== ($assessment['career_goal'] ?? '')) {
                 $alternativeRecommendations[] = $savedLabels[$code];
@@ -73,19 +66,11 @@ if (!empty($assessment['assessment_answers'])) {
     }
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Get Roadmap
-|--------------------------------------------------------------------------
-*/
-
 $topics = getStudyTopics(
     $pdo,
     $user['id']
 );
 
-// Count finished stages / activities (helper lives in includes/functions.php)
 $progress = getRoadmapProgress($topics);
 
 $total               = $progress['totalStages'];
@@ -97,16 +82,8 @@ $percent = $total > 0
     ? (int)round(($done / $total) * 100)
     : 0;
 
-// Save any newly earned badges, then count them for the stats card.
 syncAchievements($pdo, (int)$user['id'], $progress);
 $earnedAchievementCount = count(getUserAchievements($pdo, (int)$user['id']));
-
-
-/*
-|--------------------------------------------------------------------------
-| Find Current Stage
-|--------------------------------------------------------------------------
-*/
 
 $currentStage = null;
 
@@ -120,13 +97,6 @@ foreach ($topics as $topic) {
     }
 
 }
-
-
-/*
-|--------------------------------------------------------------------------
-| Full Name
-|--------------------------------------------------------------------------
-*/
 
 $fullName = trim(
     $user['first_name'] . ' ' . $user['last_name']
@@ -148,7 +118,7 @@ $fullName = trim(
     <title>
         Dashboard | Academie
     </title>
-    <!-- Bootstrap Icons are required by the navbar and Learning Statistics icons. -->
+    
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
@@ -160,29 +130,13 @@ $fullName = trim(
 
 </head>
 
-
 <body class="dashboard-page">
-
-
-<!-- =========================================================
-     NAVBAR
-========================================================= -->
 
 <?php require __DIR__ . '/includes/navbar.php'; ?>
 
-
-<!-- =========================================================
-     MAIN CONTENT
-========================================================= -->
-
 <main class="dashboard-content">
 
-
-    <!-- =====================================================
-         HEADER
-    ====================================================== -->
-
-    <div class="dashboard-heading">
+<div class="dashboard-heading">
 
         <div>
 
@@ -204,11 +158,7 @@ $fullName = trim(
 
     </div>
 
-    <!-- =====================================================
-         SUCCESS MESSAGE
-    ====================================================== -->
-
-    <?php if (
+<?php if (
         isset($_GET['success']) &&
         $_GET['success'] === 'assessment'
     ): ?>
@@ -222,8 +172,7 @@ $fullName = trim(
 
     <?php endif; ?>
 
-
-    <?php if (
+<?php if (
         isset($_GET['success']) &&
         $_GET['success'] === 'career_changed'
     ): ?>
@@ -243,24 +192,15 @@ $fullName = trim(
         </div>
     <?php endif; ?>
 
+<section class="dashboard-overview">
 
-    <!-- =====================================================
-         CAREER + PROGRESS
-    ====================================================== -->
-
-    <section class="dashboard-overview">
-
-
-        <!-- CAREER -->
-
-        <div class="overview-main">
+<div class="overview-main">
 
             <span class="card-label">
                 YOUR RECOMMENDED SPECIALIZATION
             </span>
 
-
-            <?php if (!empty($assessment['career_goal'])): ?>
+<?php if (!empty($assessment['career_goal'])): ?>
 
                 <h2>
                     <?= e($assessment['career_goal']) ?>
@@ -272,8 +212,7 @@ $fullName = trim(
                     <?= e($assessment['career_goal']) ?>
                 </p>
 
-
-                <?php if (!empty($alternativeRecommendations)): ?>
+<?php if (!empty($alternativeRecommendations)): ?>
                     <p class="text-muted small mt-3 mb-2">
                         Other paths you may also explore:
                         <?= e(implode(' · ', $alternativeRecommendations)) ?>
@@ -318,22 +257,17 @@ $fullName = trim(
 
         </div>
 
-
-        <!-- PROGRESS -->
-
-        <div class="overview-progress">
+<div class="overview-progress">
 
             <span class="card-label">
                 OVERALL PROGRESS
             </span>
 
-
-            <div class="progress-number">
+<div class="progress-number">
                 <?= $percent ?>%
             </div>
 
-
-            <div class="dashboard-progress-bar">
+<div class="dashboard-progress-bar">
 
                 <span
                     style="width: <?= $percent ?>%;"
@@ -341,8 +275,7 @@ $fullName = trim(
 
             </div>
 
-
-            <p>
+<p>
 
                 <?php if ($total > 0): ?>
 
@@ -363,12 +296,7 @@ $fullName = trim(
 
     </section>
 
-
-    <!-- =====================================================
-         LEARNING STATISTICS
-    ====================================================== -->
-
-    <section class="dashboard-learning-stats" aria-labelledby="learning-stats-title">
+<section class="dashboard-learning-stats" aria-labelledby="learning-stats-title">
         <div class="dashboard-section-title">
             <div>
                 <span class="eyebrow">YOUR PROGRESS</span>
@@ -395,19 +323,11 @@ $fullName = trim(
         </div>
     </section>
 
-
-    <!-- =====================================================
-         LEARNING PROFILE
-    ====================================================== -->
-
-    <?php if (!empty($assessment['career_goal'])): ?>
+<?php if (!empty($assessment['career_goal'])): ?>
 
         <section class="assessment-summary">
 
-
-            <!-- CURRENT LEVEL -->
-
-            <div>
+<div>
 
                 <span class="summary-label">
                     CURRENT LEVEL
@@ -424,10 +344,7 @@ $fullName = trim(
 
             </div>
 
-
-            <!-- LEARNING GOAL -->
-
-            <div>
+<div>
 
                 <span class="summary-label">
                     LEARNING GOAL
@@ -444,10 +361,7 @@ $fullName = trim(
 
             </div>
 
-
-            <!-- CAREER -->
-
-            <div>
+<div>
 
                 <span class="summary-label">
                     TARGET CAREER
@@ -463,15 +377,9 @@ $fullName = trim(
 
     <?php endif; ?>
 
+<section class="current-learning">
 
-    <!-- =====================================================
-         CURRENT LEARNING
-    ====================================================== -->
-
-    <section class="current-learning">
-
-
-        <div class="dashboard-section-title">
+<div class="dashboard-section-title">
 
             <div>
 
@@ -485,8 +393,7 @@ $fullName = trim(
 
             </div>
 
-
-            <?php if (!empty($topics)): ?>
+<?php if (!empty($topics)): ?>
 
                 <a
                     href="roadmap"
@@ -499,23 +406,17 @@ $fullName = trim(
 
         </div>
 
+<?php if ($currentStage !== null): ?>
 
-        <?php if ($currentStage !== null): ?>
+<div class="current-stage-card">
 
-
-            <!-- CURRENT STAGE CARD -->
-
-            <div class="current-stage-card">
-
-
-                <div class="current-stage-number">
+<div class="current-stage-number">
 
                     <?= (int)$currentStage['order_number'] ?>
 
                 </div>
 
-
-                <div class="current-stage-content">
+<div class="current-stage-content">
 
                     <span class="card-label">
 
@@ -523,15 +424,13 @@ $fullName = trim(
 
                     </span>
 
-
-                    <h3>
+<h3>
 
                         <?= e($currentStage['title']) ?>
 
                     </h3>
 
-
-                    <p>
+<p>
 
                         <?= e($currentStage['description']) ?>
 
@@ -546,13 +445,9 @@ $fullName = trim(
 
             </div>
 
+<?php elseif ($total > 0): ?>
 
-        <?php elseif ($total > 0): ?>
-
-
-            <!-- COMPLETED ROADMAP -->
-
-            <div class="learning-complete-card">
+<div class="learning-complete-card">
 
                 <div class="complete-icon">
                     ✓
@@ -580,13 +475,9 @@ $fullName = trim(
 
             </div>
 
+<?php else: ?>
 
-        <?php else: ?>
-
-
-            <!-- NO ROADMAP -->
-
-            <div class="learning-empty-card">
+<div class="learning-empty-card">
 
                 <h3>
                     No learning roadmap yet
@@ -606,17 +497,11 @@ $fullName = trim(
 
             </div>
 
-
-        <?php endif; ?>
+<?php endif; ?>
 
     </section>
 
-
-    <!-- =====================================================
-         ROADMAP LINK
-    ====================================================== -->
-
-    <?php if (!empty($topics)): ?>
+<?php if (!empty($topics)): ?>
 
         <section class="dashboard-roadmap-banner">
 
@@ -638,8 +523,7 @@ $fullName = trim(
 
             </div>
 
-
-            <a
+<a
                 href="roadmap"
                 class="dashboard-primary-btn"
             >
@@ -650,13 +534,7 @@ $fullName = trim(
 
     <?php endif; ?>
 
-
 </main>
-
-
-<!-- =========================================================
-     DASHBOARD PAGE STYLES
-========================================================= -->
 
 <style>
 
@@ -665,22 +543,12 @@ $fullName = trim(
     background: #f7f7f5;
 }
 
-
-/* =========================================================
-   CONTENT
-========================================================= */
-
 .dashboard-content {
     width: min(1100px, 92%);
     margin: auto;
 
     padding: 65px 0 100px;
 }
-
-
-/* =========================================================
-   HEADER
-========================================================= */
 
 .dashboard-heading {
     display: flex;
@@ -718,11 +586,6 @@ $fullName = trim(
 
     letter-spacing: 2px;
 }
-
-
-/* =========================================================
-   USER
-========================================================= */
 
 .dashboard-user {
     display: flex;
@@ -762,11 +625,6 @@ $fullName = trim(
     color: #888888;
 }
 
-
-/* =========================================================
-   SUCCESS
-========================================================= */
-
 .dashboard-success {
     padding: 15px 18px;
 
@@ -780,11 +638,6 @@ $fullName = trim(
     font-size: 13px;
     color: #444444;
 }
-
-
-/* =========================================================
-   OVERVIEW
-========================================================= */
 
 .dashboard-overview {
     display: grid;
@@ -864,11 +717,6 @@ $fullName = trim(
     opacity: .9;
 }
 
-
-/* =========================================================
-   PROGRESS
-========================================================= */
-
 .overview-progress {
     display: flex;
     flex-direction: column;
@@ -913,11 +761,6 @@ $fullName = trim(
     font-size: 13px;
     color: #888888;
 }
-
-
-/* =========================================================
-   LEARNING STATISTICS
-========================================================= */
 
 .dashboard-learning-stats {
     margin: 0 0 42px;
@@ -1001,11 +844,6 @@ $fullName = trim(
     }
 }
 
-
-/* =========================================================
-   ASSESSMENT SUMMARY
-========================================================= */
-
 .assessment-summary {
     display: grid;
 
@@ -1050,11 +888,6 @@ $fullName = trim(
     color: #222222;
 }
 
-
-/* =========================================================
-   SECTION TITLE
-========================================================= */
-
 .dashboard-section-title {
     display: flex;
     align-items: flex-end;
@@ -1082,11 +915,6 @@ $fullName = trim(
 .view-roadmap-link:hover {
     text-decoration: underline;
 }
-
-
-/* =========================================================
-   CURRENT STAGE
-========================================================= */
 
 .current-learning {
     margin-bottom: 40px;
@@ -1141,11 +969,6 @@ $fullName = trim(
     line-height: 1.7;
 }
 
-
-/* =========================================================
-   COMPLETED
-========================================================= */
-
 .learning-complete-card {
     display: flex;
 
@@ -1187,11 +1010,6 @@ $fullName = trim(
     color: #777777;
 }
 
-
-/* =========================================================
-   EMPTY
-========================================================= */
-
 .learning-empty-card {
     padding: 45px 30px;
 
@@ -1210,10 +1028,6 @@ $fullName = trim(
 
     color: #777777;
 }
-
-/* =========================================================
-   BANNER
-========================================================= */
 
 .dashboard-roadmap-banner {
     display: flex;
@@ -1259,15 +1073,9 @@ $fullName = trim(
     white-space: nowrap;
 }
 
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
 @media (max-width: 768px) {
 
-
-    .dashboard-content {
+.dashboard-content {
         padding-top: 45px;
     }
 

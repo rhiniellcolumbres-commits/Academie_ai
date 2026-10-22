@@ -1,17 +1,9 @@
 <?php
-/**
- * Shared navigation for signed-in student pages.
- * Uses the current page's $user when available, otherwise loads the signed-in
- * user from the database; the CSRF token is included in the logout POST form.
- */
-// Shared navbar for every logged-in page (dashboard, roadmap, profile, assessment).
-// Pages load the student with getUserById(), which includes their career goal.
-// If a page did not load it, fetch the student once here.
 
 require_once __DIR__ . '/functions.php';
 
-// Ensure the session has a token for the POST-only logout form.
 if (empty($_SESSION['csrf_token'])) {
+    
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
@@ -25,7 +17,6 @@ if (!$navbarUser && isset($pdo, $_SESSION['user_id'])) {
 
 $navbarName = trim((string) ($navbarUser['first_name'] ?? '') . ' ' . (string) ($navbarUser['last_name'] ?? ''));
 
-// Use the student's career goal as the navbar subtitle when one is available.
 $navbarTrack = trim((string) ($navbarUser['career_goal'] ?? ''));
 
 ?>

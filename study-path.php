@@ -1,14 +1,17 @@
 <?php
 
 require_once __DIR__ . '/includes/auth.php';
+
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $user = getUserById($pdo, $_SESSION['user_id']);
 
 if (!$user) {
+    
     redirect('./');
 }
+
 $assessmentStmt = $pdo->prepare(
     'SELECT *
      FROM assessments
@@ -27,6 +30,7 @@ $topics = getStudyTopics($pdo, $_SESSION['user_id']);
 $completed = 0;
 
 foreach ($topics as $topic) {
+    
     if ((int)$topic['completed'] === 1) {
         $completed++;
     }
@@ -38,18 +42,14 @@ $percent = $total
     ? (int)round(($completed / $total) * 100)
     : 0;
 
+$totalActivities = 0;
+$completedActivities = 0;
 
-/*
-|--------------------------------------------------------------------------
-| Prepare activity information
-|--------------------------------------------------------------------------
-*/
+foreach ($topics as $topicIndex => $topic) {
 
-foreach ($topics as &$topic) {
+$activities = getActivities($topic['activity'] ?? '');
 
-    $activities = getActivities($topic['activity'] ?? '');
-
-    $progress = [];
+$progress = [];
 
     if (!empty($topic['activity_progress'])) {
 
@@ -59,98 +59,71 @@ foreach ($topics as &$topic) {
         );
 
         if (is_array($decoded)) {
+            
             $progress = $decoded;
         }
     }
 
-    /*
-     * Make sure there are always 6 activity states.
-     */
-   $topic['_activities'] = array_slice($activities, 0, 6);
+$topic['_activities'] = array_slice($activities, 0, 6);
 
 $activityCount = count($topic['_activities']);
+    for ($i = 0; $i < $activityCount; $i++) {
+        $progress[$i] = !empty($progress[$i]) ? 1 : 0;
+    }
 
-for ($i = 0; $i < $activityCount; $i++) {
-    $progress[$i] = !empty($progress[$i]) ? 1 : 0;
+    $topic['_progress'] = $progress;
+
+$topic['_activity_completed'] = 0;
+    foreach ($topic['_progress'] as $state) {
+        if ((int) $state === 1) {
+            $topic['_activity_completed']++;
+        }
+    }
+
+    $topics[$topicIndex] = $topic;
+    
+    $totalActivities += count($topic['_activities']);
+    $completedActivities += $topic['_activity_completed'];
 }
-
-$topic['_progress'] = $progress;
-
-    $topic['_activity_completed'] = count(
-        array_filter(
-            $topic['_progress'],
-            // Treat numeric 1 as a completed activity flag.
-            fn($value) => (int)$value === 1
-        )
-    );
-}
-
-unset($topic);
-
-$totalActivities = array_sum(array_map(
-    static fn($topic) => count($topic['_activities']),
-    $topics
-));
-$completedActivities = array_sum(array_map(
-    static fn($topic) => (int)$topic['_activity_completed'],
-    $topics
-));
-
-
-/*
-|--------------------------------------------------------------------------
-| Determine which stages are unlocked
-|--------------------------------------------------------------------------
-*/
 
 $previousCompleted = true;
 
-foreach ($topics as $index => &$topic) {
+foreach ($topics as $index => $topic) {
 
-    $topic['_is_completed'] =
+$topic['_is_completed'] =
         (int)$topic['completed'] === 1;
 
     $topic['_is_read'] =
         (int)($topic['is_read'] ?? 0) === 1;
 
-    /*
-     * First stage is unlocked.
-     * Every following stage requires the previous
-     * stage to be completed.
-     */
-    $topic['_is_unlocked'] = $previousCompleted;
+$topic['_is_unlocked'] = $previousCompleted;
 
-    /*
-     * Once this stage is not completed,
-     * the next stage stays locked.
-     */
-    $previousCompleted = $topic['_is_completed'];
+$previousCompleted = $topic['_is_completed'];
+
+$topics[$index] = $topic;
 }
 
-unset($topic);
-
-/*
-|--------------------------------------------------------------------------
-| Stage selection
-|--------------------------------------------------------------------------
-*/
 $selectedStage = null;
 
 if (isset($_GET['stage']) && ctype_digit((string)$_GET['stage'])) {
+    
     $selectedStage = (int)$_GET['stage'];
 }
 
 if ($selectedStage !== null) {
+    
     $selectedTopic = null;
 
     foreach ($topics as $topic) {
         if ((int)$topic['order_number'] === $selectedStage) {
+            
             $selectedTopic = $topic;
             break;
         }
     }
 
     if (!$selectedTopic || !$selectedTopic['_is_unlocked']) {
+        
         redirect('roadmap');
     }
 }
@@ -164,20 +137,11 @@ require_once __DIR__ . '/includes/header.php';
 
 <div class="roadmap-page">
 
-    <!-- =====================================================
-         NAVBAR
-    ====================================================== -->
+<?php require __DIR__ . '/includes/navbar.php'; ?>
 
-    <?php require __DIR__ . '/includes/navbar.php'; ?>
+<main class="roadmap-container">
 
-
-    <main class="roadmap-container">
-
-        <!-- =================================================
-             HEADER
-        ================================================== -->
-
-        <section class="roadmap-header">
+<section class="roadmap-header">
 
             <div>
 
@@ -199,14 +163,9 @@ require_once __DIR__ . '/includes/header.php';
 
         </section>
 
+<?php if (empty($topics)): ?>
 
-        <?php if (empty($topics)): ?>
-
-            <!-- =================================================
-                 EMPTY STATE
-            ================================================== -->
-
-            <section class="roadmap-empty">
+<section class="roadmap-empty">
 
                 <div class="empty-icon">
                     +
@@ -232,12 +191,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <?php else: ?>
 
-
-            <!-- =================================================
-                 SUMMARY
-            ================================================== -->
-
-            <section class="roadmap-summary">
+<section class="roadmap-summary">
 
                 <div class="summary-career">
 
@@ -281,8 +235,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 </div>
 
-
-                <div class="summary-progress">
+<div class="summary-progress">
 
                     <div class="progress-top">
 
@@ -324,12 +277,7 @@ require_once __DIR__ . '/includes/header.php';
 
             </section>
 
-
-            <!-- =================================================
-                 LEARNING PATH
-            ================================================== -->
-
-            <section class="roadmap-section">
+<section class="roadmap-section">
 
                 <div class="roadmap-section-header">
 
@@ -352,11 +300,9 @@ require_once __DIR__ . '/includes/header.php';
 
                 </div>
 
+<?php if ($selectedStage === null): ?>
 
-                <?php if ($selectedStage === null): ?>
-
-                    <!-- ROADMAP OVERVIEW -->
-                    <div class="roadmap-timeline">
+<div class="roadmap-timeline">
 
                         <?php foreach ($topics as $topic): ?>
                             <?php
@@ -405,8 +351,7 @@ require_once __DIR__ . '/includes/header.php';
 
                 <?php else: ?>
 
-                <!-- SINGLE STAGE VIEW -->
-                <div style="margin-bottom: 18px;">
+<div style="margin-bottom: 18px;">
                     <a href="roadmap" class="read-stage-btn">← Back to Roadmap</a>
                 </div>
 
@@ -478,12 +423,7 @@ require_once __DIR__ . '/includes/header.php';
                             "
                         >
 
-
-                            <!-- =================================================
-                                 STAGE MARKER
-                            ================================================== -->
-
-                            <div class="stage-marker">
+<div class="stage-marker">
 
                                 <?php if ($isCompleted): ?>
 
@@ -501,17 +441,9 @@ require_once __DIR__ . '/includes/header.php';
 
                             </div>
 
+<div class="stage-content">
 
-                            <!-- =================================================
-                                 STAGE CONTENT
-                            ================================================== -->
-
-                            <div class="stage-content">
-
-
-                                <!-- TOP -->
-
-                                <div class="stage-top">
+<div class="stage-top">
 
                                     <span class="stage-category">
 
@@ -519,8 +451,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     </span>
 
-
-                                    <?php if ($isCompleted): ?>
+<?php if ($isCompleted): ?>
 
                                         <span
                                             class="
@@ -557,19 +488,13 @@ require_once __DIR__ . '/includes/header.php';
 
                                 </div>
 
-
-                                <!-- TITLE -->
-
-                                <h2>
+<h2>
 
                                     <?= e($topic['title']) ?>
 
                                 </h2>
 
-
-                                <!-- DESCRIPTION -->
-
-                                <p class="stage-description">
+<p class="stage-description">
 
                                     <?= e($topic['description']) ?>
 
@@ -582,14 +507,9 @@ require_once __DIR__ . '/includes/header.php';
                                     </div>
                                 <?php endif; ?>
 
+<?php if (!$isUnlocked): ?>
 
-                                <?php if (!$isUnlocked): ?>
-
-                                    <!-- =============================================
-                                         LOCKED MESSAGE
-                                    ============================================== -->
-
-                                    <div class="locked-message">
+<div class="locked-message">
 
                                         <div class="locked-icon">
                                             <i class="bi bi-lock-fill" aria-hidden="true"></i>
@@ -611,15 +531,9 @@ require_once __DIR__ . '/includes/header.php';
 
                                     </div>
 
+<?php else: ?>
 
-                                <?php else: ?>
-
-
-                                    <!-- =============================================
-                                         WHAT YOU'LL LEARN
-                                    ============================================== -->
-
-                                    <div class="stage-box">
+<div class="stage-box">
 
                                         <div class="stage-box-title">
 
@@ -629,8 +543,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                         </div>
 
-
-                                        <div class="topic-tags">
+<div class="topic-tags">
 
                                             <?php foreach (
                                                 split_list(
@@ -648,12 +561,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     </div>
 
-
-                                    <!-- =============================================
-                                         READ STAGE
-                                    ============================================== -->
-
-                                    <?php if (!$isRead && !$isCompleted): ?>
+<?php if (!$isRead && !$isCompleted): ?>
 
                                         <div class="read-stage-box">
 
@@ -670,8 +578,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                             </div>
 
-
-                                            <form
+<form
                                                 action="api/study-path.php"
                                                 method="POST"
                                             >
@@ -701,12 +608,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     <?php endif; ?>
 
-
-                                    <!-- =============================================
-                                         SIX ACTIVITIES
-                                    ============================================== -->
-
-                                    <?php if (
+<?php if (
                                         $isRead ||
                                         $isCompleted
                                     ): ?>
@@ -749,8 +651,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                                 </div>
 
-
-                                                <div
+<div
                                                     class="
                                                         activity-count
                                                     "
@@ -764,10 +665,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                             </div>
 
-
-                                            <!-- ACTIVITY PROGRESS -->
-
-                                            <div
+<div
                                                 class="
                                                     activity-progress-container
                                                 "
@@ -803,10 +701,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                             </div>
 
-
-                                            <!-- ACTIVITY LIST -->
-
-                                            <div class="activity-list">
+<div class="activity-list">
 
     <?php foreach (
         $activities
@@ -824,9 +719,7 @@ require_once __DIR__ . '/includes/header.php';
 
         <div class="activity-row">
 
-            <!-- COMPLETE ACTIVITY -->
-
-            <form
+<form
                 action="api/study-path.php"
                 method="POST"
                 class="activity-form"
@@ -891,10 +784,7 @@ require_once __DIR__ . '/includes/header.php';
 
             </form>
 
-
-            <!-- LEARNING GUIDE BUTTON -->
-
-                <a
+<a
                     class="learn-activity-btn"
                     href="lesson?topic_id=<?= (int)$topic['id'] ?>&amp;activity_index=<?= (int)$activityIndex ?>"
                     data-topic-id="<?= (int)$topic['id'] ?>"
@@ -914,12 +804,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     <?php endif; ?>
 
-
-                                    <!-- =============================================
-                                         EXPECTED OUTPUT
-                                    ============================================== -->
-
-                                    <?php if (
+<?php if (
                                         !empty($topic['expected_output'])
                                     ): ?>
 
@@ -942,8 +827,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                             </div>
 
-
-                                            <p>
+<p>
 
                                                 <?= e(
                                                     $topic['expected_output']
@@ -955,12 +839,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     <?php endif; ?>
 
-
-                                    <!-- =============================================
-                                         RESOURCES
-                                    ============================================== -->
-
-                                    <?php if (
+<?php if (
                                         !empty($topic['resources'])
                                     ): ?>
 
@@ -983,8 +862,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                             </div>
 
-
-                                            <div
+<div
                                                 class="
                                                     resource-list
                                                 "
@@ -1024,12 +902,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     <?php endif; ?>
 
-
-                                    <!-- =============================================
-                                         COMPLETION STATUS
-                                    ============================================== -->
-
-                                    <?php if ($isCompleted): ?>
+<?php if ($isCompleted): ?>
 
                                         <div
                                             class="
@@ -1087,8 +960,7 @@ require_once __DIR__ . '/includes/header.php';
 
                                     <?php endif; ?>
 
-
-                                <?php endif; ?>
+<?php endif; ?>
 
                             </div>
 
@@ -1109,7 +981,7 @@ require_once __DIR__ . '/includes/header.php';
 </div>
 
 <script>
-// Save activity completion in the background and refresh the stage progress display.
+// Updates the activity progress display.
 function updateActivityUI(progress, topicId) {
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');

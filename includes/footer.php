@@ -1,13 +1,9 @@
 <?php
-/**
- * Shared closing markup for Academie pages.
- * Builds root-relative legal-page links for both root and nested routes, then
- * closes the document and loads Bootstrap's JavaScript bundle.
- */
-// Shared footer for public and authenticated pages.
-// Build links from the project root so they also work on nested pages (for example admin/index.php).
+
 $scriptDirectory = str_replace('\\', '/', dirname($_SERVER['SCRIPT_NAME'] ?? '/'));
+
 $scriptDirectory = rtrim($scriptDirectory, '/');
+
 if (basename($scriptDirectory) === 'admin') {
     $scriptDirectory = rtrim(dirname($scriptDirectory), '/');
 }

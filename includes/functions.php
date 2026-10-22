@@ -2,35 +2,37 @@
 
 require_once __DIR__ . '/ai.php';
 
-/*
-       Basic Helper Functions
-*/
-
-// Turn a value into safe text before showing it on a web page.
+// Escapes text for safe HTML output.
 function e($value)
 {
+    
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 }
 
-// Stop the request if it was not sent using POST.
+// Stops the request unless it uses POST.
 function require_post()
 {
+    
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        
         http_response_code(405);
         exit('Method Not Allowed');
     }
 }
 
-// Send the browser to another page, then stop this PHP request.
+// Redirects the browser to another page.
 function redirect($location)
 {
+    
     header('Location: ' . $location);
+    
     exit;
 }
 
-// Find one user and include their assessment answers if they have taken it.
+// Fetches a user and their latest assessment details.
 function getUserById($pdo, $userId)
 {
+    
     $stmt = $pdo->prepare(
         'SELECT
             u.*,
@@ -46,102 +48,88 @@ function getUserById($pdo, $userId)
          LIMIT 1'
     );
 
-    $stmt->execute([$userId]);
+$stmt->execute([$userId]);
 
-    return $stmt->fetch(PDO::FETCH_ASSOC);
+return $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
-// Trim text and limit its length before saving it; this does not escape HTML.
+// Trims text and limits its length before saving.
 function clean_text($value, $maxLength = 255)
 {
+    
     if (!is_string($value)) {
         return '';
     }
 
-    $value = trim($value);
+$value = trim($value);
 
-    if (mb_strlen($value) > $maxLength) {
+if (mb_strlen($value) > $maxLength) {
         $value = mb_substr($value, 0, $maxLength);
     }
 
-    return $value;
+return $value;
 }
 
-// Turn text like "HTML, CSS, JavaScript" into a list of separate items.
+// Splits comma separated text into a list.
 function split_list($value)
 {
+    
     if (!is_string($value) || trim($value) === '') {
         return [];
     }
 
-    return array_values(
-        array_filter(
-            array_map('trim', explode(',', $value))
-        )
-    );
-}
+$items = explode(',', $value);
+    $cleanItems = [];
 
+    foreach ($items as $item) {
+        $item = trim($item);
 
-/*
-    Activity Helper
-*/
-
-// Convert saved activity data into a regular list, whether it came from JSON or plain text.
-function getActivities($activity)
-{
-    if (is_array($activity)) {
-
-        return array_values(
-            array_filter(
-                $activity,
-                // Keep only usable string activities from an already-decoded array.
-                function ($item) {
-                    return is_string($item)
-                        && trim($item) !== '';
-                }
-            )
-        );
+if ($item !== '' && $item !== '0') {
+            $cleanItems[] = $item;
+        }
     }
 
-    if (
-        !is_string($activity)
-        || trim($activity) === ''
-    ) {
+    return $cleanItems;
+}
+
+// Converts saved activity data into a list.
+function getActivities($activity)
+{
+    
+    if (is_string($activity)) {
+        if (trim($activity) === '') {
+            return [];
+        }
+
+        $decoded = json_decode($activity, true);
+
+if (is_array($decoded)) {
+            $activity = $decoded;
+        } else {
+            
+            return [trim($activity)];
+        }
+    }
+
+if (!is_array($activity)) {
         return [];
     }
 
-    $decoded = json_decode($activity, true);
+    $validActivities = [];
 
-    if (is_array($decoded)) {
-
-        return array_values(
-            array_filter(
-                $decoded,
-                // Apply the same validation after decoding activities stored as JSON.
-                function ($item) {
-                    return is_string($item)
-                        && trim($item) !== '';
-                }
-            )
-        );
+foreach ($activity as $item) {
+        if (is_string($item) && trim($item) !== '') {
+            $validActivities[] = $item;
+        }
     }
 
-    return [trim($activity)];
+    return $validActivities;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Roadmap Progress
-|--------------------------------------------------------------------------
-| Takes the rows from getStudyTopics() and counts how many stages and
-| activities the student has finished. The dashboard and profile pages
-| both use this, so the counting code only exists in one place.
-*/
-
-// Count completed roadmap stages and activities for progress bars and profile summaries.
+// Counts completed roadmap stages and activities.
 function getRoadmapProgress(array $topics)
 {
+    
     $progress = [
         'totalStages'         => count($topics),
         'completedStages'     => 0,
@@ -149,22 +137,22 @@ function getRoadmapProgress(array $topics)
         'completedActivities' => 0,
     ];
 
-    foreach ($topics as $topic) {
+foreach ($topics as $topic) {
+        
         if ((int)$topic['completed'] === 1) {
             $progress['completedStages']++;
         }
 
-        // activity_progress is a JSON list such as [true, false, true]
-        $activities = getActivities($topic['activity'] ?? '');
+$activities = getActivities($topic['activity'] ?? '');
         $states = json_decode((string)($topic['activity_progress'] ?? ''), true);
 
         if (!is_array($states)) {
             $states = [];
         }
 
-        $progress['totalActivities'] += count($activities);
+$progress['totalActivities'] += count($activities);
 
-        foreach (array_keys($activities) as $index) {
+foreach (array_keys($activities) as $index) {
             if (!empty($states[$index])) {
                 $progress['completedActivities']++;
             }
@@ -174,17 +162,7 @@ function getRoadmapProgress(array $topics)
     return $progress;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Achievements
-|--------------------------------------------------------------------------
-| getAchievementCatalog() is the single list of badges.
-| syncAchievements() saves any badge the student has just earned.
-| getUserAchievements() returns every saved badge for the profile page.
-*/
-
-// Keep each achievement's code, icon, title, and description in one place.
+// Returns the available achievement details.
 function getAchievementCatalog()
 {
     return [
@@ -196,50 +174,52 @@ function getAchievementCatalog()
     ];
 }
 
-// Check the student's progress and save any badges they have earned, without duplicates.
+// Saves achievements earned from the user progress.
 function syncAchievements($pdo, $userId, array $progress)
 {
-    // Work out which badges the current progress qualifies for.
+    
     $earned = [];
 
-    if ($progress['completedActivities'] >= 1) {
+if ($progress['completedActivities'] >= 1) {
         $earned[] = 'first_steps';
     }
+    
     if ($progress['completedStages'] >= 1) {
         $earned[] = 'stage_achiever';
     }
+    
     if ($progress['totalStages'] > 0
         && $progress['completedStages'] >= (int)ceil($progress['totalStages'] / 2)) {
         $earned[] = 'halfway_hero';
     }
+    
     if ($progress['totalStages'] > 0
         && $progress['completedStages'] === $progress['totalStages']) {
         $earned[] = 'roadmap_champion';
     }
+    
     if ($progress['totalActivities'] > 0
         && $progress['completedActivities'] === $progress['totalActivities']) {
         $earned[] = 'activity_master';
     }
 
-    if (!$earned) {
+if (!$earned) {
         return;
     }
 
-    $titleStmt = $pdo->prepare('SELECT title FROM study_paths WHERE user_id = ? LIMIT 1');
+$titleStmt = $pdo->prepare('SELECT title FROM study_paths WHERE user_id = ? LIMIT 1');
     $titleStmt->execute([$userId]);
     $roadmapTitle = (string)($titleStmt->fetchColumn() ?: 'Learning Roadmap');
 
-    // INSERT IGNORE: the table has a UNIQUE (user_id, achievement_code) key,
-    // so a badge that was already saved is skipped instead of duplicated.
-    $saveStmt = $pdo->prepare(
+$saveStmt = $pdo->prepare(
         'INSERT IGNORE INTO user_achievements
             (user_id, achievement_code, title, description, icon, roadmap_title)
          VALUES (?, ?, ?, ?, ?, ?)'
     );
 
-    $catalog = getAchievementCatalog();
+$catalog = getAchievementCatalog();
 
-    foreach ($earned as $code) {
+foreach ($earned as $code) {
         $badge = $catalog[$code];
         $saveStmt->execute([
             $userId, $code, $badge['title'], $badge['description'], $badge['icon'], $roadmapTitle
@@ -247,7 +227,7 @@ function syncAchievements($pdo, $userId, array $progress)
     }
 }
 
-// Get the student's saved badges, with the newest one first.
+// Fetches a user’s saved achievements.
 function getUserAchievements($pdo, $userId)
 {
     $stmt = $pdo->prepare(
@@ -261,12 +241,7 @@ function getUserAchievements($pdo, $userId)
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
-
-/*
-     Roadmap Stage Helper
-*/
-
-// Put one fallback stage into the same format used by AI-created stages.
+// Creates one roadmap stage with the standard fields.
 function roadmap_stage(
     $category,
     $title,
@@ -287,14 +262,7 @@ function roadmap_stage(
     ];
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Generate Study Topics
-|--------------------------------------------------------------------------
-*/
-
-// Build a ready-made roadmap for the student's goal when AI cannot make one.
+// Builds a fallback roadmap from the user assessment.
 function generate_study_topics($user)
 {
     $career = trim(
@@ -309,14 +277,7 @@ function generate_study_topics($user)
         (string)($user['improvement_goal'] ?? '')
     );
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | FRONTEND DEVELOPER
-    |--------------------------------------------------------------------------
-    */
-
-    $roadmaps = [
+$roadmaps = [
 
         'Frontend Developer' => [
 
@@ -340,8 +301,7 @@ function generate_study_topics($user)
                 'MDN HTML Guide, HTML Elements Reference, freeCodeCamp HTML'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'STYLING',
                 'Responsive Web Design',
                 'Create clean and responsive layouts that work across different screen sizes.',
@@ -361,8 +321,7 @@ function generate_study_topics($user)
                 'MDN CSS Guide, CSS Flexbox Guide, CSS Grid Guide'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'PROGRAMMING',
                 'JavaScript Fundamentals',
                 'Learn programming logic and use JavaScript to make websites interactive.',
@@ -382,8 +341,7 @@ function generate_study_topics($user)
                 'MDN JavaScript Guide, JavaScript.info, freeCodeCamp JavaScript'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'ADVANCED',
                 'Modern Frontend Development',
                 'Learn modern JavaScript development techniques and work with APIs.',
@@ -403,8 +361,7 @@ function generate_study_topics($user)
                 'MDN Fetch API, REST API Introduction, JSON Guide'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'FRAMEWORK',
                 'Frontend Framework',
                 'Learn a modern frontend framework and build component-based applications.',
@@ -424,8 +381,7 @@ function generate_study_topics($user)
                 'React Documentation, React Learn, Vite Documentation'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'PROJECT',
                 'Build Real Projects',
                 'Create practical projects that demonstrate your frontend development skills.',
@@ -445,8 +401,7 @@ function generate_study_topics($user)
                 'GitHub Docs, Git Documentation, Vercel Documentation'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'CAREER',
                 'Become Job Ready',
                 'Prepare your portfolio, GitHub profile, resume, and interview skills.',
@@ -467,14 +422,7 @@ function generate_study_topics($user)
             )
         ],
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | BACKEND DEVELOPER
-        |--------------------------------------------------------------------------
-        */
-
-        'Backend Developer' => [
+'Backend Developer' => [
 
             roadmap_stage(
                 'FOUNDATION',
@@ -496,8 +444,7 @@ function generate_study_topics($user)
                 'freeCodeCamp Programming, MDN JavaScript Guide, W3Schools Programming'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'PROGRAMMING',
                 'Backend Programming',
                 'Learn server-side programming and understand how backend applications process requests.',
@@ -517,8 +464,7 @@ function generate_study_topics($user)
                 'PHP Documentation, Python Documentation, MDN Server-side Web Development'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'DATABASE',
                 'Databases & SQL',
                 'Learn how applications store, retrieve, and manage data.',
@@ -538,8 +484,7 @@ function generate_study_topics($user)
                 'MySQL Documentation, SQLBolt, W3Schools SQL'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'API',
                 'REST APIs',
                 'Learn how applications communicate through APIs and exchange data.',
@@ -559,8 +504,7 @@ function generate_study_topics($user)
                 'MDN HTTP, REST API Guide, Postman Learning Center'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'SECURITY',
                 'Authentication & Security',
                 'Learn how to protect applications, users, and sensitive data.',
@@ -580,8 +524,7 @@ function generate_study_topics($user)
                 'OWASP Authentication Cheat Sheet, PHP Password Hashing, JWT Documentation'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'PROJECT',
                 'Build Backend Projects',
                 'Build a complete backend application connected to a database and API.',
@@ -601,8 +544,7 @@ function generate_study_topics($user)
                 'GitHub Docs, MySQL Documentation, Postman'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'CAREER',
                 'Become Job Ready',
                 'Prepare your portfolio and develop the skills needed for backend development jobs.',
@@ -623,14 +565,7 @@ function generate_study_topics($user)
             )
         ],
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | FULL-STACK DEVELOPER
-        |--------------------------------------------------------------------------
-        */
-
-        'Full-Stack Developer' => [
+'Full-Stack Developer' => [
 
             roadmap_stage(
                 'FOUNDATION',
@@ -652,8 +587,7 @@ function generate_study_topics($user)
                 'MDN Web Docs, HTTP Overview, How the Web Works'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'FRONTEND',
                 'Frontend Development',
                 'Learn how to create responsive and interactive user interfaces.',
@@ -673,8 +607,7 @@ function generate_study_topics($user)
                 'MDN HTML, MDN CSS, MDN JavaScript'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'BACKEND',
                 'Backend Development',
                 'Learn server-side programming and how applications process requests.',
@@ -694,8 +627,7 @@ function generate_study_topics($user)
                 'PHP Documentation, Node.js Documentation, MDN'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'DATABASE',
                 'Databases',
                 'Learn how to design databases and connect them to applications.',
@@ -715,8 +647,7 @@ function generate_study_topics($user)
                 'MySQL Documentation, SQLBolt, Database Design Guide'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'API',
                 'REST APIs',
                 'Connect frontend and backend systems using APIs.',
@@ -736,8 +667,7 @@ function generate_study_topics($user)
                 'MDN Fetch API, Postman, REST API Guide'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'SECURITY',
                 'Authentication & Security',
                 'Learn secure authentication and common web application security practices.',
@@ -757,8 +687,7 @@ function generate_study_topics($user)
                 'OWASP, JWT Documentation, OAuth Documentation'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'PROJECT',
                 'Full-Stack Projects',
                 'Build complete applications from frontend to backend and database.',
@@ -778,8 +707,7 @@ function generate_study_topics($user)
                 'GitHub Docs, Deployment Documentation, Project Architecture Guides'
             ),
 
-
-            roadmap_stage(
+roadmap_stage(
                 'CAREER',
                 'Become Job Ready',
                 'Build a professional portfolio and prepare for full-stack development jobs.',
@@ -802,11 +730,7 @@ function generate_study_topics($user)
 
     ];
 
-     /*
-        DATA ANALYST
-    */
-
-    $roadmaps['Data Analyst'] = [
+$roadmaps['Data Analyst'] = [
 
         roadmap_stage(
             'FOUNDATION',
@@ -949,14 +873,7 @@ function generate_study_topics($user)
         )
     ];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | CYBERSECURITY
-    |--------------------------------------------------------------------------
-    */
-
-    $roadmaps['Cybersecurity'] = [
+$roadmaps['Cybersecurity'] = [
 
         roadmap_stage(
             'FOUNDATION',
@@ -1072,9 +989,8 @@ function generate_study_topics($user)
                 'Document the appropriate defensive technique.',
                 'Organize the completed labs into a security portfolio.'
             ],
-            
 
-            'A cybersecurity lab portfolio and documentation.',
+'A cybersecurity lab portfolio and documentation.',
 
             'TryHackMe, PortSwigger Web Security Academy, OWASP'
         ),
@@ -1100,16 +1016,7 @@ function generate_study_topics($user)
         )
     ];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Select Career Roadmap
-    |--------------------------------------------------------------------------
-    */
-
-    // Normalize the assessment's display labels to the available fallback roadmaps.
-    // Gemini can still generate a more specialized roadmap when configured.
-    $careerAliases = [
+$careerAliases = [
         'Software Engineering / Core Developer' => 'Backend Developer',
         'Full-Stack Development' => 'Full-Stack Developer',
         'Frontend Web Development' => 'Frontend Developer',
@@ -1122,14 +1029,7 @@ function generate_study_topics($user)
     $topics = $roadmaps[$roadmapKey]
         ?? $roadmaps['Frontend Developer'];
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Basic Personalization
-    |--------------------------------------------------------------------------
-    */
-
-    if (
+if (
         $level === 'Complete Beginner'
         || $level === 'Beginner'
     ) {
@@ -1154,14 +1054,7 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Intermediate Personalization
-    |--------------------------------------------------------------------------
-    */
-
-    if ($level === 'Intermediate') {
+if ($level === 'Intermediate') {
 
         foreach ($topics as &$topic) {
 
@@ -1178,14 +1071,7 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Advanced Personalization
-    |--------------------------------------------------------------------------
-    */
-
-    if ($level === 'Advanced') {
+if ($level === 'Advanced') {
 
         foreach ($topics as &$topic) {
 
@@ -1201,14 +1087,7 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Build Real Projects Goal
-    |--------------------------------------------------------------------------
-    */
-
-    if ($goal === 'Build Real Projects') {
+if ($goal === 'Build Real Projects') {
 
         foreach ($topics as &$topic) {
 
@@ -1230,14 +1109,7 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Prepare for a Job Goal
-    |--------------------------------------------------------------------------
-    */
-
-    if ($goal === 'Prepare for a Job') {
+if ($goal === 'Prepare for a Job') {
 
         foreach ($topics as &$topic) {
 
@@ -1265,14 +1137,7 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Learn the Fundamentals Goal
-    |--------------------------------------------------------------------------
-    */
-
-    if ($goal === 'Learn the Fundamentals') {
+if ($goal === 'Learn the Fundamentals') {
 
         foreach ($topics as &$topic) {
 
@@ -1300,43 +1165,16 @@ function generate_study_topics($user)
         unset($topic);
     }
 
-
-    /*
-    |--------------------------------------------------------------------------
-    | Return Personalized Roadmap
-    |--------------------------------------------------------------------------
-    */
-
-    return $topics;
+return $topics;
 }
 
-
-/*
-|--------------------------------------------------------------------------
-| Save Generated Topics
-|--------------------------------------------------------------------------
-|
-| Saves:
-|
-| - category
-| - title
-| - description
-| - topics
-| - 6 activities
-| - expected output
-| - resources
-| - activity progress
-| - read status
-|
-*/
-
-// Create a new roadmap and replace the old one; a transaction keeps the database consistent.
-// Gemini is tried first, and the built-in roadmap is used if Gemini fails.
+// Replaces the user roadmap with generated stages.
 function save_generated_topics($pdo, $userId, $user)
 {
+    
     $aiResult = ai_generate_roadmap($user); 
 
-    if ($aiResult['success']) {
+if ($aiResult['success']) {
         $topics = $aiResult['stages'];
         $source = 'gemini';
         $summary = $aiResult['summary'] ?? '';
@@ -1346,28 +1184,26 @@ function save_generated_topics($pdo, $userId, $user)
         $summary = 'A rule-based roadmap was used because Gemini was not available.';
     }
 
-    $pdo->beginTransaction();
+$pdo->beginTransaction();
 
     try {
-        // Get the student's assessment.
-        $assessmentStmt = $pdo->prepare(
+
+$assessmentStmt = $pdo->prepare(
             'SELECT id FROM assessments WHERE user_id = ? LIMIT 1'
         );
         $assessmentStmt->execute([$userId]);
         $assessment = $assessmentStmt->fetch(PDO::FETCH_ASSOC);
 
-        if (!$assessment) {
+if (!$assessment) {
             throw new RuntimeException('Assessment not found.');
         }
 
-        // Remove the old roadmap. Topics are removed automatically by CASCADE.
-        $deletePath = $pdo->prepare(
+$deletePath = $pdo->prepare(
             'DELETE FROM study_paths WHERE user_id = ?'
         );
         $deletePath->execute([$userId]);
 
-        // Create the new roadmap.
-        $pathStmt = $pdo->prepare(
+$pathStmt = $pdo->prepare(
             'INSERT INTO study_paths
              (user_id, assessment_id, title, description, roadmap_source)
              VALUES (?, ?, ?, ?, ?)'
@@ -1381,9 +1217,9 @@ function save_generated_topics($pdo, $userId, $user)
             $source
         ]);
 
-        $studyPathId = (int)$pdo->lastInsertId();
+$studyPathId = (int)$pdo->lastInsertId();
 
-        $insert = $pdo->prepare(
+$insert = $pdo->prepare(
             'INSERT INTO study_topics
             (study_path_id, order_number, category, title, description, topics,
              activity, activity_progress, expected_output, resources,
@@ -1391,24 +1227,25 @@ function save_generated_topics($pdo, $userId, $user)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
-        $startingLevel = strtolower(trim((string)($user['current_level'] ?? 'complete beginner')));
+$startingLevel = strtolower(trim((string)($user['current_level'] ?? 'complete beginner')));
         $milestoneSets = [
             'complete beginner' => ['FOUNDATION', 'BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL'],
             'beginner' => ['BEGINNER', 'INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL', 'SPECIALIST'],
             'intermediate' => ['INTERMEDIATE', 'ADVANCED', 'PROFESSIONAL', 'SPECIALIST', 'MASTERY'],
             'advanced' => ['ADVANCED', 'PROFESSIONAL', 'SPECIALIST', 'MASTERY', 'EXPERT']
         ];
+        
         $milestones = $milestoneSets[$startingLevel] ?? $milestoneSets['complete beginner'];
 
-        foreach ($topics as $index => $topic) {
+foreach ($topics as $index => $topic) {
             $activities = array_values(array_slice(getActivities($topic['activity'] ?? []), 0, 6));
             $milestone = $milestones[min($index, count($milestones) - 1)];
 
-            while (count($activities) < 6) {
+while (count($activities) < 6) {
                 $activities[] = 'Review the concepts from this stage and practice them in a small task.';
             }
 
-            $insert->execute([
+$insert->execute([
                 $studyPathId,
                 $index + 1,
                 $milestone,
@@ -1426,7 +1263,7 @@ function save_generated_topics($pdo, $userId, $user)
             ]);
         }
 
-        $pdo->commit();
+$pdo->commit();
 
         return [
             'source' => $source,
@@ -1434,22 +1271,19 @@ function save_generated_topics($pdo, $userId, $user)
             'fallback_reason' => $source === 'fallback' ? ($aiResult['message'] ?? 'Gemini unavailable.') : null
         ];
     } catch (Throwable $e) {
+        
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
+        
         throw $e;
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| Get Study Topics
-|--------------------------------------------------------------------------
-*/
-
-// Load this student's stages in order so pages can show their roadmap and progress.
+// Fetches roadmap stages in display order.
 function getStudyTopics($pdo, $userId)
 {
+    
     $stmt = $pdo->prepare(
         'SELECT st.*
          FROM study_topics st
@@ -1458,7 +1292,7 @@ function getStudyTopics($pdo, $userId)
          ORDER BY st.order_number ASC, st.id ASC'
     );
 
-    $stmt->execute([$userId]);
+$stmt->execute([$userId]);
 
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }

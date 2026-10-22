@@ -1,7 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../includes/bootstrap.php';
 
 $adminId = filter_var($_SESSION['admin_id'] ?? null, FILTER_VALIDATE_INT);
 $lastActivity = (int) ($_SESSION['admin_last_activity'] ?? 0);

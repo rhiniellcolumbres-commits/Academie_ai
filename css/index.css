@@ -1,5 +1,6 @@
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#12213f;background:#f7faff}
 a{text-decoration:none}
 .navbar{min-height:76px;background:rgba(255,255,255,.92)!important;backdrop-filter:blur(12px);position:sticky;top:0;z-index:50}
@@ -62,7 +63,7 @@ footer{background:#fff!important}
 @media(max-width:767px){.roadmap-item{grid-template-columns:35px minmax(0,1fr)}.roadmap-status{grid-column:2;justify-self:start;margin-top:2px}}
 @media(max-width:575px){.navbar{min-height:68px}.navbar-brand{font-size:21px}.navbar .btn{padding:.5rem .75rem;font-size:13px}.hero-section{padding:55px 0 60px}.hero-title{font-size:48px;letter-spacing:-2.5px}.hero-description{font-size:15px}.roadmap-preview{padding:22px}.floating-card{position:relative;right:auto;bottom:auto;display:inline-block;margin:12px 0 0 10px}.features-section{padding:70px 0}.feature-card{padding:24px}.cta-section{padding:70px 20px}}
 
-/* Academie brand */
+
 .brand-name{display:inline-flex;align-items:baseline;white-space:nowrap}
 .brand-acad{color:#2463c5}
 .brand-amie{color:#111827}
@@ -70,9 +71,7 @@ footer{background:#fff!important}
 .brand-name:hover .brand-amie{color:#111827}
 
 
-/* =========================
-   PUBLIC NAVIGATION + ICONS
-========================= */
+
 .public-navbar {
     position: sticky;
     top: 0;
@@ -136,7 +135,7 @@ footer{background:#fff!important}
 }
 
 
-/* Shared academic disclaimer footer */
+
 .site-footer {
     width: 100%;
     margin-top: 44px;
@@ -215,14 +214,14 @@ footer{background:#fff!important}
 
 
 
-/* Hero actions */
+
 .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 24px}
 .hero-btn-primary,.hero-btn-secondary{border-radius:12px;font-weight:700;font-size:15px;padding:.8rem 1.4rem}
 .hero-btn-primary{background:#2463c5;border-color:#2463c5}.hero-btn-primary:hover{background:#174faa;border-color:#174faa}
 .hero-btn-secondary{background:#fff}
 .hero-points{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:10px 22px;color:#43566f;font-size:14px;font-weight:600}
 .hero-points i{color:#2463c5;margin-right:6px}
-/* Career tracks */
+
 .tracks-section{padding:92px 0;background:#f4f8ff}
 .tracks-section h2,.faq-section h2{margin:0 0 13px;font-size:clamp(30px,4vw,44px);line-height:1.1;letter-spacing:-1.5px;font-weight:800;color:#142d54}
 .tracks-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
@@ -234,7 +233,7 @@ footer{background:#fff!important}
 .track-card-cta{background:linear-gradient(135deg,#153d79,#2463c5);border-color:transparent;display:flex;flex-direction:column;justify-content:center}
 .track-card-cta h5{color:#fff;font-size:18px}.track-card-cta p{color:#d9e8ff;margin-bottom:14px}
 .track-card-cta a{color:#fff;font-weight:700;font-size:14px}.track-card-cta a:hover{text-decoration:underline}
-/* Benefits */
+
 .benefits-section{padding:92px 0;background:#fff}
 .benefits-grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:60px;align-items:center}
 .benefits-intro h2{margin:0 0 14px;font-size:clamp(28px,3.6vw,40px);line-height:1.15;letter-spacing:-1.3px;font-weight:800;color:#142d54}
@@ -245,7 +244,7 @@ footer{background:#fff!important}
 .benefit-icon{flex-shrink:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center;border-radius:12px;background:#2463c5;color:#fff;font-size:20px}
 .benefit-item h5{margin:0 0 5px;font-size:16px;font-weight:800;color:#19365e}
 .benefit-item p{margin:0;color:#71829a;font-size:14px;line-height:1.65}
-/* FAQ */
+
 .faq-section{padding:92px 0;background:#f4f8ff}
 .faq-accordion{max-width:780px;margin:0 auto}
 .faq-accordion .accordion-item{border:1px solid #e1ebf7;border-radius:14px!important;margin-bottom:12px;overflow:hidden;background:#fff}

@@ -10,7 +10,8 @@ body {
     margin: 0;
     background: #f5f7fa;
     color: #111827;
-    font-family: Arial, Helvetica, sans-serif;
+    
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
 }
 
 a {
@@ -26,9 +27,7 @@ textarea {
 }
 
 
-/* =========================
-   APPLICATION LAYOUT
-========================= */
+
 
 .main-content {
     min-height: 100vh;
@@ -72,9 +71,7 @@ textarea {
 }
 
 
-/* =========================
-   DASHBOARD
-========================= */
+
 
 .dashboard-top {
     display: flex;
@@ -185,9 +182,7 @@ textarea {
 }
 
 
-/* =========================
-   PANELS
-========================= */
+
 
 .panel {
     padding: 30px;
@@ -219,9 +214,7 @@ textarea {
 }
 
 
-/* =========================
-   FORMS
-========================= */
+
 
 .form-group {
     margin-bottom: 22px;
@@ -273,9 +266,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   BUTTONS
-========================= */
+
 
 .btn-primary-custom {
     display: inline-flex;
@@ -331,9 +322,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   ASSESSMENT
-========================= */
+
 
 .assessment-container {
     width: 100%;
@@ -557,9 +546,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   STUDY PATH
-========================= */
+
 
 .roadmap-wrapper {
     max-width: 1050px;
@@ -740,9 +727,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   PROGRESS
-========================= */
+
 
 .progress-summary {
     display: grid;
@@ -785,9 +770,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   RESOURCES
-========================= */
+
 
 .resource-grid {
     display: grid;
@@ -853,9 +836,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   PROFILE
-========================= */
+
 
 .profile-card {
     max-width: 800px;
@@ -870,9 +851,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   ALERTS
-========================= */
+
 
 .alert-custom {
     padding: 13px 15px;
@@ -885,9 +864,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   EMPTY STATE
-========================= */
+
 
 .empty-state {
     padding: 60px 30px;
@@ -938,9 +915,7 @@ textarea.form-control {
 }
 
 
-/* =========================
-   MOBILE
-========================= */
+
 
 @media (max-width: 900px) {
 
@@ -1061,12 +1036,8 @@ textarea.form-control {
     }
 
 }
-/* =========================
-   AUTH PAGES
-========================= */
-/* =========================
-   AUTH PAGES
-========================= */
+
+
 
 .auth-page {
     min-height: 100vh;
@@ -1139,7 +1110,7 @@ textarea.form-control {
 }
 
 
-/* FORM */
+
 
 .auth-card .form-group {
     margin-bottom: 19px;
@@ -1201,7 +1172,7 @@ textarea.form-control {
 }
 
 
-/* TWO COLUMN REGISTER FORM */
+
 
 .form-grid {
     display: grid;
@@ -1212,7 +1183,7 @@ textarea.form-control {
 }
 
 
-/* LOGIN OPTIONS */
+
 
 .form-options {
     display: flex;
@@ -1261,7 +1232,7 @@ textarea.form-control {
 }
 
 
-/* BUTTON */
+
 
 .full-btn {
     width: 100%;
@@ -1293,7 +1264,7 @@ textarea.form-control {
 }
 
 
-/* FOOTER */
+
 
 .auth-footer {
     margin-top: 26px;
@@ -1325,7 +1296,7 @@ textarea.form-control {
 }
 
 
-/* MOBILE */
+
 
 @media (max-width: 600px) {
 
@@ -1358,7 +1329,7 @@ textarea.form-control {
     }
 }
 
-/* Assessment wizard: keep each prompt focused and its progress easy to scan. */
+
 .assessment-step[hidden],
 .assessment-wizard-actions [hidden] { display: none !important; }
 .assessment-retake-notice {
@@ -1466,9 +1437,7 @@ textarea.form-control {
     background: #f3f4f6;
 }
 
-/* =========================
-   FINAL COMPATIBILITY STYLES
-========================= */
+
 .empty-state { text-align: center; padding: 55px 30px; }
 .empty-state h2 { margin-bottom: 10px; font-size: 24px; }
 .empty-state p { color: #6b7280; margin-bottom: 22px; }
@@ -1480,9 +1449,7 @@ textarea.form-control {
 .progress-overview .progress-bar span, .summary-progress .progress-bar span { display:block; height:100%; background:#111827; border-radius:99px; }
 .alert { border-radius:10px; }
 @media (max-width: 700px) { .dashboard-top { align-items:flex-start; flex-direction:column; } .main-content { padding:75px 15px 30px; } .panel { padding:22px; } }
-/* =========================================
-   NEW CAREER ASSESSMENT
-========================================= */
+
 
 .assessment-page {
     min-height: 100vh;
@@ -1490,7 +1457,7 @@ textarea.form-control {
 }
 
 
-/* TOP NAVIGATION */
+
 
 .simple-navbar {
     width: 100%;
@@ -1524,7 +1491,7 @@ textarea.form-control {
 }
 
 
-/* ASSESSMENT CONTENT */
+
 
 .career-selection {
     width: 100%;
@@ -1562,7 +1529,7 @@ textarea.form-control {
 }
 
 
-/* CAREER GRID */
+
 
 .career-grid {
     display: grid;
@@ -1573,7 +1540,7 @@ textarea.form-control {
 }
 
 
-/* CAREER CARD */
+
 
 .career-card {
     position: relative;
@@ -1608,7 +1575,7 @@ textarea.form-control {
 }
 
 
-/* HIDE RADIO */
+
 
 .career-card input {
     position: absolute;
@@ -1620,7 +1587,7 @@ textarea.form-control {
 }
 
 
-/* CARD TEXT */
+
 
 .career-card span {
     margin-bottom: 8px;
@@ -1639,7 +1606,7 @@ textarea.form-control {
 }
 
 
-/* SELECTED CARD */
+
 
 .career-card.selected {
     border-color: #111827;
@@ -1655,7 +1622,7 @@ textarea.form-control {
 }
 
 
-/* BUTTON */
+
 
 .career-submit {
     display: flex;
@@ -1689,7 +1656,7 @@ textarea.form-control {
 }
 
 
-/* MOBILE */
+
 
 @media (max-width: 700px) {
 
@@ -1710,9 +1677,7 @@ textarea.form-control {
     }
 
 }
-/* =========================================
-   NEW ASSESSMENT
-========================================= */
+
 
 .assessment-page {
     min-height: 100vh;
@@ -1892,7 +1857,7 @@ textarea.form-control {
 }
 
 
-/* CAREER */
+
 
 .assessment-career-grid {
     display: grid;
@@ -1968,7 +1933,7 @@ textarea.form-control {
 }
 
 
-/* ASSESSMENT BUTTONS */
+
 
 .assessment-actions {
     display: flex;
@@ -2036,9 +2001,7 @@ textarea.form-control {
 }
 
 
-/* =========================================
-   MAIN NAVBAR
-========================================= */
+
 
 .main-navbar {
     width: 100%;
@@ -2121,9 +2084,7 @@ textarea.form-control {
 }
 
 
-/* =========================================
-   NEW DASHBOARD
-========================================= */
+
 
 .dashboard-page {
     min-height: 100vh;
@@ -2353,7 +2314,7 @@ textarea.form-control {
 }
 
 
-/* ASSESSMENT SUMMARY */
+
 
 .assessment-summary {
     display: grid;
@@ -2400,7 +2361,7 @@ textarea.form-control {
 }
 
 
-/* DASHBOARD SECTION */
+
 
 .dashboard-section-title {
     margin-bottom: 18px;
@@ -2471,9 +2432,7 @@ textarea.form-control {
 }
 
 
-/* =========================================
-   RESPONSIVE
-========================================= */
+
 
 @media (max-width: 800px) {
 
@@ -2558,7 +2517,7 @@ textarea.form-control {
 
 }
 
-/* AI recommendation card */
+
 .ai-recommendation-card {
     margin: 28px 0;
     padding: 28px;
@@ -2579,10 +2538,7 @@ textarea.form-control {
 
 
 
-/* =========================================================
-   STUDYPATH AI — POLISHED BLUE DESIGN SYSTEM
-   Final visual overrides
-========================================================= */
+
 :root{
     --sp-primary:#2563eb;
     --sp-primary-dark:#1d4ed8;
@@ -2601,11 +2557,10 @@ html{scroll-behavior:smooth}
 body{
     background:linear-gradient(180deg,#f8fbff 0%,#f5f9ff 100%);
     color:var(--sp-ink);
-    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
 }
 ::selection{background:#bfdbfe;color:#0f172a}
 
-/* Navbar */
+
 .main-navbar{
     position:sticky;
     top:0;
@@ -2646,7 +2601,7 @@ body{
 }
 .navbar-logout:hover{color:var(--sp-primary-dark);background:var(--sp-primary-soft);border-color:#bfdbfe}
 
-/* App / dashboard */
+
 .dashboard-page{background:linear-gradient(180deg,#f8fbff,#f3f7fd)}
 .dashboard-content{
     max-width:1180px;
@@ -2663,7 +2618,7 @@ body{
     box-shadow:0 7px 18px rgba(37,99,235,.18);
 }
 
-/* Cards */
+
 .dashboard-overview{gap:20px}
 .overview-main,.overview-progress,.assessment-summary>div,.dashboard-card,.panel,.resource-card,.stat-card,.profile-card,.roadmap-header,.roadmap-card,.assessment-step{
     border:1px solid var(--sp-border)!important;
@@ -2694,14 +2649,14 @@ body{
 }
 .btn-outline-custom:hover{background:var(--sp-primary-soft);border-color:#93c5fd}
 
-/* Progress */
+
 .dashboard-progress-bar span,.progress-bar-custom span,.progress-overview .progress-bar span,.summary-progress .progress-bar span{
     background:linear-gradient(90deg,var(--sp-primary),#60a5fa);
 }
 .dashboard-progress-bar{background:#dbeafe}
 .progress-bar-custom{background:#dbeafe}
 
-/* AI card */
+
 .ai-recommendation-card{
     border:1px solid #bfdbfe;
     background:linear-gradient(135deg,#eff6ff 0%,#ffffff 70%);
@@ -2710,7 +2665,7 @@ body{
 .ai-recommendation-card h2{color:var(--sp-ink)}
 .ai-recommendation-card p{color:var(--sp-muted)}
 
-/* Forms */
+
 .form-control,.form-select{
     border-color:#cbd5e1;
     border-radius:11px;
@@ -2733,26 +2688,26 @@ body{
 .step.active span{background:var(--sp-primary)}
 .step.active strong{color:var(--sp-primary-dark)}
 
-/* Roadmap */
+
 .roadmap::before{background:#bfdbfe}
 .roadmap-card{border-radius:14px;background:#fff}
 .roadmap-status.completed{background:var(--sp-primary)}
 .roadmap-status.current{border-color:#93c5fd;background:#eff6ff;color:var(--sp-primary-dark)}
 
-/* Resource cards */
+
 .resource-card:hover,.dashboard-card:hover{
     border-color:#bfdbfe!important;
     box-shadow:0 16px 32px rgba(37,99,235,.1);
 }
 
-/* Alerts */
+
 .dashboard-success{
     border-color:#bfdbfe;
     background:#eff6ff;
     color:#1e40af;
 }
 
-/* Responsive */
+
 @media(max-width:768px){
     .main-navbar{height:auto;min-height:74px;flex-wrap:wrap;padding:13px 18px;gap:8px}
     .main-nav-links{order:3;width:100%;justify-content:center;margin-left:0;padding-bottom:3px}
@@ -2761,16 +2716,14 @@ body{
 }
 
 
-/* Academie brand */
+
 .brand-name{display:inline-flex;align-items:baseline;white-space:nowrap}
 .brand-acad{color:#2463c5}
 .brand-amie{color:#111827}
 .brand-name:hover .brand-acad{color:#174f9f}
 .brand-name:hover .brand-amie{color:#111827}
 
-/* =========================================================
-   UNIFIED ACADEMIE APP BACKGROUND + NAVBAR
-========================================================= */
+
 body {
     min-height: 100vh;
     background:
@@ -2838,7 +2791,7 @@ body {
     max-width: 1200px;
 }
 
-/* Use the same navbar everywhere in the authenticated system. */
+
 .main-navbar {
     position: sticky;
     top: 0;
@@ -2927,9 +2880,7 @@ body {
     }
 }
 
-/* =========================================================
-   MATCH PROFILE BACKGROUND ACROSS DASHBOARD + ROADMAP
-========================================================= */
+
 body.dashboard-page,
 body:has(.roadmap-page) {
     background:
@@ -2944,9 +2895,7 @@ body:has(.roadmap-page) {
     background: transparent !important;
 }
 
-/* =========================================================
-   FINAL: MATCH DASHBOARD + ROADMAP TO PROFILE BACKGROUND
-========================================================= */
+
 body.dashboard-page,
 body.roadmap-page {
     min-height: 100vh !important;
@@ -2962,7 +2911,7 @@ body.roadmap-page .roadmap-container {
     background: transparent !important;
 }
 
-/* FINAL USER REQUEST: only Dashboard/Roadmap fixes */
+
 body.dashboard-page {
     min-height: 100vh !important;
     background:
@@ -2976,7 +2925,7 @@ body.dashboard-page .dashboard-content {
     background: transparent !important;
 }
 
-/* Active navbar item: only the current page gets the blue text + box. */
+
 .main-nav-links a.active,
 .main-nav-links a.active:hover {
     color: #1d4ed8 !important;
@@ -2989,10 +2938,7 @@ body.dashboard-page .dashboard-content {
     background: transparent !important;
 }
 
-/* =========================================================
-   DASHBOARD BACKGROUND - MATCH PROFILE / ROADMAP
-   Only the dashboard background is adjusted here.
-========================================================= */
+
 html:has(body.dashboard-page),
 body.dashboard-page {
     background: #eaf3ff !important;
@@ -3018,7 +2964,7 @@ body.dashboard-page .dashboard-content {
 }
 
 
-/* FINAL NAVBAR FIX — keep original navbar position, equal active boxes */
+
 .main-nav-links {
     display: flex !important;
     align-items: center !important;
@@ -3065,9 +3011,7 @@ body.dashboard-page .dashboard-content {
     background: #eff6ff !important;
 }
 
-/* =========================================================
-   FINAL NAVBAR
-========================================================= */
+
 .main-navbar {
     display: flex;
     align-items: center;
@@ -3108,10 +3052,7 @@ body.dashboard-page .dashboard-content {
 }
 
 
-/* =========================================================
-   SHARED RESPONSIVE NAVBAR
-   Keep the same navbar on all authenticated pages.
-========================================================= */
+
 .main-navbar {
     position: relative;
     z-index: 20;
@@ -3312,10 +3253,7 @@ body.dashboard-page .dashboard-content {
 }
 
 
-/* =========================
-   CONSISTENT INTERFACE ICONS
-   Bootstrap Icons replace emoji decorations throughout the UI.
-========================= */
+
 .dashboard-stat-icon i {
     display: inline-block;
     font-size: 1.35rem;
@@ -3353,9 +3291,7 @@ a i {
 }
 
 
-/* =========================
-   SHARED DISCLAIMER FOOTER
-========================= */
+
 .site-footer {
     width: 100%;
     margin-top: 44px;
@@ -3432,9 +3368,7 @@ a i {
 }
 
 
-/* =========================
-   LEGAL / POLICY PAGE LAYOUT
-========================= */
+
 .legal-page {
     min-height: 58vh;
     padding: 44px 16px 40px;
@@ -3517,9 +3451,7 @@ a i {
 }
 
 
-/* =========================
-   PUBLIC NAVIGATION + ICONS
-========================= */
+
 .public-navbar {
     position: sticky;
     top: 0;
@@ -3583,7 +3515,7 @@ a i {
 }
 
 
-/* Logged-in navbar icons: consistent alignment for Dashboard, Roadmap, and Profile. */
+
 .main-nav-links > a {
     display: inline-flex;
     align-items: center;
@@ -3597,7 +3529,7 @@ a i {
     flex-shrink: 0;
 }
 
-/* Mobile authenticated navigation: equal-width tabs with a visible active line. */
+
 @media (max-width: 900px) {
     .main-navbar {
         height: auto;
@@ -3676,7 +3608,7 @@ a i {
 }
 
 
-/* Dashboard heading icon refinement */
+
 .dashboard-eyebrow {
     display: inline-flex;
     align-items: center;
@@ -3687,7 +3619,7 @@ a i {
     line-height: 1;
 }
 
-/* Keep the assessment calm, readable, and easy to scan. */
+
 .assessment-page {
     background: #f5f7fb;
     background-attachment: initial;
@@ -3866,7 +3798,7 @@ a i {
     }
 }
 
-/* Compact the assessment on phones without shrinking readable text. */
+
 @media (max-width: 600px) {
     .assessment-wrapper { padding: 26px 12px 40px; }
     .assessment-intro { margin-bottom: 24px; }
