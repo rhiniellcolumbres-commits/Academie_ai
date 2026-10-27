@@ -38,6 +38,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers: { 'Accept': 'application/json' }
             });
             const result = await response.json();
+            if (response.status === 409) {
+                message.textContent = result.message || 'You have already submitted feedback for this item.';
+                return;
+            }
             if (!response.ok || !result.success) {
                 throw new Error(result.message || 'Could not submit feedback.');
             }

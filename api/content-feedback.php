@@ -83,19 +83,44 @@ if ($type === 'roadmap') {
     $contextLabel = trim((string)$topic['title'] . ' — ' . (string)$activities[$activityIndex]);
 }
 
-$stmt = $pdo->prepare(
-    'INSERT INTO ai_content_feedback (user_id, content_type, content_key, rating, reason, context_label)
-     VALUES (?, ?, ?, ?, ?, ?)
-     ON DUPLICATE KEY UPDATE rating = VALUES(rating), reason = VALUES(reason),
-         context_label = VALUES(context_label), updated_at = CURRENT_TIMESTAMP'
+$existingFeedbackStmt = $pdo->prepare(
+    'SELECT 1
+     FROM ai_content_feedback
+     WHERE user_id = ? AND content_type = ? AND content_key = ?
+     LIMIT 1'
 );
-$stmt->execute([
-    $userId,
-    $type,
-    $contentKey,
-    $rating,
-    $reason !== '' ? $reason : null,
-    substr($contextLabel, 0, 255),
-]);
+$existingFeedbackStmt->execute([$userId, $type, $contentKey]);
+
+if ($existingFeedbackStmt->fetchColumn()) {
+    feedback_response(409, [
+        'success' => false,
+        'message' => 'You have already submitted feedback for this item.',
+    ]);
+}
+
+try {
+    $stmt = $pdo->prepare(
+        'INSERT INTO ai_content_feedback (user_id, content_type, content_key, rating, reason, context_label)
+         VALUES (?, ?, ?, ?, ?, ?)'
+    );
+    $stmt->execute([
+        $userId,
+        $type,
+        $contentKey,
+        $rating,
+        $reason !== '' ? $reason : null,
+        substr($contextLabel, 0, 255),
+    ]);
+} catch (PDOException $exception) {
+    // The unique key prevents the same user from rating the same content twice.
+    if ((int)($exception->errorInfo[1] ?? 0) === 1062) {
+        feedback_response(409, [
+            'success' => false,
+            'message' => 'You have already submitted feedback for this item.',
+        ]);
+    }
+
+    throw $exception;
+}
 
 feedback_response(200, ['success' => true, 'message' => 'Thanks for your feedback.']);
