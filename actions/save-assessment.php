@@ -13,6 +13,10 @@ if (!isset($_SESSION['user_id'])) {
 
 require_post();
 
+if (!csrf_valid($_POST['csrf_token'] ?? null)) {
+    redirect('../assessment?retake=1&error=csrf');
+}
+
 $userId = (int) $_SESSION['user_id'];
 
 $existingRoadmapStmt = $pdo->prepare(
@@ -65,6 +69,7 @@ arsort($scores);
 
 $topScore = reset($scores);
 
+// Keeps the career choices tied for the highest assessment score.
 $topMatches = array_keys(array_filter($scores, function ($score) use ($topScore) {
     return $score === $topScore;
 }));
@@ -137,7 +142,7 @@ redirect('../assessment?error=invalid');
 }
 
 $checkAssessment = $pdo->prepare(
-    'SELECT id
+    'SELECT *
      FROM assessments
      WHERE user_id = ?
      LIMIT 1'
@@ -210,11 +215,44 @@ session_destroy();
 
 }
 
-$generation = save_generated_topics(
-    $pdo,
-    $userId,
-    $user
-);
+try {
+    $generation = save_generated_topics(
+        $pdo,
+        $userId,
+        $user
+    );
+} catch (Throwable $e) {
+    // Restore the previous assessment if replacing its roadmap failed.
+    try {
+        if ($assessment) {
+            $restore = $pdo->prepare(
+                'UPDATE assessments
+                 SET current_level = ?, improvement_goal = ?, career_goal = ?,
+                     interests = ?, skills = ?, assessment_answers = ?
+                 WHERE user_id = ?'
+            );
+            $restore->execute([
+                $assessment['current_level'],
+                $assessment['improvement_goal'],
+                $assessment['career_goal'],
+                $assessment['interests'],
+                $assessment['skills'],
+                $assessment['assessment_answers'],
+                $userId
+            ]);
+        } else {
+            $removeAssessment = $pdo->prepare(
+                'DELETE FROM assessments WHERE user_id = ?'
+            );
+            $removeAssessment->execute([$userId]);
+        }
+    } catch (Throwable $restoreError) {
+        error_log('Could not restore assessment after roadmap save failed.');
+    }
+
+    error_log('Could not save the generated study roadmap.');
+    redirect('../assessment?retake=1&error=save');
+}
 
 log_ai_usage($pdo, $userId, 'assessment_roadmap', $generation['source'] === 'gemini' ? 'success' : 'fallback', 'Roadmap source: ' . $generation['source']);
 

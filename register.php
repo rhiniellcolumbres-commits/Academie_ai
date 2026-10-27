@@ -95,6 +95,7 @@ const confirmPasswordInput = document.getElementById('confirm_password');
 const confirmPasswordFeedback = document.getElementById('confirm-password-feedback');
 let emailCheckSequence = 0;
 
+// Checks email availability with the server when the field loses focus.
 emailInput.addEventListener('blur', async function () {
     const email = emailInput.value.trim();
     const sequence = ++emailCheckSequence;
@@ -125,6 +126,7 @@ emailInput.addEventListener('blur', async function () {
     }
 });
 
+// Clears stale email validation whenever the user edits the address.
 emailInput.addEventListener('input', function () {
     emailCheckSequence++;
     emailInput.setCustomValidity('');
@@ -165,7 +167,9 @@ function validatePasswordMatch() {
 passwordInput.addEventListener('input', validatePasswordMatch);
 confirmPasswordInput.addEventListener('input', validatePasswordMatch);
 
+// Adds show/hide behavior to each password visibility button.
 document.querySelectorAll('.toggle-password').forEach(function (button) {
+    // Toggles the associated password field and updates its icon.
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);
         var show = input.type === 'password';

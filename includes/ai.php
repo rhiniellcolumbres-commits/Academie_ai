@@ -155,7 +155,7 @@ if ($schema !== null) {
         ];
     }
 
-$maxAttempts = 3;
+$maxAttempts = 2;
     $lastMessage = 'Gemini API request failed.';
     $lastHttpCode = 0;
 
@@ -166,7 +166,8 @@ $ch = curl_init($url);
 curl_setopt_array($ch, [
             CURLOPT_POST => true,
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 45,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_TIMEOUT => 25,
             CURLOPT_HTTPHEADER => [
                 'Content-Type: application/json',
                 'x-goog-api-key: ' . GEMINI_API_KEY
@@ -359,7 +360,7 @@ $stages[] = [
                     trim((string)($stage['category'] ?? '')),
                     0,
                     100
-                )
+                )   
             ),
 
             'title' => $title,

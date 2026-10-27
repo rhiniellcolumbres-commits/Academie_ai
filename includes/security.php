@@ -18,11 +18,9 @@ function security_start_session(): void {
         if (isset($_SESSION['user_last_activity']) && time() - (int)$_SESSION['user_last_activity'] > 1800) {
             unset($_SESSION['user_id'], $_SESSION['user_last_activity'], $_SESSION['csrf_token']);
             session_regenerate_id(true);
-        } elseif (!isset($_SESSION['user_last_activity'])) {
-            $_SESSION['user_last_activity'] = time();
-        } else {
-            $_SESSION['user_last_activity'] = time();
+            return;
         }
+        $_SESSION['user_last_activity'] = time();
     }
 }
 
@@ -56,14 +54,6 @@ function csrf_valid($token): bool {
         && hash_equals($_SESSION['csrf_token'], $token);
 }
 
-// Requires a POST request with a valid CSRF token.
-function require_csrf_post(): void {
-    if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !csrf_valid($_POST['csrf_token'] ?? null)) {
-        http_response_code($_SERVER['REQUEST_METHOD'] === 'POST' ? 403 : 405);
-        exit('Invalid request. Refresh the page and try again.');
-    }
-}
-
 // Blocks write requests from another website.
 function require_same_origin_for_write(): void {
     if (!in_array($_SERVER['REQUEST_METHOD'] ?? 'GET', ['POST','PUT','PATCH','DELETE'], true)) return;
@@ -78,29 +68,3 @@ function require_same_origin_for_write(): void {
     }
 }
 
-// Tracks requests and blocks attempts over the limit.
-function rate_limit(PDO $pdo, string $scope, string $identity, int $maxAttempts, int $windowSeconds): bool {
-    $key = hash('sha256', $scope . '|' . $identity);
-    $now = time();
-    if (random_int(1, 100) === 1) {
-        $cleanup = $pdo->prepare('DELETE FROM security_rate_limits WHERE window_started < ?');
-        $cleanup->execute([$now - 172800]);
-    }
-    $stmt = $pdo->prepare('SELECT attempts, window_started FROM security_rate_limits WHERE rate_key = ? LIMIT 1');
-    $stmt->execute([$key]);
-    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    if (!$row || ($now - (int)$row['window_started']) >= $windowSeconds) {
-        $upsert = $pdo->prepare('INSERT INTO security_rate_limits (rate_key, attempts, window_started) VALUES (?, 1, ?) ON DUPLICATE KEY UPDATE attempts = 1, window_started = VALUES(window_started)');
-        $upsert->execute([$key, $now]);
-        return true;
-    }
-    if ((int)$row['attempts'] >= $maxAttempts) return false;
-    $up = $pdo->prepare('UPDATE security_rate_limits SET attempts = attempts + 1 WHERE rate_key = ?');
-    $up->execute([$key]);
-    return true;
-}
-
-// Returns the client address used for rate limiting.
-function rate_limit_identity(): string {
-    return (string)($_SERVER['REMOTE_ADDR'] ?? 'unknown');
-}

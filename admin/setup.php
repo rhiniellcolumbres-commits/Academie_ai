@@ -46,10 +46,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $count === 0) {
     }
 }
 ?>
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Setup</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Academie Admin Setup</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head>
 <body class="bg-light"><main class="container py-5" style="max-width:520px"><div class="card shadow-sm"><div class="card-body p-4">
-<h1 class="h3 mb-3">Create first admin</h1>
+<h1 class="h3 mb-3">Create the first Academie admin account</h1>
 <?php if ($message): ?><div class="alert alert-info"><?= htmlspecialchars($message, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
 <?php if ($count > 0): ?><p>An admin account already exists. For security, this setup page is disabled. Go to <a href="login">Admin Login</a>.</p>
 <?php else: ?><p class="text-muted">Make sure the Academie database is configured and the <code>admin_users</code> table exists. Choose a strong password and keep it private.</p>

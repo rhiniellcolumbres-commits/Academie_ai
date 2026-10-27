@@ -97,10 +97,6 @@ foreach ($topics as $topic) {
     }
 
 }
-
-$fullName = trim(
-    $user['first_name'] . ' ' . $user['last_name']
-);
 ?>
 <!DOCTYPE html>
 
@@ -500,39 +496,6 @@ $fullName = trim(
 <?php endif; ?>
 
     </section>
-
-<?php if (!empty($topics)): ?>
-
-        <section class="dashboard-roadmap-banner">
-
-            <div>
-
-                <span class="eyebrow">
-                    YOUR PERSONALIZED PATH
-                </span>
-
-                <h2>
-                    Ready to keep going?
-                </h2>
-
-                <p>
-                    Open your roadmap to see activities,
-                    expected outputs, and recommended resources
-                    for every stage.
-                </p>
-
-            </div>
-
-<a
-                href="roadmap"
-                class="dashboard-primary-btn"
-            >
-                Open Roadmap →
-            </a>
-
-        </section>
-
-    <?php endif; ?>
 
 </main>
 
@@ -1029,50 +992,6 @@ $fullName = trim(
     color: #777777;
 }
 
-.dashboard-roadmap-banner {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 30px;
-
-    padding: 35px;
-
-    background: #111111;
-
-    border-radius: 18px;
-
-    color: #ffffff;
-}
-
-.dashboard-roadmap-banner .eyebrow {
-    color: #aaaaaa;
-}
-
-.dashboard-roadmap-banner h2 {
-    margin: 0 0 8px;
-
-    font-size: 27px;
-}
-
-.dashboard-roadmap-banner p {
-    max-width: 650px;
-
-    margin: 0;
-
-    color: #bbbbbb;
-
-    line-height: 1.6;
-}
-
-.dashboard-roadmap-banner .dashboard-primary-btn {
-    background: #ffffff;
-    color: #111111;
-
-    white-space: nowrap;
-}
-
 @media (max-width: 768px) {
 
 .dashboard-content {
@@ -1114,11 +1033,6 @@ $fullName = trim(
         grid-template-columns: 1fr;
     }
 
-    .dashboard-roadmap-banner {
-        align-items: flex-start;
-        flex-direction: column;
-    }
-
 }
 
 @media (max-width: 600px) {
@@ -1144,9 +1058,6 @@ $fullName = trim(
     .current-stage-number { width: 40px; height: 40px; font-size: 15px; }
     .current-stage-content h3 { font-size: 19px; line-height: 1.35; }
     .current-stage-content p { margin-bottom: 14px; font-size: 14px; line-height: 1.55; }
-    .dashboard-roadmap-banner { gap: 16px; padding: 20px; border-radius: 14px; }
-    .dashboard-roadmap-banner h2 { font-size: 22px; }
-    .dashboard-roadmap-banner .dashboard-primary-btn { white-space: normal; }
     .learning-complete-card, .learning-empty-card { gap: 14px; padding: 20px; border-radius: 14px; }
 }
 

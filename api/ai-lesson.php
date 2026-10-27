@@ -51,6 +51,15 @@ http_response_code(405);
 exit;
 }
 
+if (!csrf_valid($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Your session expired. Refresh the page and try again.'
+    ]);
+    exit;
+}
+
 $topicId = filter_input(
     INPUT_POST,
     'topic_id',
@@ -277,22 +286,6 @@ $stmt->execute([
         ),
         $topicId
     ]);
-}
-
-if (
-    isset($result['http_code'])
-    && (int) $result['http_code'] === 429
-) {
-
-http_response_code(429);
-
-    echo json_encode([
-        'success' => false,
-        'message' =>
-            'AI learning guide is temporarily unavailable because the Gemini quota has been reached. Please try again after the quota resets.'
-    ], JSON_UNESCAPED_UNICODE);
-
-exit;
 }
 
 echo json_encode(

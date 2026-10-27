@@ -71,7 +71,9 @@ if (empty($_SESSION['csrf_token'])) {
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Adds show/hide behavior to each password visibility button.
 document.querySelectorAll('.toggle-password').forEach(function (button) {
+    // Toggles the associated password input and updates the button icon.
     button.addEventListener('click', function () {
         var input = document.getElementById(button.dataset.target);
         var show = input.type === 'password';

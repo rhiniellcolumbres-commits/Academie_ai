@@ -93,9 +93,16 @@ if (!$hasExistingRoadmap) {
 
         </div>
 
-<?php if (isset($_GET['error'])): ?>
+<?php if (isset($_GET['error'])):
+    $assessmentErrorMessage = 'Please complete all assessment questions.';
+    if ($_GET['error'] === 'csrf') {
+        $assessmentErrorMessage = 'Your session expired. Refresh the page and try again.';
+    } elseif ($_GET['error'] === 'save') {
+        $assessmentErrorMessage = 'We could not save the new roadmap. Reload the page and check your saved answers before trying again.';
+    }
+?>
             <div class="alert alert-warning text-center mb-4">
-                Please complete all assessment questions.
+                <?= e($assessmentErrorMessage) ?>
             </div>
         <?php endif; ?>
 
@@ -120,6 +127,7 @@ if (!$hasExistingRoadmap) {
             action="actions/save-assessment.php"
             method="POST"
         >
+            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="retake_assessment" value="<?= $isRetake ? '1' : '0' ?>">
             <div class="assessment-wizard-progress" aria-live="polite" aria-label="Assessment progress">
                 <div><span id="assessmentStepLabel">Step 1 of 4</span><span id="assessmentProgressPercent">25%</span></div>
@@ -515,6 +523,7 @@ if (!$hasExistingRoadmap) {
 
 <script>
 
+    // Initializes the assessment wizard after its form elements are loaded.
     document.addEventListener('DOMContentLoaded', function () {
 
         var form = document.getElementById('assessmentForm');
@@ -589,6 +598,7 @@ if (!$hasExistingRoadmap) {
             errorMessage.hidden = true;
         }
 
+        // Validates the current step before advancing to the next one.
         nextButton.addEventListener('click', function () {
             if (!stepIsComplete(steps[activeStep])) {
                 errorMessage.textContent = getErrorText(steps[activeStep]);
@@ -603,6 +613,7 @@ if (!$hasExistingRoadmap) {
             }
         });
 
+        // Returns to the previous assessment step.
         backButton.addEventListener('click', function () {
             if (activeStep > 0) {
                 activeStep--;
@@ -610,6 +621,7 @@ if (!$hasExistingRoadmap) {
             }
         });
 
+        // Prevents submission until all assessment steps are complete.
         form.addEventListener('submit', function (event) {
             var incompleteIndex = -1;
             for (var i = 0; i < steps.length; i++) {

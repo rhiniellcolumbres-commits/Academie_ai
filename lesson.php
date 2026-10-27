@@ -109,6 +109,28 @@ require_once __DIR__ . '/includes/header.php';
                 <ul id="lessonResources"></ul>
             </section>
 
+            <section class="content-feedback-card" aria-labelledby="lessonFeedbackTitle" data-feedback-form data-content-type="lesson" data-topic-id="<?= (int)$topicId ?>" data-activity-index="<?= (int)$activityIndex ?>" data-csrf-token="<?= e(csrf_token()) ?>">
+                <div>
+                    <h2 id="lessonFeedbackTitle">Was this lesson helpful?</h2>
+                    <p>Your feedback helps us improve AI-generated lessons.</p>
+                </div>
+                <div class="content-feedback-actions">
+                    <button type="button" class="feedback-rating" data-rating="1" aria-label="Yes, this lesson is helpful"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Yes</button>
+                    <button type="button" class="feedback-rating" data-rating="-1" aria-label="No, this lesson is not helpful"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> No</button>
+                </div>
+                <label class="feedback-reason-wrap" hidden>What could be improved?
+                    <select class="feedback-reason form-select" aria-label="Reason this lesson was not helpful">
+                        <option value="">Choose a reason</option>
+                        <option value="incorrect">Some information seems incorrect</option>
+                        <option value="unclear">It is unclear</option>
+                        <option value="too_difficult">It feels too difficult</option>
+                        <option value="other">Something else</option>
+                    </select>
+                    <button type="button" class="feedback-submit">Send feedback</button>
+                </label>
+                <p class="feedback-message" role="status" aria-live="polite"></p>
+            </section>
+
             <div class="lesson-complete-action">
                 <button type="button" id="markLearnedBtn" class="mark-learned-btn" <?= $alreadyLearned ? 'disabled' : '' ?>>
                     <?= $alreadyLearned ? '✓ Already Learned' : '✓ Mark as Learned' ?>
@@ -137,10 +159,13 @@ require_once __DIR__ . '/includes/header.php';
     </main>
 </div>
 
+<script src="js/content-feedback.js" defer></script>
 <script>
+// Initializes lesson loading, progress actions, and next-stage navigation.
 document.addEventListener('DOMContentLoaded', function () {
     const topicId = <?= (int)$topicId ?>;
     const activityIndex = <?= (int)$activityIndex ?>;
+    const csrfToken = <?= json_encode(csrf_token()) ?>;
     const loading = document.getElementById('lessonLoading');
     const content = document.getElementById('lessonContent');
     const errorBox = document.getElementById('lessonError');
@@ -169,6 +194,7 @@ async function loadLesson() {
             const formData = new FormData();
             formData.append('topic_id', topicId);
             formData.append('activity_index', activityIndex);
+            formData.append('csrf_token', csrfToken);
             const response = await fetch('api/ai-lesson.php', {
                 method: 'POST',
                 body: formData,
@@ -195,6 +221,7 @@ async function loadLesson() {
     function renderList(id, items) {
         const list = document.getElementById(id);
         list.replaceChildren();
+        // Creates one safe list item for each checklist or resource entry.
         (Array.isArray(items) ? items : []).forEach(function (item) {
             const entry = document.createElement('li');
             entry.textContent = item;
@@ -205,6 +232,7 @@ async function loadLesson() {
     document.getElementById('lessonRetryBtn').addEventListener('click', loadLesson);
     loadLesson();
 
+    // Saves completion of this activity and updates the lesson controls.
     learnedButton.addEventListener('click', async function () {
         if (learnedButton.disabled) return;
         learnedButton.disabled = true;
@@ -217,6 +245,7 @@ async function loadLesson() {
             formData.append('action', 'complete_activity');
             formData.append('topic_id', topicId);
             formData.append('activity_index', activityIndex);
+            formData.append('csrf_token', csrfToken);
             const response = await fetch('api/study-path.php', {
                 method: 'POST',
                 body: formData,
@@ -244,6 +273,7 @@ async function loadLesson() {
     });
 
     if (nextLink) {
+        // Blocks locked navigation or marks the next stage as read before opening it.
         nextLink.addEventListener('click', function (event) {
             if (nextLink.dataset.requiresStageCompletion === '1') {
                 event.preventDefault();
@@ -260,14 +290,17 @@ async function loadLesson() {
             const formData = new FormData();
             formData.append('action', 'read');
             formData.append('topic_id', nextLink.dataset.startTopicId);
+            formData.append('csrf_token', csrfToken);
             fetch('api/study-path.php', {
                 method: 'POST',
                 body: formData,
                 headers: { 'Accept': 'application/json' }
+            // Opens the next stage only after its read request succeeds.
             }).then(async function (response) {
                 const data = await readJsonResponse(response, 'The server returned an invalid response. Please try again.');
                 if (!response.ok || !data.success) throw new Error(data.message || 'Unable to open the next stage.');
                 window.location.assign(nextLink.href);
+            // Restores the link and shows a message if opening the stage fails.
             }).catch(function (error) {
                 nextLink.classList.remove('is-saving');
                 nextLink.removeAttribute('aria-disabled');

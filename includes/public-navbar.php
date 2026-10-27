@@ -21,7 +21,7 @@ $logoutUrl = $basePath . '/actions/logout.php';
 ?>
 <nav class="public-navbar" aria-label="Main navigation">
     <div class="public-navbar-inner">
-        <a href="<?= htmlspecialchars($basePath . '/', ENT_QUOTES, 'UTF-8') ?>" class="public-brand" aria-label="StudyPath AI home">
+        <a href="<?= htmlspecialchars($basePath . '/', ENT_QUOTES, 'UTF-8') ?>" class="public-brand" aria-label="Academie home">
             <span class="public-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
             <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
         </a>
@@ -29,23 +29,28 @@ $logoutUrl = $basePath . '/actions/logout.php';
             <i class="bi bi-list" aria-hidden="true"></i>
         </button>
         <div class="public-nav-links" id="publicNavLinks">
-            <span class="public-nav-auth">
+            <div class="public-nav-auth">
                 <?php if ($isLoggedIn): ?>
                     <a class="public-login" href="<?= htmlspecialchars($dashboardUrl, ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-speedometer2" aria-hidden="true"></i> Dashboard</a>
-                    <a class="public-register" href="<?= htmlspecialchars($logoutUrl, ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Log out</a>
+                    <form action="<?= htmlspecialchars($logoutUrl, ENT_QUOTES, 'UTF-8') ?>" method="post" class="public-logout-form">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <button class="public-register" type="submit"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Log out</button>
+                    </form>
                 <?php else: ?>
                     <a class="public-login" href="<?= htmlspecialchars($loginUrl, ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Log in</a>
                     <a class="public-register" href="<?= htmlspecialchars($registerUrl, ENT_QUOTES, 'UTF-8') ?>"><i class="bi bi-person-plus" aria-hidden="true"></i> Create account</a>
                 <?php endif; ?>
-            </span>
+            </div>
         </div>
     </div>
 </nav>
 <script>
+// Initializes the public navigation menu after the page loads.
 document.addEventListener('DOMContentLoaded', function () {
     var toggle = document.querySelector('.public-nav-toggle');
     var links = document.getElementById('publicNavLinks');
     if (toggle && links) {
+        // Opens or closes the mobile navigation links.
         toggle.addEventListener('click', function () {
             var expanded = toggle.getAttribute('aria-expanded') === 'true';
             toggle.setAttribute('aria-expanded', expanded ? 'false' : 'true');

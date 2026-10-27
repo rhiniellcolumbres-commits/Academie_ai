@@ -26,6 +26,7 @@ $assessmentStmt->execute([
 $assessment = $assessmentStmt->fetch();
 
 $topics = getStudyTopics($pdo, $_SESSION['user_id']);
+$studyPathId = (int)($topics[0]['study_path_id'] ?? 0);
 
 $completed = 0;
 
@@ -583,6 +584,8 @@ require_once __DIR__ . '/includes/header.php';
                                                 method="POST"
                                             >
 
+                                                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+
                                                 <input
                                                     type="hidden"
                                                     name="action"
@@ -724,6 +727,8 @@ require_once __DIR__ . '/includes/header.php';
                 method="POST"
                 class="activity-form"
             >
+
+                <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
 
                 <input
                     type="hidden"
@@ -974,15 +979,39 @@ require_once __DIR__ . '/includes/header.php';
 
             </section>
 
+            <section class="content-feedback-card" aria-labelledby="roadmapFeedbackTitle" data-feedback-form data-content-type="roadmap" data-study-path-id="<?= $studyPathId ?>" data-csrf-token="<?= e(csrf_token()) ?>">
+                <div>
+                    <h2 id="roadmapFeedbackTitle">Is this roadmap helpful?</h2>
+                    <p>Your feedback helps us improve AI-generated study plans.</p>
+                </div>
+                <div class="content-feedback-actions">
+                    <button type="button" class="feedback-rating" data-rating="1" aria-label="Yes, this roadmap is helpful"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Yes</button>
+                    <button type="button" class="feedback-rating" data-rating="-1" aria-label="No, this roadmap is not helpful"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> No</button>
+                </div>
+                <label class="feedback-reason-wrap" hidden>What could be improved?
+                    <select class="feedback-reason form-select" aria-label="Reason this roadmap was not helpful">
+                        <option value="">Choose a reason</option>
+                        <option value="incorrect">Some information seems incorrect</option>
+                        <option value="unclear">It is unclear</option>
+                        <option value="too_difficult">It feels too difficult</option>
+                        <option value="other">Something else</option>
+                    </select>
+                    <button type="button" class="feedback-submit">Send feedback</button>
+                </label>
+                <p class="feedback-message" role="status" aria-live="polite"></p>
+            </section>
+
         <?php endif; ?>
 
     </main>
 
 </div>
 
+<script src="js/content-feedback.js" defer></script>
 <script>
 // Updates the activity progress display.
 function updateActivityUI(progress, topicId) {
+    // Updates the matching stage's activity controls from saved progress.
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');
         const formActivityIndex = form.querySelector('input[name="activity_index"]');
@@ -999,6 +1028,7 @@ function updateActivityUI(progress, topicId) {
     const container = document.querySelector('.activities-container');
     if (!container) return;
 
+    // Counts completed activities to calculate the progress percentage.
     const completedCount = progress.filter(function (value) { return Number(value) === 1; }).length;
     const percent = progress.length ? Math.round((completedCount / progress.length) * 100) : 0;
     const count = container.querySelector('.activity-count');
@@ -1009,8 +1039,10 @@ function updateActivityUI(progress, topicId) {
     if (label) label.textContent = percent + '% complete';
 }
 
+// Attaches submit handlers to the activity progress forms after page load.
 document.addEventListener('DOMContentLoaded', function () {
     document.querySelectorAll('.activity-form').forEach(function (form) {
+        // Sends an activity completion update and refreshes the displayed progress.
         form.addEventListener('submit', async function (event) {
             event.preventDefault();
             const button = form.querySelector('.activity-item');
@@ -1035,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 const topicId = form.querySelector('input[name="topic_id"]');
                 updateActivityUI(Array.isArray(data.activity_progress) ? data.activity_progress : [], topicId.value);
+                // Reloads after stage completion so newly unlocked stages appear.
                 if (data.completed) setTimeout(function () { window.location.reload(); }, 500);
             } catch (error) {
                 alert(error.message || 'Unable to save activity progress.');
@@ -1044,6 +1077,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
 });
 </script>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>

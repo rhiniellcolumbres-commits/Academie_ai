@@ -101,7 +101,7 @@ footer{background:#fff!important}
 .public-brand .brand-acad { color: #2463c5; }
 .public-brand .brand-amie { color: #111827; }
 .public-nav-links { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
-.public-nav-links > a, .public-nav-auth a {
+.public-nav-links > a, .public-nav-auth a, .public-nav-auth button {
     display: inline-flex; align-items: center; justify-content: center; gap: 7px;
     padding: 10px 11px; border-radius: 9px; color: #475569;
     font-size: 13px; font-weight: 650; white-space: nowrap;
@@ -110,8 +110,9 @@ footer{background:#fff!important}
     color: #1d56a7; background: #eef5ff;
 }
 .public-nav-auth { display: inline-flex; align-items: center; gap: 7px; margin-left: 8px; }
+.public-nav-auth .public-logout-form { display: inline-flex; margin: 0; }
 .public-nav-auth .public-login { border: 1px solid #d8e2ef; color: #1e3a5f; }
-.public-nav-auth .public-register { background: #2463c5; color: #fff; }
+.public-nav-auth .public-register { background: #2463c5; color: #fff; border: 0; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 650; }
 .public-nav-auth .public-register:hover { background: #174faa; }
 .public-nav-toggle {
     display: none; width: 42px; height: 42px; border: 1px solid #dbe4ef;
@@ -131,7 +132,8 @@ footer{background:#fff!important}
     .public-nav-links.is-open { display: flex; }
     .public-nav-links > a { justify-content: flex-start; padding: 11px 12px; }
     .public-nav-auth { flex-direction: column; align-items: stretch; margin: 5px 0 0; }
-    .public-nav-auth a { width: 100%; }
+    .public-nav-auth .public-logout-form { width: 100%; }
+.public-nav-auth a, .public-nav-auth button { width: 100%; }
 }
 
 

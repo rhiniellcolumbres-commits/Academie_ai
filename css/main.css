@@ -3481,7 +3481,7 @@ a i {
 .public-brand .brand-acad { color: #2463c5; }
 .public-brand .brand-amie { color: #111827; }
 .public-nav-links { display: flex; align-items: center; justify-content: flex-end; gap: 5px; }
-.public-nav-links > a, .public-nav-auth a {
+.public-nav-links > a, .public-nav-auth a, .public-nav-auth button {
     display: inline-flex; align-items: center; justify-content: center; gap: 7px;
     padding: 10px 11px; border-radius: 9px; color: #475569;
     font-size: 13px; font-weight: 650; white-space: nowrap;
@@ -3490,8 +3490,9 @@ a i {
     color: #1d56a7; background: #eef5ff;
 }
 .public-nav-auth { display: inline-flex; align-items: center; gap: 7px; margin-left: 8px; }
+.public-nav-auth .public-logout-form { display: inline-flex; margin: 0; }
 .public-nav-auth .public-login { border: 1px solid #d8e2ef; color: #1e3a5f; }
-.public-nav-auth .public-register { background: #2463c5; color: #fff; }
+.public-nav-auth .public-register { background: #2463c5; color: #fff; border: 0; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 650; }
 .public-nav-auth .public-register:hover { background: #174faa; }
 .public-nav-toggle {
     display: none; width: 42px; height: 42px; border: 1px solid #dbe4ef;
@@ -3511,7 +3512,8 @@ a i {
     .public-nav-links.is-open { display: flex; }
     .public-nav-links > a { justify-content: flex-start; padding: 11px 12px; }
     .public-nav-auth { flex-direction: column; align-items: stretch; margin: 5px 0 0; }
-    .public-nav-auth a { width: 100%; }
+.public-nav-auth .public-logout-form { width: 100%; }
+.public-nav-auth a, .public-nav-auth button { width: 100%; }
 }
 
 
@@ -3821,4 +3823,91 @@ a i {
     .assessment-option.path-choice::after { right: 12px; width: 20px; height: 20px; }
     .assessment-actions { margin-top: 18px; }
     .assessment-back, .assessment-start { min-height: 44px; padding: 0 14px; }
+}
+
+/* Keep dashboard cards and navigation usable on tablet and phone screens. */
+@media (max-width: 900px) {
+    body.dashboard-page .dashboard-content {
+        box-sizing: border-box;
+        width: 100%;
+        padding: 36px 22px 52px;
+    }
+
+    body.dashboard-page .dashboard-overview,
+    body.dashboard-page .assessment-summary,
+    body.dashboard-page .dashboard-stat-grid,
+    body.dashboard-page .current-stage-card {
+        min-width: 0;
+    }
+
+    body.dashboard-page .current-stage-card {
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+
+    body.dashboard-page .overview-main,
+    body.dashboard-page .overview-progress,
+    body.dashboard-page .assessment-summary > div,
+    body.dashboard-page .dashboard-stat-card,
+    body.dashboard-page .current-stage-content {
+        min-width: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    body.dashboard-page .dashboard-content {
+        padding: 24px 14px 40px;
+    }
+
+    body.dashboard-page .dashboard-heading h1,
+    body.dashboard-page .overview-main h2,
+    body.dashboard-page .current-stage-content h3 {
+        overflow-wrap: anywhere;
+    }
+
+    body.dashboard-page .dashboard-stat-card strong,
+    body.dashboard-page .assessment-summary strong {
+        overflow-wrap: anywhere;
+    }
+
+    body.dashboard-page .dashboard-learning-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    body.dashboard-page .dashboard-learning-actions > a {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    body.dashboard-page .current-stage-card {
+        grid-template-columns: 42px minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 380px) {
+    body.dashboard-page .dashboard-content {
+        padding-right: 12px;
+        padding-left: 12px;
+    }
+
+    body.dashboard-page .dashboard-stat-grid {
+        gap: 8px;
+    }
+
+    body.dashboard-page .dashboard-stat-card {
+        padding: 11px;
+    }
+
+    body.dashboard-page .dashboard-stat-card strong {
+        font-size: clamp(18px, 6vw, 22px);
+    }
+
+    body.dashboard-page .main-navbar .navbar-user-info {
+        max-width: 90px;
+    }
+
+    body.dashboard-page .main-navbar .navbar-user-name {
+        max-width: 90px;
+    }
 }

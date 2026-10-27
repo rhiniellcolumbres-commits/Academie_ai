@@ -7,6 +7,7 @@ require_once __DIR__ . '/../includes/functions.php';
 
 header('Content-Type: application/json; charset=UTF-8');
 
+// Converts an uncaught server error into a generic JSON error response.
 set_exception_handler(function (Throwable $e) {
 
 http_response_code(500);
@@ -33,220 +34,6 @@ exit;
 
 $userId = (int)$_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-
-$topics = getStudyTopics(
-        $pdo,
-        $userId
-    );
-
-echo json_encode([
-        'success' => true,
-        'data' => $topics
-    ]);
-
-exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'PUT') {
-
-$rawInput = file_get_contents('php://input');
-
-$data = [];
-
-$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
-    if (stripos($contentType, 'application/json') !== false) {
-
-        $decoded = json_decode(
-            $rawInput,
-            true
-        );
-
-        if (is_array($decoded)) {
-            
-            $data = $decoded;
-        }
-
-    } else {
-
-parse_str(
-            $rawInput,
-            $data
-        );
-    }
-
-$topicId = isset($data['topic_id'])
-        ? (int)$data['topic_id']
-        : 0;
-
-    $title = trim(
-        $data['title'] ?? ''
-    );
-
-    $description = trim(
-        $data['description'] ?? ''
-    );
-
-if ($topicId <= 0) {
-
-http_response_code(400);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid topic ID.'
-        ]);
-
-exit;
-    }
-
-if ($title === '') {
-
-http_response_code(400);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Title is required.'
-        ]);
-
-exit;
-    }
-
-$check = $pdo->prepare(
-        'SELECT st.id
-         FROM study_topics st
-         INNER JOIN study_paths sp
-             ON st.study_path_id = sp.id
-         WHERE st.id = ?
-         AND sp.user_id = ?
-         LIMIT 1'
-    );
-
-    $check->execute([
-        $topicId,
-        $userId
-    ]);
-
-    if (!$check->fetch(PDO::FETCH_ASSOC)) {
-
-        http_response_code(404);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Topic not found.'
-        ]);
-
-        exit;
-    }
-
-$update = $pdo->prepare(
-        'UPDATE study_topics
-         SET title = ?,
-             description = ?
-         WHERE id = ?'
-    );
-
-    $update->execute([
-        $title,
-        $description,
-        $topicId
-    ]);
-
-echo json_encode([
-        'success' => true,
-        'message' => 'Study topic updated successfully.'
-    ]);
-
-    exit;
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
-
-$rawInput = file_get_contents('php://input');
-
-    $data = [];
-
-    $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
-    if (stripos($contentType, 'application/json') !== false) {
-
-        $decoded = json_decode(
-            $rawInput,
-            true
-        );
-
-        if (is_array($decoded)) {
-            $data = $decoded;
-        }
-
-    } else {
-
-        parse_str(
-            $rawInput,
-            $data
-        );
-    }
-
-$topicId = isset($data['topic_id'])
-        ? (int)$data['topic_id']
-        : 0;
-
-if ($topicId <= 0) {
-
-        http_response_code(400);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Invalid topic ID.'
-        ]);
-
-        exit;
-    }
-
-$check = $pdo->prepare(
-        'SELECT st.id
-         FROM study_topics st
-         INNER JOIN study_paths sp
-             ON st.study_path_id = sp.id
-         WHERE st.id = ?
-         AND sp.user_id = ?
-         LIMIT 1'
-    );
-
-    $check->execute([
-        $topicId,
-        $userId
-    ]);
-
-if (!$check->fetch(PDO::FETCH_ASSOC)) {
-
-        http_response_code(404);
-
-        echo json_encode([
-            'success' => false,
-            'message' => 'Topic not found.'
-        ]);
-
-        exit;
-    }
-
-$delete = $pdo->prepare(
-        'DELETE FROM study_topics
-         WHERE id = ?'
-    );
-
-    $delete->execute([
-        $topicId
-    ]);
-
-echo json_encode([
-        'success' => true,
-        'message' => 'Study topic deleted successfully.'
-    ]);
-
-    exit;
-}
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
     http_response_code(405);
@@ -256,6 +43,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
         'message' => 'Method Not Allowed'
     ]);
 
+    exit;
+}
+
+if (!csrf_valid($_POST['csrf_token'] ?? null)) {
+    http_response_code(403);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Your session expired. Refresh the page and try again.'
+    ]);
     exit;
 }
 
@@ -469,12 +265,24 @@ if (
         exit;
     }
 
+$pdo->beginTransaction();
+
+// Lock and reload progress so simultaneous activity updates don't overwrite each other.
+$progressStmt = $pdo->prepare(
+    'SELECT activity_progress
+     FROM study_topics
+     WHERE id = ? AND study_path_id = ?
+     FOR UPDATE'
+);
+$progressStmt->execute([$topicId, $topic['study_path_id']]);
+$savedProgress = $progressStmt->fetchColumn();
+
 $progress = [];
 
-    if (!empty($topic['activity_progress'])) {
+    if (is_string($savedProgress) && $savedProgress !== '') {
 
         $decoded = json_decode(
-            $topic['activity_progress'],
+            $savedProgress,
             true
         );
 
@@ -527,6 +335,8 @@ if ($allCompleted) {
             $topic['study_path_id']
         ]);
 
+        $pdo->commit();
+
 echo json_encode([
             'success' => true,
             'completed' => true,
@@ -553,6 +363,8 @@ $update = $pdo->prepare(
         $topicId,
         $topic['study_path_id']
     ]);
+
+    $pdo->commit();
 
 echo json_encode([
         'success' => true,
