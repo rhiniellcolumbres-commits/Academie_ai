@@ -2,6 +2,29 @@
 
 require_once __DIR__ . '/../config/gemini.php';
 
+if (!defined('ROADMAP_ACTIVITIES_PER_STAGE')) {
+    define('ROADMAP_ACTIVITIES_PER_STAGE', 8);
+}
+
+// Trims a list of scalar values and removes blank entries.
+function ai_clean_string_list($items)
+{
+    $cleaned = [];
+
+    foreach ((array)$items as $item) {
+        if (!is_scalar($item)) {
+            continue;
+        }
+
+        $item = trim((string)$item);
+        if ($item !== '' && $item !== '0') {
+            $cleaned[] = $item;
+        }
+    }
+
+    return $cleaned;
+}
+
 // Defines the expected structure of an AI generated roadmap.
 function ai_roadmap_schema()
 {
@@ -99,7 +122,7 @@ Existing skills: {$skills}
 
 Rules:
 
-- Generate exactly 5 ordered stages that form a clear progression toward professional readiness.
+- Generate exactly 6 ordered stages that form a clear progression toward professional readiness.
 - Start at the student's self-reported current level; do not force an advanced learner to repeat beginner material.
 - For a complete beginner, cover foundations first; then progress through beginner practice, intermediate projects, advanced real-world work, and a professional-ready capstone.
 - Use each stage as a milestone with a clear level label in category (for example FOUNDATION, BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL).
@@ -108,7 +131,9 @@ Rules:
 - Avoid assuming the student is studying a particular college course or degree.
 - Avoid repeating skills the student already has unless they are important prerequisites.
 - Every stage must contain 5 to 7 concise topics.
-- Every stage must contain exactly 6 practical activities.
+- Every stage must contain exactly 8 practical activities, ordered from a small first step to a slightly more involved application.
+- Keep each activity focused and achievable in one short learning session; split broad tasks into smaller steps instead of combining multiple skills.
+- Include a mix of guided practice, independent practice, and a small application or reflection. Avoid filler and repeated activities.
 - Activities must be realistic things a college student can practice, complete, or produce.
 - expected_output must describe a concrete result the student can demonstrate.
 - Give 2 to 4 useful resource names per stage.
@@ -144,7 +169,10 @@ $url = 'https://generativelanguage.googleapis.com/v1beta/interactions';
 
     $payload = [
         'model' => 'gemini-3.5-flash-lite',
-        'input' => $prompt
+        'input' => $prompt,
+        'generation_config' => [
+            'thinking_level' => 'minimal'
+        ]
     ];
 
 if ($schema !== null) {
@@ -306,34 +334,11 @@ if (
 
 $stages = [];
 
-foreach (array_slice($data['stages'], 0, 7) as $stage) {
+foreach (array_slice($data['stages'], 0, 6) as $stage) {
 
-$activities = array_values(
-            array_filter(
-                array_map(
-                    'trim',
-                    (array)($stage['activities'] ?? [])
-                )
-            )
-        );
-
-        $topics = array_values(
-            array_filter(
-                array_map(
-                    'trim',
-                    (array)($stage['topics'] ?? [])
-                )
-            )
-        );
-
-        $resources = array_values(
-            array_filter(
-                array_map(
-                    'trim',
-                    (array)($stage['resources'] ?? [])
-                )
-            )
-        );
+        $activities = ai_clean_string_list($stage['activities'] ?? []);
+        $topics = ai_clean_string_list($stage['topics'] ?? []);
+        $resources = ai_clean_string_list($stage['resources'] ?? []);
 
 $title = trim(
             (string)($stage['title'] ?? '')
@@ -347,11 +352,13 @@ $title = trim(
             continue;
         }
 
-$activities = array_slice($activities, 0, 6);
+$activities = array_slice($activities, 0, ROADMAP_ACTIVITIES_PER_STAGE);
 
-        while (count($activities) < 6) {
-            $activities[] =
-                'Review the concepts from this stage and practice them in a small task.';
+        while (count($activities) < ROADMAP_ACTIVITIES_PER_STAGE) {
+            $step = count($activities) + 1;
+            $activities[] = $step === 7
+                ? 'Explain one key idea from this stage in your own words and give a simple example.'
+                : 'Review your work from this stage, correct one mistake, and note what you learned.';
         }
 
 $stages[] = [
@@ -454,11 +461,11 @@ $prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-sp
         . "Related topics: {$stageTopics}\n"
         . "Exact activity: {$activity}\n\n"
         . "Return these five sections as JSON fields:\n\n"
-        . "1. lesson: Write approximately 200-350 words in plain text, split into readable paragraphs. Start with a clear definition or introduction. Explain the main ideas and important terms, why the concept matters, how it works, and the steps or reasoning the learner should follow. Include a relevant tip or common mistake where useful. Match the student's level. Teach the actual topic rather than giving vague advice. Do not put the Example or Practice section inside this field.\n\n"
-        . "2. example: Give one specific worked example directly related to the activity. For programming or technical topics, include a small correct code example and explain what it does and the expected result. For non-programming subjects, give a realistic worked example or scenario. Do not use a generic example unrelated to the topic.\n\n"
-        . "3. practice: Give the student a hands-on task related to the lesson. Include clear steps or requirements and describe what the finished result should demonstrate. Do not provide only 'practice the concept'.\n\n"
-        . "4. checklist: Provide 4-6 specific self-check questions or statements that the student can use to judge whether they understood and completed this particular activity. Avoid generic items like 'I checked my work' unless paired with a topic-specific check.\n\n"
-        . "5. resources: Provide 2-4 real, relevant learning resource names. Prefer well-known documentation, educational sites, textbooks, or official learning materials. Do not invent URLs or claim a resource covers something if unsure. Names only are acceptable.\n\n"
+        . "1. lesson: Write approximately 120-180 words in plain text, split into readable paragraphs. Start with a clear definition or introduction. Explain the main ideas and important terms, why the concept matters, and the key steps or reasoning the learner should follow. Include one useful tip or common mistake. Match the student's level and teach the actual topic. Do not include the Example or Practice section here.\n\n"
+        . "2. example: Give one concise, specific worked example related to the activity. For programming or technical topics, include a small correct code example and state its expected result. For other subjects, give a realistic worked example.\n\n"
+        . "3. practice: Give one focused hands-on task with clear requirements and a short description of what the result should demonstrate.\n\n"
+        . "4. checklist: Provide exactly 3 specific self-check questions or statements about this activity. Avoid generic checks.\n\n"
+        . "5. resources: Provide 2 real, relevant resource names, preferring official documentation, educational sites, or well-known textbooks. Do not invent URLs.\n\n"
         . "Quality rules: The lesson must be specific to the exact activity and stage; explain rather than summarize; use beginner-friendly language without talking down to the learner; do not assume the learner is an IT student; do not invent facts, citations, or URLs; do not include HTML; return only valid JSON matching the schema.";
 
     $result = gemini_interaction_request($prompt, $schema);
@@ -486,30 +493,13 @@ if (empty($result['success'])) {
     $example = trim((string)($data['example'] ?? ''));
     $practice = trim((string)($data['practice'] ?? ''));
     
-    $checklist = [];
-    if (is_array($data['checklist'] ?? null)) {
-        foreach ($data['checklist'] as $item) {
-            $item = trim((string) $item);
-            if ($item !== '' && $item !== '0') {
-                $checklist[] = $item;
-            }
-        }
-    }
+    $checklist = ai_clean_string_list($data['checklist'] ?? []);
+    $resources = ai_clean_string_list($data['resources'] ?? []);
 
-$resources = [];
-    if (is_array($data['resources'] ?? null)) {
-        foreach ($data['resources'] as $item) {
-            $item = trim((string) $item);
-            if ($item !== '' && $item !== '0') {
-                $resources[] = $item;
-            }
-        }
-    }
-
-if ((function_exists('mb_strlen') ? mb_strlen($lesson) : strlen($lesson)) < 700
-        || (function_exists('mb_strlen') ? mb_strlen($example) : strlen($example)) < 80
-        || (function_exists('mb_strlen') ? mb_strlen($practice) : strlen($practice)) < 80
-        || count($checklist) < 4 || count($resources) < 2) {
+if ((function_exists('mb_strlen') ? mb_strlen($lesson) : strlen($lesson)) < 400
+        || (function_exists('mb_strlen') ? mb_strlen($example) : strlen($example)) < 40
+        || (function_exists('mb_strlen') ? mb_strlen($practice) : strlen($practice)) < 40
+        || count($checklist) < 3 || count($resources) < 2) {
         return [
             'success' => false,
             'configured' => true,

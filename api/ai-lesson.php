@@ -184,13 +184,13 @@ if (is_array($savedLessons) && isset($savedLessons[$activityIndex])) {
             $savedResources = $savedLesson['resources'] ?? [];
 
 $cacheIsComplete = function_exists('mb_strlen')
-                ? mb_strlen($savedLearn) >= 700
-                : strlen($savedLearn) >= 700;
+                ? mb_strlen($savedLearn) >= 400
+                : strlen($savedLearn) >= 400;
             
             $cacheIsComplete = $cacheIsComplete
-                && strlen($savedExample) >= 80
-                && strlen($savedPractice) >= 80
-                && is_array($savedChecklist) && count($savedChecklist) >= 4
+                && strlen($savedExample) >= 40
+                && strlen($savedPractice) >= 40
+                && is_array($savedChecklist) && count($savedChecklist) >= 3
                 && is_array($savedResources) && count($savedResources) >= 2;
 
 if ($cacheIsComplete) {

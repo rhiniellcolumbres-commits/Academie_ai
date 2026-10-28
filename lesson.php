@@ -38,7 +38,7 @@ if (!$selectedTopic || !$selectedTopic['_is_unlocked'] || !$selectedTopic['_is_r
     redirect('roadmap');
 }
 
-$activities = array_slice(getActivities($selectedTopic['activity'] ?? ''), 0, 6);
+$activities = array_slice(getActivities($selectedTopic['activity'] ?? ''), 0, ROADMAP_ACTIVITIES_PER_STAGE);
 if (!isset($activities[$activityIndex])) {
 
     redirect('roadmap?stage=' . (int)$selectedTopic['order_number']);
@@ -47,10 +47,34 @@ if (!isset($activities[$activityIndex])) {
 $activity = $activities[$activityIndex];
 
 $activityProgress = json_decode((string)($selectedTopic['activity_progress'] ?? ''), true);
+$activityProgress = is_array($activityProgress) ? $activityProgress : [];
 $alreadyLearned = is_array($activityProgress) && !empty($activityProgress[$activityIndex]);
+$learnedActivityCount = 0;
+foreach (array_keys($activities) as $index) {
+    if (!empty($activityProgress[$index])) {
+        $learnedActivityCount++;
+    }
+}
+$stageProgressPercent = count($activities) > 0
+    ? (int)round(($learnedActivityCount / count($activities)) * 100)
+    : 0;
+$previousLessonUrl = null;
+if ($activityIndex > 0) {
+    $previousLessonUrl = 'lesson?topic_id=' . $topicId . '&activity_index=' . ($activityIndex - 1);
+} elseif (isset($topics[$selectedTopicIndex - 1])) {
+    $previousTopic = $topics[$selectedTopicIndex - 1];
+    $previousActivities = array_slice(getActivities($previousTopic['activity'] ?? ''), 0, ROADMAP_ACTIVITIES_PER_STAGE);
+    if ($previousActivities) {
+        $previousLessonUrl = 'lesson?topic_id=' . (int)$previousTopic['id'] . '&activity_index=' . (count($previousActivities) - 1);
+    }
+}
 $nextLessonUrl = null;
 $nextLessonRequiresStageCompletion = false;
 $nextLessonStartsStageId = null;
+$isFinalRoadmapLesson = $selectedTopicIndex === count($topics) - 1
+    && !isset($activities[$activityIndex + 1]);
+$showRoadmapCongrats = $isFinalRoadmapLesson
+    && (int)($selectedTopic['completed'] ?? 0) === 1;
 
 if (isset($activities[$activityIndex + 1])) {
     $nextLessonUrl = 'lesson?topic_id=' . $topicId . '&activity_index=' . ($activityIndex + 1);
@@ -71,91 +95,118 @@ require_once __DIR__ . '/includes/header.php';
     <?php require __DIR__ . '/includes/navbar.php'; ?>
 
     <main class="lesson-page-container">
+        <nav class="lesson-breadcrumb" aria-label="Breadcrumb">
+            <a href="roadmap">Roadmap</a><span aria-hidden="true">›</span>
+            <a href="roadmap?stage=<?= (int)$selectedTopic['order_number'] ?>">Stage <?= (int)$selectedTopic['order_number'] ?>: <?= e($selectedTopic['title']) ?></a><span aria-hidden="true">›</span>
+            <strong>Lesson <?= $activityIndex + 1 ?></strong>
+        </nav>
         <header class="lesson-page-heading">
             <span class="eyebrow">STAGE <?= (int)$selectedTopic['order_number'] ?> · LESSON <?= $activityIndex + 1 ?></span>
             <h1><?= e($activity) ?></h1>
-            <p><?= e($selectedTopic['title']) ?></p>
         </header>
 
-        <div class="lesson-loading" id="lessonLoading" role="status" aria-live="polite">
-            <span class="lesson-loading-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
-            <p>Academie is preparing your lesson…</p>
-        </div>
+        <div class="lesson-layout">
+            <aside class="lesson-stage-sidebar" aria-label="Lessons in this stage">
+                <h2>In this stage</h2>
+                <ol class="lesson-stage-list">
+                    <?php foreach ($activities as $index => $stageActivity): ?>
+                        <?php $isStageActivityLearned = !empty($activityProgress[$index]); ?>
+                        <li class="<?= $index === $activityIndex ? 'is-current' : '' ?> <?= $isStageActivityLearned ? 'is-complete' : '' ?>">
+                            <a href="lesson?topic_id=<?= (int)$topicId ?>&amp;activity_index=<?= (int)$index ?>" <?= $index === $activityIndex ? 'aria-current="page"' : '' ?>>
+                                <span class="lesson-list-icon" aria-hidden="true"><?php if ($isStageActivityLearned): ?><i class="bi bi-check-lg"></i><?php else: ?><?= $index + 1 ?><?php endif; ?></span>
+                                <span class="lesson-stage-title" title="<?= e($stageActivity) ?>"><?= e(preg_replace('/^\s*\d+[.)]\s*/u', '', $stageActivity)) ?></span>
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+                <div class="lesson-stage-progress"><span><i style="width: <?= $stageProgressPercent ?>%"></i></span><small><?= $learnedActivityCount ?> of <?= count($activities) ?> lessons done</small></div>
+            </aside>
 
-        <div class="lesson-error" id="lessonError" role="alert" hidden>
-            <p id="lessonErrorMessage">We couldn’t load this lesson.</p>
-            <button type="button" class="lesson-retry-btn" id="lessonRetryBtn">Try again</button>
-        </div>
-
-        <article class="lesson-page-content" id="lessonContent" hidden>
-            <section class="lesson-section">
-                <h2><i class="bi bi-book-half" aria-hidden="true"></i> Learn</h2>
-                <p id="lessonText"></p>
-            </section>
-            <section class="lesson-section">
-                <h2><i class="bi bi-lightbulb" aria-hidden="true"></i> Example</h2>
-                <pre id="lessonExample"></pre>
-            </section>
-            <section class="lesson-section">
-                <h2><i class="bi bi-bullseye" aria-hidden="true"></i> Practice</h2>
-                <p id="lessonPractice"></p>
-            </section>
-            <section class="lesson-section">
-                <h2><i class="bi bi-check2-square" aria-hidden="true"></i> Check Yourself</h2>
-                <ul id="lessonChecklist"></ul>
-            </section>
-            <section class="lesson-section">
-                <h2><i class="bi bi-journals" aria-hidden="true"></i> Resources</h2>
-                <ul id="lessonResources"></ul>
-            </section>
-
-            <section class="content-feedback-card" aria-labelledby="lessonFeedbackTitle" data-feedback-form data-content-type="lesson" data-topic-id="<?= (int)$topicId ?>" data-activity-index="<?= (int)$activityIndex ?>" data-csrf-token="<?= e(csrf_token()) ?>">
-                <div>
-                    <h2 id="lessonFeedbackTitle">Was this lesson helpful?</h2>
-                    <p>Your feedback helps us improve AI-generated lessons.</p>
+            <section class="lesson-main-panel" aria-label="Lesson content">
+                <div class="lesson-loading" id="lessonLoading" role="status" aria-live="polite">
+                    <span class="lesson-loading-icon"><i class="bi bi-stars" aria-hidden="true"></i></span>
+                    <div class="lesson-loading-copy">
+                        <p>Academie is preparing your lesson…</p>
+                        <small>This can take a little longer while we tailor the lesson to your activity.</small>
+                    </div>
                 </div>
-                <div class="content-feedback-actions">
-                    <button type="button" class="feedback-rating" data-rating="1" aria-label="Yes, this lesson is helpful"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Yes</button>
-                    <button type="button" class="feedback-rating" data-rating="-1" aria-label="No, this lesson is not helpful"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> No</button>
-                </div>
-                <label class="feedback-reason-wrap" hidden>What could be improved?
-                    <select class="feedback-reason form-select" aria-label="Reason this lesson was not helpful">
-                        <option value="">Choose a reason</option>
-                        <option value="incorrect">Some information seems incorrect</option>
-                        <option value="unclear">It is unclear</option>
-                        <option value="too_difficult">It feels too difficult</option>
-                        <option value="other">Something else</option>
-                    </select>
-                    <button type="button" class="feedback-submit">Send feedback</button>
-                </label>
-                <p class="feedback-message" role="status" aria-live="polite"></p>
-            </section>
 
-            <div class="lesson-complete-action">
-                <button type="button" id="markLearnedBtn" class="mark-learned-btn" <?= $alreadyLearned ? 'disabled' : '' ?>>
-                    <?= $alreadyLearned ? '✓ Already Learned' : '✓ Mark as Learned' ?>
-                </button>
+                <div class="lesson-error" id="lessonError" role="alert" hidden>
+                    <p id="lessonErrorMessage">We couldn’t load this lesson.</p>
+                    <button type="button" class="lesson-retry-btn" id="lessonRetryBtn">Try again</button>
+                </div>
+
+                <article class="lesson-page-content" id="lessonContent" hidden>
+                    <nav class="lesson-tabs" role="tablist" aria-label="Lesson sections">
+                        <button type="button" id="lesson-tab-learn" role="tab" aria-selected="true" aria-controls="lesson-panel-learn" data-lesson-tab="learn" class="is-active">1 Learn</button>
+                        <button type="button" id="lesson-tab-example" role="tab" aria-selected="false" aria-controls="lesson-panel-example" data-lesson-tab="example" tabindex="-1">2 Example</button>
+                        <button type="button" id="lesson-tab-practice" role="tab" aria-selected="false" aria-controls="lesson-panel-practice" data-lesson-tab="practice" tabindex="-1">3 Practice</button>
+                        <button type="button" id="lesson-tab-check" role="tab" aria-selected="false" aria-controls="lesson-panel-check" data-lesson-tab="check" tabindex="-1">4 Check</button>
+                        <button type="button" id="lesson-tab-resources" role="tab" aria-selected="false" aria-controls="lesson-panel-resources" data-lesson-tab="resources" tabindex="-1">5 Resources</button>
+                    </nav>
+                    <section class="lesson-section" id="lesson-panel-learn" role="tabpanel" aria-labelledby="lesson-tab-learn" data-lesson-panel="learn">
+                        <h2>Learn</h2>
+                        <p id="lessonText"></p>
+                    </section>
+                    <section class="lesson-section" id="lesson-panel-example" role="tabpanel" aria-labelledby="lesson-tab-example" data-lesson-panel="example" hidden>
+                        <h2>Example</h2>
+                        <pre id="lessonExample"></pre>
+                        <button type="button" class="lesson-copy-btn" id="copyLessonExample"><i class="bi bi-copy" aria-hidden="true"></i> Copy</button>
+                    </section>
+                    <section class="lesson-section" id="lesson-panel-practice" role="tabpanel" aria-labelledby="lesson-tab-practice" data-lesson-panel="practice" hidden>
+                        <h2>Practice</h2>
+                        <p id="lessonPractice"></p>
+                    </section>
+                    <section class="lesson-section" id="lesson-panel-check" role="tabpanel" aria-labelledby="lesson-tab-check" data-lesson-panel="check" hidden>
+                        <h2>Check Yourself</h2>
+                        <ul id="lessonChecklist"></ul>
+                    </section>
+                    <section class="lesson-section" id="lesson-panel-resources" role="tabpanel" aria-labelledby="lesson-tab-resources" data-lesson-panel="resources" hidden>
+                        <h2>Resources</h2>
+                        <ul id="lessonResources"></ul>
+                    </section>
+
+                    <p class="lesson-ai-note">AI-generated lesson. Double-check important facts with the resources tab.</p>
+                    <section class="content-feedback-card" aria-labelledby="lessonFeedbackTitle" data-feedback-form data-content-type="lesson" data-topic-id="<?= (int)$topicId ?>" data-activity-index="<?= (int)$activityIndex ?>" data-csrf-token="<?= e(csrf_token()) ?>">
+                        <div><h2 id="lessonFeedbackTitle">Was this lesson helpful?</h2></div>
+                        <div class="content-feedback-actions">
+                            <button type="button" class="feedback-rating" data-rating="1" aria-label="Yes, this lesson is helpful"><i class="bi bi-hand-thumbs-up" aria-hidden="true"></i> Yes</button>
+                            <button type="button" class="feedback-rating" data-rating="-1" aria-label="No, this lesson is not helpful"><i class="bi bi-hand-thumbs-down" aria-hidden="true"></i> No</button>
+                        </div>
+                        <label class="feedback-reason-wrap" hidden>What could be improved?
+                            <select class="feedback-reason form-select" aria-label="Reason this lesson was not helpful">
+                                <option value="">Choose a reason</option><option value="incorrect">Some information seems incorrect</option><option value="unclear">It is unclear</option><option value="too_difficult">It feels too difficult</option><option value="other">Something else</option>
+                            </select>
+                            <button type="button" class="feedback-submit">Send feedback</button>
+                        </label>
+                        <p class="feedback-message" role="status" aria-live="polite"></p>
+                    </section>
+                <section class="lesson-congrats" id="roadmapCongrats" role="status" aria-live="polite" <?= $showRoadmapCongrats ? '' : 'hidden' ?>>
+                    <span class="lesson-congrats-icon" aria-hidden="true"><i class="bi bi-trophy-fill"></i></span>
+                    <div class="lesson-congrats-copy">
+                        <span class="eyebrow">ROADMAP COMPLETE</span>
+                        <h2>Congratulations!</h2>
+                        <p>You completed every stage and activity in your roadmap. Celebrate how far you’ve come.</p>
+                    </div>
+                </section>
+                </article>
+
                 <p class="lesson-save-message" id="lessonSaveMessage" role="status" aria-live="polite"></p>
-            </div>
-        </article>
-
-        <nav class="lesson-page-actions" aria-label="Lesson navigation">
-            <a class="lesson-action-secondary" href="roadmap?stage=<?= (int)$selectedTopic['order_number'] ?>">
-                <i class="bi bi-map" aria-hidden="true"></i> Back to Roadmap
-            </a>
-            <?php if ($nextLessonUrl): ?>
-                <a
-                    class="lesson-action-primary <?= $nextLessonRequiresStageCompletion ? 'is-locked' : '' ?>"
-                    id="nextLessonLink"
-                    href="<?= e($nextLessonUrl) ?>"
-                    <?= $nextLessonRequiresStageCompletion ? 'aria-disabled="true" tabindex="-1"' : '' ?>
-                    data-requires-stage-completion="<?= $nextLessonRequiresStageCompletion ? '1' : '0' ?>"
-                    <?= $nextLessonStartsStageId ? 'data-start-topic-id="' . $nextLessonStartsStageId . '"' : '' ?>
-                >Next Lesson <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
-            <?php else: ?>
-                <span class="lesson-action-primary is-locked" aria-disabled="true">Final Lesson</span>
-            <?php endif; ?>
-        </nav>
+                <footer class="lesson-page-actions" id="lessonPageActions" aria-label="Lesson navigation">
+                    <?php if ($previousLessonUrl): ?>
+                        <a class="lesson-action-secondary" href="<?= e($previousLessonUrl) ?>"><i class="bi bi-arrow-left" aria-hidden="true"></i> Previous</a>
+                    <?php else: ?>
+                        <a class="lesson-action-secondary" href="roadmap?stage=<?= (int)$selectedTopic['order_number'] ?>">← Back to stage</a>
+                    <?php endif; ?>
+                    <div class="lesson-action-group">
+                        <button type="button" id="markLearnedBtn" class="mark-learned-btn" disabled><?= $showRoadmapCongrats ? '🎉 Congratulations!' : ($alreadyLearned ? '🎉 Lesson complete!' : '✓ Mark as learned') ?></button>
+                        <?php if ($nextLessonUrl): ?>
+                            <a class="lesson-action-primary <?= $nextLessonRequiresStageCompletion ? 'is-locked' : '' ?>" id="nextLessonLink" href="<?= e($nextLessonUrl) ?>" <?= $nextLessonRequiresStageCompletion ? 'aria-disabled="true" tabindex="-1"' : '' ?> data-requires-stage-completion="<?= $nextLessonRequiresStageCompletion ? '1' : '0' ?>" <?= $nextLessonStartsStageId ? 'data-start-topic-id="' . $nextLessonStartsStageId . '"' : '' ?>>Next lesson <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                        <?php endif; ?>
+                    </div>
+                </footer>
+            </section>
+        </div>
     </main>
 </div>
 
@@ -173,6 +224,39 @@ document.addEventListener('DOMContentLoaded', function () {
     const learnedButton = document.getElementById('markLearnedBtn');
     const saveMessage = document.getElementById('lessonSaveMessage');
     const nextLink = document.getElementById('nextLessonLink');
+    const roadmapCongrats = document.getElementById('roadmapCongrats');
+    const isFinalRoadmapLesson = <?= $isFinalRoadmapLesson ? 'true' : 'false' ?>;
+    const lessonTabs = Array.from(document.querySelectorAll('[data-lesson-tab]'));
+    const lessonPanels = Array.from(document.querySelectorAll('[data-lesson-panel]'));
+
+    // Switches the visible lesson section and keeps tab keyboard navigation accessible.
+    function activateLessonTab(tab, moveFocus) {
+        const selectedName = tab.dataset.lessonTab;
+        lessonTabs.forEach(function (item) {
+            const isSelected = item === tab;
+            item.classList.toggle('is-active', isSelected);
+            item.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+            item.tabIndex = isSelected ? 0 : -1;
+        });
+        lessonPanels.forEach(function (panel) {
+            panel.hidden = panel.dataset.lessonPanel !== selectedName;
+        });
+        if (moveFocus) tab.focus();
+    }
+
+    lessonTabs.forEach(function (tab, index) {
+        tab.addEventListener('click', function () { activateLessonTab(tab, false); });
+        tab.addEventListener('keydown', function (event) {
+            var nextIndex = index;
+            if (event.key === 'ArrowRight') nextIndex = (index + 1) % lessonTabs.length;
+            else if (event.key === 'ArrowLeft') nextIndex = (index - 1 + lessonTabs.length) % lessonTabs.length;
+            else if (event.key === 'Home') nextIndex = 0;
+            else if (event.key === 'End') nextIndex = lessonTabs.length - 1;
+            else return;
+            event.preventDefault();
+            activateLessonTab(lessonTabs[nextIndex], true);
+        });
+    });
 
 // Reads a JSON response and handles invalid response data.
 async function readJsonResponse(response, fallbackMessage) {
@@ -189,17 +273,24 @@ async function loadLesson() {
         loading.hidden = false;
         content.hidden = true;
         errorBox.hidden = true;
+        let requestTimeout = null;
 
         try {
             const formData = new FormData();
             formData.append('topic_id', topicId);
             formData.append('activity_index', activityIndex);
             formData.append('csrf_token', csrfToken);
+            const requestController = new AbortController();
+            requestTimeout = window.setTimeout(function () {
+                requestController.abort();
+            }, 60000);
             const response = await fetch('api/ai-lesson.php', {
                 method: 'POST',
                 body: formData,
-                headers: { 'Accept': 'application/json' }
+                headers: { 'Accept': 'application/json' },
+                signal: requestController.signal
             });
+            window.clearTimeout(requestTimeout);
             const data = await readJsonResponse(response, 'The lesson server returned an invalid response. Please try again.');
             if (!response.ok || !data.success) throw new Error(data.message || 'Unable to load this lesson. Please try again.');
 
@@ -210,10 +301,15 @@ async function loadLesson() {
             renderList('lessonResources', data.resources);
             loading.hidden = true;
             content.hidden = false;
+            learnedButton.disabled = <?= $alreadyLearned ? 'true' : 'false' ?>;
         } catch (error) {
             loading.hidden = true;
-            errorMessage.textContent = error.message || 'Unable to load this lesson. Please try again.';
+            errorMessage.textContent = error.name === 'AbortError'
+                ? 'This lesson is taking longer than expected. Please try again.'
+                : (error.message || 'Unable to load this lesson. Please try again.');
             errorBox.hidden = false;
+        } finally {
+            if (requestTimeout !== null) window.clearTimeout(requestTimeout);
         }
     }
 
@@ -231,6 +327,18 @@ async function loadLesson() {
 
     document.getElementById('lessonRetryBtn').addEventListener('click', loadLesson);
     loadLesson();
+
+    document.getElementById('copyLessonExample').addEventListener('click', async function () {
+        const copyButton = this;
+        const code = document.getElementById('lessonExample').textContent;
+        try {
+            await navigator.clipboard.writeText(code);
+            copyButton.innerHTML = '<i class="bi bi-check2" aria-hidden="true"></i> Copied';
+            window.setTimeout(function () { copyButton.innerHTML = '<i class="bi bi-copy" aria-hidden="true"></i> Copy'; }, 1400);
+        } catch (error) {
+            saveMessage.textContent = 'Copy is unavailable in this browser.';
+        }
+    });
 
     // Saves completion of this activity and updates the lesson controls.
     learnedButton.addEventListener('click', async function () {
@@ -256,8 +364,16 @@ async function loadLesson() {
 
             learnedButton.classList.remove('is-saving');
             learnedButton.classList.add('learned');
-            learnedButton.textContent = '✓ Learned';
-            saveMessage.textContent = data.completed ? 'Stage complete. The next stage is now unlocked.' : 'Your progress has been saved.';
+            learnedButton.textContent = data.completed && isFinalRoadmapLesson
+                ? '🎉 Congratulations!'
+                : '🎉 Lesson complete!';
+            if (data.completed && isFinalRoadmapLesson) {
+                saveMessage.textContent = '';
+                roadmapCongrats.hidden = false;
+                roadmapCongrats.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                saveMessage.textContent = data.completed ? 'Great work! Stage complete. The next stage is now unlocked.' : 'Nice work! This lesson is complete.';
+            }
             if (nextLink && nextLink.dataset.requiresStageCompletion === '1' && data.completed) {
                 nextLink.classList.remove('is-locked');
                 nextLink.removeAttribute('aria-disabled');

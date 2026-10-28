@@ -65,7 +65,7 @@ $progress = [];
         }
     }
 
-$topic['_activities'] = array_slice($activities, 0, 6);
+$topic['_activities'] = array_slice($activities, 0, ROADMAP_ACTIVITIES_PER_STAGE);
 
 $activityCount = count($topic['_activities']);
     for ($i = 0; $i < $activityCount; $i++) {
@@ -143,26 +143,15 @@ require_once __DIR__ . '/includes/header.php';
 <main class="roadmap-container">
 
 <section class="roadmap-header">
-
-            <div>
-
-                <span class="eyebrow">
-                    PERSONALIZED ROADMAP
-                </span>
-
-                <h1>
-                    Your Learning Roadmap
-                </h1>
-
-                <p>
-                    Follow your personalized learning path step by step.
-                    Read each stage, complete its activities, and unlock
-                    the next stage as you progress.
-                </p>
-
-            </div>
-
-        </section>
+    <div class="roadmap-heading-copy">
+        <span class="eyebrow">YOUR ROADMAP</span>
+        <h1><?= e($assessment['career_goal'] ?? 'Your Learning Roadmap') ?></h1>
+        <p>Finish each stage to unlock the next.</p>
+    </div>
+    <?php if (!empty($topics)): ?>
+        <a href="assessment?retake=1" class="roadmap-retake-btn" onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake assessment</a>
+    <?php endif; ?>
+</section>
 
 <?php if (empty($topics)): ?>
 
@@ -193,90 +182,17 @@ require_once __DIR__ . '/includes/header.php';
         <?php else: ?>
 
 <section class="roadmap-summary">
-
-                <div class="summary-career">
-
-                    <span class="summary-label">
-                        TARGET CAREER
-                    </span>
-
-                    <h2>
-                        <?= e($assessment['career_goal'] ?? 'Not specified') ?>
-                    </h2>
-
-                    <p>
-
-                        <?php if (!empty($assessment['current_level'])): ?>
-
-                             <?= e($assessment['current_level']) ?>
-
-                        <?php endif; ?>
-
-                        <?php if (!empty($assessment['improvement_goal'])): ?>
-
-                            · <?= e($assessment['improvement_goal']) ?>
-
-                        <?php endif; ?>
-
-                    </p>
-
-                    <small class="roadmap-source-badge">
-                        <?= ($topics[0]['roadmap_source'] ?? 'fallback') === 'gemini' ? '<i class="bi bi-stars" aria-hidden="true"></i> Gemini personalized' : 'Standard personalized roadmap' ?>
-                    </small>
-
-                    <div class="mt-3">
-                        <a
-                            href="assessment?retake=1"
-                            class="assessment-retake-link"
-                            onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');"
-                        >
-                            Retake Assessment
-                        </a>
-                    </div>
-
-                </div>
-
-<div class="summary-progress">
-
-                    <div class="progress-top">
-
-                        <span>
-                            OVERALL PROGRESS
-                        </span>
-
-                        <strong>
-                            <?= $percent ?>%
-                        </strong>
-
-                    </div>
-
-                    <div
-                        class="roadmap-progress-bar"
-                        role="progressbar"
-                        aria-label="Roadmap stages completed"
-                        aria-valuemin="0"
-                        aria-valuemax="100"
-                        aria-valuenow="<?= $percent ?>"
-                        aria-valuetext="<?= $percent ?> percent, <?= $completed ?> of <?= $total ?> stages completed"
-                    >
-
-                        <span
-                            style="width: <?= $percent ?>%;"
-                        ></span>
-
-                    </div>
-
-                    <small>
-                        <?= $completed ?> of <?= $total ?>
-                        stages completed
-                    </small>
-                    <small class="roadmap-activity-total">
-                        <?= $completedActivities ?> of <?= $totalActivities ?> activities completed
-                    </small>
-
-                </div>
-
-            </section>
+    <div class="summary-progress">
+        <div class="roadmap-progress-copy">
+            <span>Stages completed</span>
+            <strong><?= $completed ?> of <?= $total ?> · <?= $percent ?>%</strong>
+        </div>
+        <div class="roadmap-progress-bar" role="progressbar" aria-label="Roadmap stages completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= $percent ?>" aria-valuetext="<?= $percent ?> percent, <?= $completed ?> of <?= $total ?> stages completed">
+            <span style="width: <?= $percent ?>%;"></span>
+        </div>
+        <small><?= $completedActivities ?> of <?= $totalActivities ?> activities done</small>
+    </div>
+</section>
 
 <section class="roadmap-section">
 
@@ -310,9 +226,11 @@ require_once __DIR__ . '/includes/header.php';
                             $stageNumber = (int)$topic['order_number'];
                             $isCompleted = $topic['_is_completed'];
                             $isUnlocked = $topic['_is_unlocked'];
+                            $isCurrent = $isUnlocked && !$isCompleted;
+                            $stageActivityTotal = count($topic['_activities'] ?? []);
                             ?>
 
-                            <details class="roadmap-stage roadmap-stage-accordion <?= $isCompleted ? 'completed' : '' ?> <?= !$isUnlocked ? 'locked' : '' ?>" <?= ($isUnlocked && !$isCompleted) ? 'open' : '' ?>>
+                            <details class="roadmap-stage roadmap-stage-accordion <?= $isCompleted ? 'completed' : '' ?> <?= $isCurrent ? 'current' : '' ?> <?= !$isUnlocked ? 'locked' : '' ?>" <?= $isCurrent ? 'open' : '' ?>>
                                 <summary class="roadmap-stage-summary">
                                   <div class="stage-marker">
                                     <?php if ($isCompleted): ?><i class="bi bi-check-lg" aria-hidden="true"></i><?php elseif (!$isUnlocked): ?><i class="bi bi-lock-fill" aria-hidden="true"></i><?php else: ?><?= $stageNumber ?><?php endif; ?>
@@ -325,7 +243,7 @@ require_once __DIR__ . '/includes/header.php';
                                         <?php elseif (!$isUnlocked): ?>
                                             <span class="stage-status">Locked</span>
                                         <?php else: ?>
-                                            <span class="stage-status">Available</span>
+                                            <span class="stage-status stage-current-status">Current · <?= (int)$topic['_activity_completed'] ?> of <?= $stageActivityTotal ?> done</span>
                                         <?php endif; ?>
                                     </div>
                                     <h2><?= e($topic['title']) ?></h2>

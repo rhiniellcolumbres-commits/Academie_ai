@@ -65,3 +65,107 @@
     .achievement-card { gap:.7rem; padding:.8rem; }
     .profile-section-heading { flex-direction:column; }
 }
+
+/* Profile layout aligned with the dashboard's blue and navy visual system. */
+.profile-page {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1320px;
+    padding-top: 40px;
+}
+.profile-page > .panel { min-width: 0; margin: 0 !important; padding: 26px 28px; border-radius: 20px; }
+.profile-overview,
+.learning-profile-panel { grid-column: 1 / -1; }
+.roadmap-progress-panel,
+.achievements-panel { grid-column: 1 / -1; }
+.profile-overview { gap: 24px; min-height: 142px; }
+.profile-avatar { flex-basis: 84px; width: 84px; height: 84px; border-radius: 50%; background: #2451e6; color: #fff; font-size: 1.8rem; box-shadow: 0 8px 20px rgba(36,81,230,.18); }
+.profile-overview-main h2 { font-size: clamp(1.55rem, 2.2vw, 2rem); letter-spacing: -.04em; }
+.profile-overview-main p { margin: .25rem 0 .3rem; color: #5b6b89; }
+.profile-member-since { color: #5b6b89; font-size: .92rem; }
+.profile-learning-track { border: 0; background: #e8efff; color: #2451e6; padding: .3rem .7rem; }
+.profile-section-heading { margin-bottom: 20px; }
+.profile-section-heading .btn { flex: 0 0 auto; white-space: nowrap; }
+.profile-section-heading h2,
+.achievements-heading h2 { margin: 3px 0 4px !important; color: #101d38; font-size: 1.42rem; font-weight: 750; letter-spacing: -.035em; }
+.profile-section-heading p,
+.achievements-heading p { color: #5b6b89; font-size: .92rem; }
+.learning-details-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.learning-detail { padding: 14px 16px; border: 0; border-radius: 14px; background: #f3f6fb; }
+.learning-detail dt { color: #5b6b89; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; }
+.learning-detail dd { color: #15223e; font-weight: 550; }
+.learning-detail:nth-child(4) { grid-column: span 1; }
+.learning-detail:last-child { grid-column: span 2; }
+.profile-progress-stats { gap: 12px; }
+.profile-progress-stats > div { min-height: 88px; justify-content: center; padding: 14px 16px; border: 0; border-radius: 14px; background: #f3f6fb; }
+.profile-progress-stats strong { color: #101d38; font-size: 1.5rem; letter-spacing: -.03em; }
+.profile-progress-stats span { color: #5b6b89; }
+.profile-progress-track { height: 9px; background: #eef2f8; }
+.profile-progress-track span { background: #2451e6; }
+.achievements-heading { margin-bottom: 18px; }
+.achievement-count { min-width: 56px; padding: 0; border: 0; background: transparent; }
+.achievement-count strong { color: #101d38; font-size: 1.8rem; }
+.achievement-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.achievement-card { min-width: 0; gap: 12px; padding: 12px; border-color: #e5ebf4; border-radius: 15px; background: #fff; }
+.achievement-card.earned { border-color: #e5ebf4; }
+.achievement-icon { flex-basis: 48px; width: 48px; height: 48px; border-radius: 13px; background: #fff3d9; color: #925400; font-size: 1.2rem; }
+.achievement-card h3 { color: #15223e; font-size: .95rem; }
+.achievement-card p { margin-bottom: .25rem; color: #5b6b89; font-size: .8rem; }
+.achievement-status { color: #15803d; }
+.achievement-card.locked { border-color: #e7edf6; background: #f3f6fb; }
+.achievement-card.locked .achievement-icon { background: #e7ecf4; color: #71809a; }
+.achievement-card.locked h3,
+.achievement-card.locked p { color: #5b6b89; }
+.achievement-locked-status { color: #71809a; font-size: .76rem; font-weight: 650; }
+
+body.profile-shell { --profile-sidebar-width: clamp(248px, 16vw, 304px); min-height: 100vh; padding-left: var(--profile-sidebar-width); background: #f3f6fb; }
+body.profile-shell .main-navbar { position: fixed !important; inset: 0 auto 0 0; z-index: 1000; display: flex !important; width: var(--profile-sidebar-width) !important; min-height: 100vh; height: 100vh; flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 26px; padding: 24px 16px !important; box-sizing: border-box !important; background: #fff; border: 0; border-right: 1px solid #e8edf5; box-shadow: none; }
+body.profile-shell .main-navbar .main-logo { display: flex; align-items: center; gap: 10px; padding: 0; color: #101d36; font-size: 21px; font-weight: 800; }
+body.profile-shell .dashboard-brand-mark { display: inline-flex; width: 34px; height: 34px; flex: 0 0 34px; align-items: center; justify-content: center; border-radius: 10px; background: #2453e6; color: #fff; font-size: 17px; font-weight: 800; }
+body.profile-shell .main-navbar .main-nav-links { display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 4px; margin: 0 !important; padding: 0; }
+body.profile-shell .main-navbar .main-nav-links a { display: flex; width: 100% !important; min-width: 0 !important; min-height: 44px; align-items: center; justify-content: flex-start !important; gap: 10px; padding: 0 14px !important; border: 0; border-radius: 11px; color: #536482; font-size: 14px; font-weight: 600; text-decoration: none; }
+body.profile-shell .main-navbar .main-nav-links a:hover,
+body.profile-shell .main-navbar .main-nav-links a.active { color: #2453e6; background: #e9efff; }
+body.profile-shell .main-navbar .main-nav-links a::after { display: none !important; }
+body.profile-shell .main-navbar .main-nav-links a i { font-size: 17px; }
+body.profile-shell .main-navbar .navbar-account { display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 10px; margin: auto 0 0; }
+body.profile-shell .main-navbar .navbar-user-info { max-width: none; width: 100%; flex-direction: row; align-items: center; padding: 12px; text-align: left; text-decoration: none; border-radius: 12px; background: #f3f6fb; }
+body.profile-shell .main-navbar .navbar-user-name { color: #101d36; }
+body.profile-shell .main-navbar .navbar-user-track { color: #60708e; }
+body.profile-shell .main-navbar .navbar-logout { width: 100%; margin-left: 0; min-height: 42px; justify-content: center; border: 1px solid #e4eaf4; border-radius: 11px; color: #101d36; background: #fff; }
+body.profile-shell .main-content { min-height: 100vh; padding: 0; }
+body.profile-shell .page-container.profile-page { width: 100%; max-width: none; margin: 0; padding: 40px clamp(24px, 2.1vw, 40px) 72px; }
+
+@media (max-width: 900px) {
+    body.profile-shell { --profile-sidebar-width: 0px; padding-left: 0; }
+    body.profile-shell .main-navbar { position: sticky !important; inset: auto; width: 100% !important; min-height: 0; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 16px !important; border-right: 0; border-bottom: 1px solid #e8edf5; }
+    body.profile-shell .main-navbar .main-logo { margin-right: auto; }
+    body.profile-shell .main-navbar .main-nav-links { order: 3; width: 100%; flex-direction: row; justify-content: flex-start; gap: 5px; }
+    body.profile-shell .main-navbar .main-nav-links a { min-height: 40px; padding: 0 10px !important; }
+    body.profile-shell .main-navbar .navbar-account { display: flex; width: auto; flex-direction: row; align-items: center; gap: 0; margin: 0; }
+    body.profile-shell .main-navbar .navbar-user-info { width: auto; padding: 4px; background: transparent; }
+    body.profile-shell .main-navbar .navbar-logout { width: auto; min-height: 38px; padding: 0 12px; }
+    body.profile-shell .page-container.profile-page { padding: 24px 16px 48px; }
+}
+
+@media (max-width: 900px) {
+    .roadmap-progress-panel,
+    .achievements-panel { grid-column: 1 / -1; }
+}
+@media (max-width: 700px) {
+    .profile-page { gap: 16px; padding-top: 24px; }
+    .profile-page > .panel { padding: 20px; }
+    .achievement-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .learning-detail:last-child { grid-column: span 1; }
+}
+@media (max-width: 480px) {
+    .profile-page > .panel { padding: 16px; }
+    .profile-avatar { flex-basis: 62px; width: 62px; height: 62px; font-size: 1.4rem; }
+    .profile-overview { gap: 14px; }
+    .profile-overview-main { flex-basis: auto; }
+    .profile-name-row { gap: 8px; }
+    .profile-section-heading { gap: 12px; }
+    .learning-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .achievement-grid { grid-template-columns: 1fr; }
+}

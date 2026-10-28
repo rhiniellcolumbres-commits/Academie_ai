@@ -18,6 +18,7 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="academie-icon.png">
     <title>Log in - Academie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -25,14 +26,15 @@ if (empty($_SESSION['csrf_token'])) {
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body class="auth-page">
-<header class="auth-topbar">
-    <a class="auth-brand" href="./" aria-label="Academie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
-    <a href="register" class="btn btn-outline-primary">Create account</a>
-</header>
+<aside class="auth-side">
+    <a class="auth-brand" href="./" aria-label="Academie home"><img class="auth-brand-icon" src="academie-icon.png" alt=""><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
+    <section class="auth-pitch"><h2>Pick up where you left off.</h2><ul><li><span class="auth-step">✓</span>Your roadmap and stage progress are saved</li><li><span class="auth-step">✓</span>Badges you earned stay on your profile</li><li><span class="auth-step">✓</span>Continue the lesson you were reading</li></ul></section>
+    <p class="auth-side-note">Student project for academic purposes.</p>
+</aside>
 <main class="auth-main"><div class="auth-card">
-    <span class="auth-eyebrow">WELCOME TO ACADEMIE</span>
-    <h1>Log in to your account</h1>
-    <p class="auth-sub">Sign in to continue, or create an account to start your learning journey.</p>
+
+    <h1>Log in</h1>
+    <p class="auth-sub">Welcome back. Enter your details to continue.</p>
     <?php if ($error): ?><div class="alert alert-danger" role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
     <form method="post" action="actions/login.php">
         <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'], ENT_QUOTES, 'UTF-8') ?>">
@@ -50,25 +52,10 @@ if (empty($_SESSION['csrf_token'])) {
         </div>
         <button class="btn btn-primary w-100 auth-submit" type="submit">Log in</button>
     </form>
-    <p class="auth-alt">Don't have an account? <a href="register">Register here</a></p>
+    <p class="auth-alt">New to Academie? <a href="register">Create an account</a></p>
+    <nav class="auth-footer-links" aria-label="Footer navigation"><a href="privacy">Privacy</a><a href="terms">Terms</a><a href="moderation">Moderation</a><a href="copyright">Copyright</a></nav>
 </div></main>
-<footer class="site-footer">
-    <div class="site-footer-inner">
-        <aside class="site-disclaimer" aria-label="Academic project disclaimer">
-            <strong>Disclaimer:</strong>
-            StudyPath AI is developed for demonstration and academic purposes as part of a student project.
-            It is not an official educational institution or professional advisory service.
-            AI-generated learning paths and study materials are provided for educational guidance only and may require verification.
-        </aside>
-        <nav class="site-footer-links" aria-label="Footer navigation">
-            <a href="privacy">Privacy Policy</a>
-            <a href="terms">Terms</a>
-            <a href="moderation">Moderation</a>
-            <a href="copyright">Copyright</a>
-        </nav>
-        <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
-    </div>
-</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 // Adds show/hide behavior to each password visibility button.

@@ -19,6 +19,11 @@ $progress = getRoadmapProgress($topics);
 
 syncAchievements($pdo, $userId, $progress);
 $earnedAchievements = getUserAchievements($pdo, $userId);
+$achievementCatalog = getAchievementCatalog();
+$earnedByTitle = [];
+foreach ($earnedAchievements as $earnedAchievement) {
+    $earnedByTitle[$earnedAchievement['title']] = $earnedAchievement;
+}
 
 $hasRoadmap = $progress['totalStages'] > 0;
 
@@ -38,6 +43,7 @@ $createdAt = $user['created_at'] ?? null;
 
 $pageTitle = 'My Profile';
 $pageCss   = 'css/profile.css';
+$bodyClass = 'profile-shell';
 
 require_once __DIR__ . '/includes/header.php';
 require_once __DIR__ . '/includes/navbar.php';
@@ -45,18 +51,9 @@ require_once __DIR__ . '/includes/navbar.php';
 
 <main class="main-content">
     <div class="page-container profile-page">
-        <div class="page-header">
-            <div>
-                <span class="eyebrow">YOUR SPACE</span>
-                <h1>My Profile</h1>
-                <p>Review your learning goals, roadmap progress, and achievements.</p>
-            </div>
-        </div>
-
-<section class="panel profile-overview mt-4" aria-label="Profile overview">
+<section class="panel profile-overview" aria-label="Profile overview">
             <div class="profile-avatar" aria-hidden="true"><?= e($initials !== '' ? $initials : 'S') ?></div>
             <div class="profile-overview-main">
-                <span class="eyebrow">STUDENT ACCOUNT</span>
                 <div class="profile-name-row">
                     <h2><?= e($displayName !== '' ? $displayName : 'Student') ?></h2>
                     <?php if ($learningTrack !== ''): ?>
@@ -68,16 +65,14 @@ require_once __DIR__ . '/includes/navbar.php';
             </div>
         </section>
 
-<section class="panel learning-profile-panel mt-4" aria-labelledby="learning-profile-title">
+<section class="panel learning-profile-panel" aria-labelledby="learning-profile-title">
             <div class="profile-section-heading">
                 <div>
                     <span class="eyebrow">YOUR LEARNING PLAN</span>
                     <h2 class="h4 mb-1" id="learning-profile-title">Learning Profile</h2>
-                    <p class="text-muted mb-0">Your goals and interests help shape your personalized roadmap.</p>
+                    <p class="text-muted mb-0">Your goals and interests shape your roadmap.</p>
                 </div>
-                <?php if (!$hasAssessment): ?>
-                    <a class="btn btn-outline-primary btn-sm" href="assessment">Complete Assessment</a>
-                <?php endif; ?>
+                <a class="btn btn-outline-primary btn-sm" href="assessment<?= $hasAssessment ? '?retake=1' : '' ?>"><?= $hasAssessment ? 'Update assessment' : 'Complete Assessment' ?></a>
             </div>
 
             <dl class="learning-details-grid">
@@ -89,7 +84,7 @@ require_once __DIR__ . '/includes/navbar.php';
             </dl>
         </section>
 
-<section class="panel roadmap-progress-panel mt-4" aria-labelledby="profile-roadmap-title">
+<section class="panel roadmap-progress-panel" aria-labelledby="profile-roadmap-title">
             <div class="profile-section-heading">
                 <div>
                     <span class="eyebrow">KEEP MOVING FORWARD</span>
@@ -126,12 +121,12 @@ require_once __DIR__ . '/includes/navbar.php';
             <?php endif; ?>
         </section>
 
-<section class="panel achievements-panel mt-4" aria-labelledby="achievements-title">
+<section class="panel achievements-panel" aria-labelledby="achievements-title">
             <div class="achievements-heading">
                 <div>
                     <span class="eyebrow">YOUR PROGRESS</span>
                     <h2 class="h4 mb-1" id="achievements-title">Achievements</h2>
-                    <p class="text-muted mb-0">Your badges are saved to your account, so achievements you earn stay here.</p>
+                    <p class="text-muted mb-0">Badges are saved to your account.</p>
                 </div>
                 <div class="achievement-count">
                     <strong><?= count($earnedAchievements) ?></strong>
@@ -139,35 +134,33 @@ require_once __DIR__ . '/includes/navbar.php';
                 </div>
             </div>
 
-            <?php if ($earnedAchievements): ?>
-                <div class="achievement-grid">
-                    <?php foreach ($earnedAchievements as $achievement): ?>
-                        <article class="achievement-card earned">
-                            <div class="achievement-icon" aria-hidden="true"><i class="<?= e($achievement['icon']) ?>"></i></div>
-                            <div>
-                                <h3><?= e($achievement['title']) ?></h3>
-                                <p><?= e($achievement['description']) ?></p>
-                                <?php if (!empty($achievement['roadmap_title'])): ?>
-                                    <small class="achievement-roadmap">Roadmap: <?= e($achievement['roadmap_title']) ?></small>
-                                <?php endif; ?>
-                                <span class="achievement-status">✓ Earned<?= !empty($achievement['earned_at']) ? ' · ' . e(date('M j, Y', strtotime((string) $achievement['earned_at']))) : '' ?></span>
-                            </div>
-                        </article>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <div class="achievements-empty">
-                    <div class="achievement-icon" aria-hidden="true"><i class="bi bi-bullseye"></i></div>
-                    <div>
-                        <h3>No achievements yet</h3>
-                        <p>Complete activities in your learning roadmap to earn badges and track milestones.</p>
-                    </div>
-                </div>
-            <?php endif; ?>
-
-            <?php if ($hasRoadmap): ?>
-                <p class="achievement-note">Achievements update automatically as you complete activities and stages. Finishing a roadmap shows completion; it does not by itself certify professional proficiency.</p>
-            <?php endif; ?>
+            <div class="achievement-grid">
+                <?php foreach ($achievementCatalog as $code => $badge):
+                    $achievement = $earnedByTitle[$badge['title']] ?? null;
+                    $lockedGuidance = [
+                        'first_steps' => 'Complete your first learning activity.',
+                        'stage_achiever' => 'Finish your first roadmap stage.',
+                        'halfway_hero' => 'Reach halfway through your roadmap.',
+                        'roadmap_champion' => 'Complete your roadmap.',
+                        'activity_master' => 'Complete every roadmap activity.'
+                    ][$code] ?? 'Keep making progress in your roadmap.';
+                ?>
+                    <article class="achievement-card <?= $achievement ? 'earned' : 'locked' ?>">
+                        <div class="achievement-icon" aria-hidden="true"><i class="<?= e($badge['icon']) ?>"></i></div>
+                        <div>
+                            <h3><?= e($badge['title']) ?></h3>
+                            <p><?= e($achievement ? $badge['description'] : $lockedGuidance) ?></p>
+                            <?php if ($achievement && !empty($achievement['earned_at'])): ?>
+                                <span class="achievement-status">✓ Earned · <?= e(date('M j, Y', strtotime((string) $achievement['earned_at']))) ?></span>
+                            <?php elseif ($achievement): ?>
+                                <span class="achievement-status">✓ Earned</span>
+                            <?php else: ?>
+                                <span class="achievement-locked-status">Not earned yet</span>
+                            <?php endif; ?>
+                        </div>
+                    </article>
+                <?php endforeach; ?>
+            </div>
         </section>
 
     </div>

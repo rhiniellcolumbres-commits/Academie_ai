@@ -883,11 +883,13 @@ $roadmaps['Cybersecurity'] = [
 
             [
                 'Learn the meaning of confidentiality, integrity, and availability.',
-                'Learn common cybersecurity threats.',
-                'Understand the difference between vulnerabilities and threats.',
-                'Learn basic security principles.',
-                'Analyze security risks in a simple application.',
-                'Create a basic security assessment for a sample application.'
+                'Give a simple example of a confidentiality, integrity, and availability risk.',
+                'Learn the difference between an asset, threat, vulnerability, and risk.',
+                'Identify three common cybersecurity threats.',
+                'Classify sample information as public or sensitive.',
+                'List the important data assets in a simple application.',
+                'Rate one sample risk by likelihood and impact.',
+                'Write a short security assessment with one practical safeguard.'
             ],
 
             'A basic security assessment document.',
@@ -902,12 +904,14 @@ $roadmaps['Cybersecurity'] = [
             'TCP/IP, DNS, HTTP, Networking',
 
             [
-                'Learn the basics of computer networks.',
-                'Understand IP addresses and ports.',
-                'Learn how DNS works.',
-                'Understand HTTP and HTTPS.',
-                'Learn how computers communicate with web servers.',
-                'Create a diagram explaining a basic web communication process.'
+                'Identify the roles of a router, server, and client.',
+                'Explain what an IP address identifies.',
+                'Match common services to their ports.',
+                'Trace the steps in a basic DNS lookup.',
+                'Compare HTTP and HTTPS at a high level.',
+                'Draw how a browser request reaches a web server.',
+                'Mark trust boundaries on the request diagram.',
+                'List three network risks and one mitigation for each.'
             ],
 
             'A network communication diagram with explanations.',
@@ -922,12 +926,14 @@ $roadmaps['Cybersecurity'] = [
             'Linux, Windows, Processes, Permissions',
 
             [
-                'Learn the purpose of an operating system.',
-                'Set up a Linux practice environment.',
-                'Practice basic Linux terminal commands.',
-                'Learn users, groups, and file permissions.',
-                'Practice managing files and processes.',
-                'Document your Linux security practice environment.'
+                'Explain how an operating system manages applications and users.',
+                'Set up a Linux virtual machine or approved practice environment.',
+                'Practice navigating folders in the terminal.',
+                'Create and inspect a test user account.',
+                'Compare read, write, and execute permissions on sample files.',
+                'Inspect running processes in the practice environment.',
+                'Apply one safe update or account-hardening step.',
+                'Document the environment and the security settings you changed.'
             ],
 
             'A documented Linux practice environment.',
@@ -936,43 +942,25 @@ $roadmaps['Cybersecurity'] = [
         ),
 
         roadmap_stage(
-            'SECURITY',
-            'Security Fundamentals',
-            'Learn common attacks, vulnerabilities, and defensive techniques.',
-            'Malware, Phishing, Vulnerabilities, Firewalls',
+            'APPLICATION SECURITY',
+            'Threats and Web Application Security',
+            'Recognize common threats and learn safe, defensive ways to assess web application risks.',
+            'Phishing, Malware, OWASP, XSS, SQL Injection, Authentication',
 
             [
-                'Learn what malware is and how it can affect systems.',
-                'Learn how phishing attacks work.',
-                'Study common application vulnerabilities.',
-                'Learn the purpose of firewalls.',
-                'Analyze example security incidents.',
-                'Create a threat and defense analysis document.'
+                'Explain how phishing attempts try to trick users.',
+                'Describe what malware is and name a basic defense.',
+                'Review the OWASP Top 10 and choose one risk to explain.',
+                'Describe cross-site scripting using a safe example.',
+                'Describe SQL injection using a safe example.',
+                'Review how authentication and input validation reduce risk.',
+                'Inspect a deliberately vulnerable app only inside a controlled lab.',
+                'Write a short finding with its impact and a defensive fix.'
             ],
 
-            'A documented threat and defense analysis.',
+            'A short web security report describing a risk and defensive fix.',
 
-            'CISA, OWASP, Cybersecurity Fundamentals'
-        ),
-
-        roadmap_stage(
-            'WEB',
-            'Web Application Security',
-            'Understand common web vulnerabilities and secure development practices.',
-            'OWASP, XSS, SQL Injection, Authentication',
-
-            [
-                'Learn the OWASP Top 10.',
-                'Understand how input validation helps prevent attacks.',
-                'Learn the basic concept of cross-site scripting.',
-                'Learn the basic concept of SQL injection.',
-                'Study secure authentication practices.',
-                'Review a deliberately vulnerable application in a controlled lab and document the issues found.'
-            ],
-
-            'A security testing report from a controlled lab.',
-
-            'OWASP Top 10, PortSwigger Web Security Academy'
+            'OWASP Top 10, PortSwigger Web Security Academy, CISA'
         ),
 
         roadmap_stage(
@@ -983,11 +971,13 @@ $roadmaps['Cybersecurity'] = [
 
             [
                 'Choose a beginner-friendly cybersecurity lab.',
-                'Complete the lab in a controlled environment.',
-                'Document the security concept being demonstrated.',
-                'Identify the vulnerability or security weakness.',
-                'Document the appropriate defensive technique.',
-                'Organize the completed labs into a security portfolio.'
+                'Read the lab scope and rules before starting.',
+                'Set up the lab in its approved isolated environment.',
+                'Complete one beginner exercise without testing public systems.',
+                'Record the evidence that shows what happened.',
+                'Name the weakness or security concept demonstrated.',
+                'Write one practical mitigation for the issue.',
+                'Save the exercise, evidence, and mitigation as a short portfolio entry.'
             ],
 
 'A cybersecurity lab portfolio and documentation.',
@@ -1002,12 +992,14 @@ $roadmaps['Cybersecurity'] = [
             'Portfolio, Certifications, Resume, Interviews',
 
             [
-                'Organize your cybersecurity projects.',
-                'Document your completed security labs.',
-                'Create a cybersecurity portfolio.',
-                'Prepare a security-focused resume.',
-                'Review important cybersecurity concepts.',
-                'Practice common cybersecurity interview questions.'
+                'Choose two completed security exercises to present.',
+                'Write a short, clear summary for one exercise.',
+                'Explain the risk and mitigation in plain language.',
+                'Organize the summaries into a simple portfolio page.',
+                'Draft a resume section describing one relevant project.',
+                'Compare entry-level security roles and their common tasks.',
+                'Practice explaining one finding as if to a teammate.',
+                'Write a short next-steps plan for skills you want to develop.'
             ],
 
             'A cybersecurity portfolio and updated resume.',
@@ -1238,11 +1230,14 @@ $startingLevel = strtolower(trim((string)($user['current_level'] ?? 'complete be
         $milestones = $milestoneSets[$startingLevel] ?? $milestoneSets['complete beginner'];
 
 foreach ($topics as $index => $topic) {
-            $activities = array_values(array_slice(getActivities($topic['activity'] ?? []), 0, 6));
+            $activities = array_values(array_slice(getActivities($topic['activity'] ?? []), 0, ROADMAP_ACTIVITIES_PER_STAGE));
             $milestone = $milestones[min($index, count($milestones) - 1)];
 
-while (count($activities) < 6) {
-                $activities[] = 'Review the concepts from this stage and practice them in a small task.';
+while (count($activities) < ROADMAP_ACTIVITIES_PER_STAGE) {
+                $step = count($activities) + 1;
+                $activities[] = $step === 7
+                    ? 'Explain one key idea from this stage in your own words and give a simple example.'
+                    : 'Review your work from this stage, correct one mistake, and note what you learned.';
             }
 
 $insert->execute([
@@ -1253,7 +1248,7 @@ $insert->execute([
                 clean_text($topic['description'] ?? '', 1000),
                 clean_text($topic['topics'] ?? '', 1000),
                 json_encode($activities, JSON_UNESCAPED_UNICODE),
-                json_encode(array_fill(0, 6, 0), JSON_UNESCAPED_UNICODE),
+                json_encode(array_fill(0, count($activities), 0), JSON_UNESCAPED_UNICODE),
                 clean_text($topic['expected_output'] ?? '', 1000),
                 clean_text($topic['resources'] ?? '', 1000),
                 clean_text($topic['ai_why'] ?? '', 1000),

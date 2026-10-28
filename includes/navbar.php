@@ -18,10 +18,12 @@ if (!$navbarUser && isset($pdo, $_SESSION['user_id'])) {
 $navbarName = trim((string) ($navbarUser['first_name'] ?? '') . ' ' . (string) ($navbarUser['last_name'] ?? ''));
 
 $navbarTrack = trim((string) ($navbarUser['career_goal'] ?? ''));
+$navbarInitials = strtoupper(substr((string) ($navbarUser['first_name'] ?? 'S'), 0, 1) . substr((string) ($navbarUser['last_name'] ?? ''), 0, 1));
 
 ?>
 <nav class="main-navbar">
     <a href="dashboard" class="main-logo">
+        <img class="dashboard-brand-mark" src="academie-icon.png" alt="">
         <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
     </a>
 
@@ -32,13 +34,16 @@ $navbarTrack = trim((string) ($navbarUser['career_goal'] ?? ''));
     </div>
 
     <div class="navbar-account">
-        <div class="navbar-user-info">
+        <a class="navbar-user-info" href="profile" aria-label="View profile for <?= e($navbarName !== '' ? $navbarName : 'Student') ?>">
+            <span class="navbar-user-avatar" aria-hidden="true"><?= e($navbarInitials !== '' ? $navbarInitials : 'S') ?></span>
+            <span class="navbar-user-details">
             <span class="navbar-user-name"><?= e($navbarName !== '' ? $navbarName : 'Student') ?></span>
             <?php if ($navbarTrack !== ''): ?><span class="navbar-user-track"><?= e($navbarTrack) ?></span><?php endif; ?>
-        </div>
+            </span>
+        </a>
         <form action="actions/logout.php" method="post" class="d-inline">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token'] ?? '') ?>">
-            <button type="submit" class="navbar-logout">Logout</button>
+            <button type="submit" class="navbar-logout">Log out</button>
         </form>
     </div>
 </nav>

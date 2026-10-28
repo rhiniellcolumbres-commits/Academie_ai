@@ -22,7 +22,7 @@ $logoutUrl = $basePath . '/actions/logout.php';
 <nav class="public-navbar" aria-label="Main navigation">
     <div class="public-navbar-inner">
         <a href="<?= htmlspecialchars($basePath . '/', ENT_QUOTES, 'UTF-8') ?>" class="public-brand" aria-label="Academie home">
-            <span class="public-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span>
+            <img class="public-brand-icon" src="<?= htmlspecialchars($basePath . '/academie-icon.png', ENT_QUOTES, 'UTF-8') ?>" alt="">
             <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
         </a>
         <button class="public-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" aria-controls="publicNavLinks">

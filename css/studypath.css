@@ -1325,6 +1325,8 @@
 .lesson-section p { white-space: pre-line; }
 .lesson-loading { display: flex; align-items: center; gap: 12px; min-height: 110px; color: #334155; }
 .lesson-loading p { margin: 0; }
+.lesson-loading-copy { display: grid; gap: 5px; }
+.lesson-loading-copy small { color: #64748b; font-size: .9rem; line-height: 1.45; }
 .lesson-loading-icon { margin: 0; color: #4f46e5; }
 .lesson-error { margin-top: 16px; }
 .lesson-error p { margin: 0 0 12px; }
@@ -1372,4 +1374,235 @@
     .lesson-page-actions { gap: 8px; padding: 8px; }
     .lesson-page-actions a,
     .lesson-page-actions span { flex: 1; min-height: 44px; padding: 0 8px; font-size: 12px; }
+}
+.roadmap-page {
+    --roadmap-blue: #2453e6;
+    --roadmap-ink: #101d36;
+    --roadmap-muted: #60708e;
+}
+body:has(.roadmap-page) {
+    --roadmap-sidebar-width: clamp(248px, 16vw, 304px);
+    min-height: 100vh;
+    padding-left: var(--roadmap-sidebar-width);
+    background: #f3f6fb !important;
+    background-image: none !important;
+}
+body:has(.roadmap-page) .main-navbar {
+    position: fixed !important;
+    inset: 0 auto 0 0;
+    z-index: 1000;
+    display: flex !important;
+    width: var(--roadmap-sidebar-width) !important;
+    min-height: 100vh;
+    height: 100vh;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 26px;
+    padding: 24px 16px !important;
+    box-sizing: border-box !important;
+    background: #fff;
+    border: 0;
+    border-right: 1px solid #e8edf5;
+    box-shadow: none;
+}
+body:has(.roadmap-page) .main-navbar .main-logo { display: flex; align-items: center; gap: 10px; padding: 0; color: var(--roadmap-ink); font-size: 21px; }
+body:has(.roadmap-page) .dashboard-brand-mark { display: inline-flex; width: 34px; height: 34px; flex: 0 0 34px; align-items: center; justify-content: center; border-radius: 10px; background: var(--roadmap-blue); color: #fff; font-size: 17px; font-weight: 800; }
+body:has(.roadmap-page) .main-navbar .main-nav-links { display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 4px; margin: 0 !important; padding: 0; }
+body:has(.roadmap-page) .main-navbar .main-nav-links a,
+body:has(.roadmap-page) .main-navbar .main-nav-links a.active,
+body:has(.roadmap-page) .main-navbar .main-nav-links a:not(.active) { display: flex; width: 100% !important; min-width: 0 !important; min-height: 44px; align-items: center; justify-content: flex-start !important; gap: 10px; padding: 0 14px !important; border: 0; border-radius: 11px; color: #536482; font-size: 14px; font-weight: 600; text-decoration: none; }
+body:has(.roadmap-page) .main-navbar .main-nav-links a:hover,
+body:has(.roadmap-page) .main-navbar .main-nav-links a.active { color: var(--roadmap-blue); background: #e9efff; }
+body:has(.roadmap-page) .main-navbar .main-nav-links a::after { display: none !important; }
+body:has(.roadmap-page) .main-navbar .main-nav-links a i { font-size: 17px; }
+body:has(.roadmap-page) .main-navbar .navbar-account { display: flex; width: 100%; flex-direction: column; align-items: stretch; gap: 10px; margin: auto 0 0; }
+body:has(.roadmap-page) .main-navbar .navbar-user-info { width: 100%; max-width: none; padding: 12px; border-radius: 12px; background: #f3f6fb; text-align: left; }
+body:has(.roadmap-page) .main-navbar .navbar-user-name { color: var(--roadmap-ink); }
+body:has(.roadmap-page) .main-navbar .navbar-user-track { color: var(--roadmap-muted); }
+body:has(.roadmap-page) .main-navbar .navbar-logout { width: 100%; min-height: 42px; margin-left: 0; justify-content: center; border: 1px solid #e4eaf4; border-radius: 11px; color: var(--roadmap-ink); background: #fff; }
+body:has(.roadmap-page) .roadmap-container { width: 100%; max-width: none; margin: 0; padding: 42px clamp(24px, 3vw, 56px) 72px; box-sizing: border-box; }
+body:has(.roadmap-page) .roadmap-header { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin: 0 0 24px; padding: 0 !important; border: 0 !important; border-radius: 0; background: transparent; box-shadow: none !important; }
+body:has(.roadmap-page) .roadmap-header .eyebrow { margin-bottom: 7px; color: var(--roadmap-blue); font-size: 12px; letter-spacing: 1.5px; }
+body:has(.roadmap-page) .roadmap-header h1 { margin: 0 0 5px; color: var(--roadmap-ink); font-size: clamp(34px, 4vw, 42px); line-height: 1.12; letter-spacing: -1.4px; overflow-wrap: anywhere; }
+body:has(.roadmap-page) .roadmap-header p { margin: 0; color: var(--roadmap-muted); font-size: 16px; line-height: 1.5; }
+body:has(.roadmap-page) .roadmap-retake-btn { display: inline-flex; min-height: 44px; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0 18px; border: 1px solid #e5ebf4; border-radius: 12px; color: var(--roadmap-ink); background: #fff; font-size: 14px; font-weight: 700; text-decoration: none; }
+body:has(.roadmap-page) .roadmap-summary { display: block; margin: 0 0 28px; padding: 18px 24px; border: 1px solid #e5ebf4; border-radius: 18px; background: #fff; box-shadow: none; }
+body:has(.roadmap-page) .summary-progress { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 20px; }
+body:has(.roadmap-page) .roadmap-progress-copy { display: flex; align-items: center; justify-content: space-between; gap: 16px; color: var(--roadmap-muted); font-size: 14px; }
+body:has(.roadmap-page) .roadmap-progress-copy strong { color: var(--roadmap-ink); font-size: 14px; white-space: nowrap; }
+body:has(.roadmap-page) .roadmap-progress-bar { grid-column: 1; grid-row: 2; height: 8px; background: #edf1f7; }
+body:has(.roadmap-page) .roadmap-progress-bar span { background: var(--roadmap-blue); }
+body:has(.roadmap-page) .summary-progress > small { grid-column: 2; grid-row: 1 / 3; margin: 0; color: var(--roadmap-muted); font-size: 14px; white-space: nowrap; }
+body:has(.roadmap-page) .roadmap-section { margin: 0; }
+body:has(.roadmap-page) .roadmap-section-header { display: none; }
+body:has(.roadmap-page) .roadmap-timeline { padding-left: 0; }
+body:has(.roadmap-page) .roadmap-timeline::before { left: 19px; top: 28px; bottom: 28px; width: 2px; background: #dfe6f1; }
+body:has(.roadmap-page) .roadmap-stage-accordion { margin: 0 0 18px; }
+body:has(.roadmap-page) .roadmap-stage-summary { grid-template-columns: 40px minmax(0, 1fr); align-items: start; gap: 20px; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-marker { width: 40px; height: 40px; border: 0; border-radius: 50%; color: #596a86; background: #fff; box-shadow: 0 0 0 2px #e1e8f2; font-size: 14px; }
+body:has(.roadmap-page) .roadmap-stage.completed .stage-marker { color: #fff; background: var(--roadmap-blue); box-shadow: none; }
+body:has(.roadmap-page) .roadmap-stage.current .stage-marker { color: #382200; background: #f4a62a; box-shadow: none; }
+body:has(.roadmap-page) .roadmap-stage.locked .stage-marker { color: #75839a; background: #fff; box-shadow: 0 0 0 2px #e1e8f2; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-content { min-width: 0; padding: 22px 24px; border: 1px solid #e5ebf4; border-radius: 18px; background: #fff; box-shadow: none; }
+body:has(.roadmap-page) .roadmap-stage.completed .stage-content { border-color: #e5ebf4; }
+body:has(.roadmap-page) .roadmap-stage.current .stage-content { border: 1px solid #f59a18; border-bottom: 0; border-radius: 18px 18px 0 0; }
+body:has(.roadmap-page) .roadmap-stage.current:not([open]) .stage-content { border: 1px solid #f59a18; border-radius: 18px; }
+body:has(.roadmap-page) .roadmap-stage.completed[open] .stage-content { border-color: #e5ebf4; border-bottom: 0; border-radius: 18px 18px 0 0; }
+body:has(.roadmap-page) .roadmap-stage.locked .stage-content { border-color: #e5ebf4; background: #f8fafc; opacity: 1; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-top { margin-bottom: 8px; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-category { color: #536482; font-size: 11px; letter-spacing: 1px; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-status { padding: 5px 10px; border-radius: 999px; color: #5a6a83; background: #f3f6fb; font-size: 12px; font-weight: 700; }
+body:has(.roadmap-page) .roadmap-stage.completed .stage-status { color: #17603a; background: #e4f5eb; }
+body:has(.roadmap-page) .roadmap-stage.current .stage-status { color: #75440a; background: #fff3dc; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-content h2 { margin: 0; color: var(--roadmap-ink); font-size: 23px; letter-spacing: -.5px; }
+body:has(.roadmap-page) .roadmap-stage.locked .stage-content h2 { color: #596a86; }
+body:has(.roadmap-page) .roadmap-expand-hint { display: none; }
+body:has(.roadmap-page) .roadmap-stage-details { margin: 0 0 0 60px; padding: 0 24px 22px; border: 1px solid #f59a18; border-top: 0; border-radius: 0 0 18px 18px; background: #fff; }
+body:has(.roadmap-page) .roadmap-stage.completed[open] .roadmap-stage-details { border-color: #e5ebf4; border-radius: 0 0 18px 18px; }
+body:has(.roadmap-page) .roadmap-stage-details .stage-description { margin: 0 0 14px; color: var(--roadmap-muted); font-size: 15px; }
+body:has(.roadmap-page) .roadmap-stage-details .stage-hint { color: var(--roadmap-ink); }
+body:has(.roadmap-page) .roadmap-page,
+body:has(.roadmap-page) .roadmap-container,
+body:has(.roadmap-page) .roadmap-container button,
+body:has(.roadmap-page) .roadmap-container a { font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; }
+body:has(.roadmap-page) .roadmap-page { color: var(--roadmap-ink); }
+body:has(.roadmap-page) .roadmap-stage-details .ai-why-box { border: 0; border-radius: 14px; background: #e9efff; color: #233e77; }
+body:has(.roadmap-page) .roadmap-stage-details .ai-why-box p { color: #334d7f; }
+body:has(.roadmap-page) .roadmap-stage-details .activity-item { border-color: #e5ebf4; background: #fff; color: var(--roadmap-ink); }
+body:has(.roadmap-page) .roadmap-stage-details .activity-completed .activity-checkbox { border-color: var(--roadmap-blue); background: var(--roadmap-blue); }
+body:has(.roadmap-page) .roadmap-stage-details .activity-completed .activity-text { color: var(--roadmap-ink); text-decoration: none; }
+body:has(.roadmap-page) .roadmap-stage-details .read-stage-btn,
+body:has(.roadmap-page) .roadmap-stage-details .learn-activity-btn { border-color: var(--roadmap-blue); border-radius: 11px; color: #fff; background: var(--roadmap-blue); font-weight: 700; }
+body:has(.roadmap-page) .roadmap-header { margin-bottom: 22px; }
+body:has(.roadmap-page) .roadmap-summary { margin-bottom: 24px; }
+body:has(.roadmap-page) .roadmap-stage-accordion { margin-bottom: 16px; }
+body:has(.roadmap-page) .roadmap-stage-summary .stage-content { padding-block: 20px; }
+body:has(.roadmap-page) .roadmap-stage.current .roadmap-stage-summary .stage-content { padding-bottom: 18px; }
+body:has(.roadmap-page) .roadmap-stage-details { padding-top: 0; }
+@media (max-width: 900px) {
+    body:has(.roadmap-page) { --roadmap-sidebar-width: 0px; padding-left: 0; }
+    body:has(.roadmap-page) .main-navbar { position: sticky !important; inset: auto; width: 100% !important; min-height: 0; height: auto; flex-direction: row; flex-wrap: wrap; gap: 8px; padding: 12px 16px !important; border-right: 0; border-bottom: 1px solid #e8edf5; }
+    body:has(.roadmap-page) .main-navbar .main-logo { margin-right: auto; }
+    body:has(.roadmap-page) .main-navbar .main-nav-links { order: 3; width: 100%; flex-direction: row; justify-content: flex-start; gap: 5px; }
+    body:has(.roadmap-page) .main-navbar .main-nav-links a { min-height: 40px; padding: 0 10px; }
+    body:has(.roadmap-page) .main-navbar .navbar-account { display: flex; width: auto; flex-direction: row; align-items: center; gap: 0; margin: 0; }
+    body:has(.roadmap-page) .main-navbar .navbar-user-info { width: auto; padding: 4px; background: transparent; }
+    body:has(.roadmap-page) .main-navbar .navbar-logout { width: auto; min-height: 38px; padding: 0 12px; }
+    body:has(.roadmap-page) .roadmap-container { width: 100%; padding: 28px 16px 48px; }
+    body:has(.roadmap-page) .roadmap-header { align-items: flex-start; flex-direction: column; gap: 14px; }
+    body:has(.roadmap-page) .roadmap-retake-btn { min-height: 42px; }
+    body:has(.roadmap-page) .roadmap-summary { padding: 15px; }
+    body:has(.roadmap-page) .summary-progress { grid-template-columns: minmax(0, 1fr); }
+    body:has(.roadmap-page) .summary-progress > small { grid-column: 1; grid-row: 3; white-space: normal; }
+    body:has(.roadmap-page) .roadmap-progress-bar { grid-column: 1; grid-row: 2; }
+    body:has(.roadmap-page) .roadmap-stage-summary { grid-template-columns: 32px minmax(0, 1fr); gap: 10px; }
+    body:has(.roadmap-page) .roadmap-stage-summary .stage-marker { width: 32px; height: 32px; font-size: 12px; }
+    body:has(.roadmap-page) .roadmap-timeline::before { left: 15px; }
+    body:has(.roadmap-page) .roadmap-stage-summary .stage-content { padding: 16px; border-radius: 14px; }
+    body:has(.roadmap-page) .roadmap-stage.current .stage-content { border-bottom: 0; border-radius: 14px 14px 0 0; }
+    body:has(.roadmap-page) .roadmap-stage.current:not([open]) .stage-content { border-radius: 14px; }
+    body:has(.roadmap-page) .roadmap-stage.completed[open] .stage-content { border-radius: 14px 14px 0 0; }
+    body:has(.roadmap-page) .roadmap-stage.completed[open] .roadmap-stage-details { border-radius: 0 0 14px 14px; }
+    body:has(.roadmap-page) .roadmap-stage-summary .stage-content h2 { font-size: 19px; }
+    body:has(.roadmap-page) .roadmap-stage-summary .stage-top { align-items: flex-start; flex-wrap: wrap; gap: 8px; }
+    body:has(.roadmap-page) .roadmap-stage-details { margin-left: 42px; padding: 0 16px 16px; border-radius: 0 0 14px 14px; }
+}
+
+/* Lesson page learning workspace */
+body:has(.lesson-page) .lesson-page-container { width: 100%; max-width: none; min-height: 100vh; margin: 0; padding: 26px clamp(24px, 3vw, 56px) 44px; box-sizing: border-box; }
+body:has(.lesson-page) .lesson-breadcrumb { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; color: var(--roadmap-muted); font-size: 14px; }
+body:has(.lesson-page) .lesson-breadcrumb a { color: var(--roadmap-muted); text-decoration: none; }
+body:has(.lesson-page) .lesson-breadcrumb a:hover { color: var(--roadmap-blue); }
+body:has(.lesson-page) .lesson-breadcrumb strong { color: var(--roadmap-ink); }
+body:has(.lesson-page) .lesson-page-heading { margin: 0 0 24px; }
+body:has(.lesson-page) .lesson-page-heading .eyebrow { color: var(--roadmap-muted); font-size: 12px; letter-spacing: 1px; }
+body:has(.lesson-page) .lesson-page-heading h1 { margin: 5px 0 0; color: var(--roadmap-ink); font-size: clamp(30px, 3vw, 38px); letter-spacing: -.9px; }
+body:has(.lesson-page) .lesson-page-heading p { margin: 0; color: var(--roadmap-muted); }
+body:has(.lesson-page) .lesson-layout { display: grid; grid-template-columns: minmax(245px, 294px) minmax(0, 1fr); align-items: start; gap: 24px; }
+body:has(.lesson-page) .lesson-stage-sidebar,
+body:has(.lesson-page) .lesson-main-panel { border: 1px solid #e2e8f0; border-radius: 20px; background: #fff; box-shadow: 0 1px 2px rgb(16 29 54 / 3%); }
+body:has(.lesson-page) .lesson-stage-sidebar { position: sticky; top: 24px; padding: 22px 14px 18px; }
+body:has(.lesson-page) .lesson-stage-sidebar h2 { margin: 0 10px 14px; color: var(--roadmap-muted); font-size: 12px; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; }
+body:has(.lesson-page) .lesson-stage-list { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; }
+body:has(.lesson-page) .lesson-stage-list a { display: flex; min-height: 40px; align-items: center; gap: 9px; padding: 7px 9px; border-radius: 10px; color: var(--roadmap-ink); font-size: 13px; line-height: 1.3; text-decoration: none; }
+body:has(.lesson-page) .lesson-stage-list a:hover { background: #f4f7fc; }
+body:has(.lesson-page) .lesson-stage-list li.is-current a { color: var(--roadmap-blue); background: #e9efff; font-weight: 700; }
+body:has(.lesson-page) .lesson-stage-title { display: -webkit-box; min-width: 0; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; }
+body:has(.lesson-page) .lesson-list-icon { display: inline-flex; width: 21px; height: 21px; flex: 0 0 21px; align-items: center; justify-content: center; border: 1.5px solid #cbd5e1; border-radius: 50%; color: #73819a; font-size: 10px; font-weight: 700; }
+body:has(.lesson-page) .lesson-stage-list li.is-current .lesson-list-icon { border-color: var(--roadmap-blue); color: #fff; background: var(--roadmap-blue); }
+body:has(.lesson-page) .lesson-stage-list li.is-complete .lesson-list-icon { border-color: #16a34a; color: #fff; background: #16a34a; }
+body:has(.lesson-page) .lesson-stage-progress { margin: 14px 10px 0; }
+body:has(.lesson-page) .lesson-stage-progress > span { display: block; height: 6px; overflow: hidden; border-radius: 99px; background: #e5eaf2; }
+body:has(.lesson-page) .lesson-stage-progress i { display: block; height: 100%; border-radius: inherit; background: #4f46e5; }
+body:has(.lesson-page) .lesson-stage-progress small { display: block; margin-top: 8px; color: var(--roadmap-muted); font-size: 12px; }
+body:has(.lesson-page) .lesson-main-panel { display: flex; min-width: 0; min-height: min(720px, calc(100vh - 190px)); flex-direction: column; overflow: hidden; }
+body:has(.lesson-page) .lesson-loading,
+body:has(.lesson-page) .lesson-error { margin: 24px; }
+body:has(.lesson-page) .lesson-loading { flex-wrap: wrap; padding: 22px; border: 1px solid #e5ebf4; border-radius: 16px; background: #f8faff; }
+body:has(.lesson-page) .lesson-loading-icon { display: inline-flex; width: 42px; height: 42px; flex: 0 0 42px; align-items: center; justify-content: center; margin: 0; border-radius: 50%; color: var(--roadmap-blue); background: #e9efff; animation: lesson-loading-pulse 1.6s ease-in-out infinite; }
+@keyframes lesson-loading-pulse { 50% { box-shadow: 0 0 0 6px rgb(36 83 230 / 8%); } }
+body:has(.lesson-page) .lesson-page-content { min-width: 0; padding: 0 24px 8px; }
+body:has(.lesson-page) .lesson-tabs { display: flex; gap: 8px; overflow-x: auto; padding: 22px 0 16px; border-bottom: 1px solid #e6eaf0; scrollbar-width: thin; }
+body:has(.lesson-page) .lesson-tabs button { min-height: 42px; flex: 0 0 auto; padding: 0 18px; border: 0; border-radius: 999px; color: var(--roadmap-muted); background: transparent; font-size: 14px; font-weight: 500; white-space: nowrap; cursor: pointer; }
+body:has(.lesson-page) .lesson-tabs button.is-active { color: #fff; background: #4f46e5; font-weight: 700; }
+body:has(.lesson-page) .lesson-section,
+body:has(.lesson-page) .lesson-section[hidden] { margin: 0; padding: 20px 0 8px; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+body:has(.lesson-page) .lesson-section h2 { margin: 0 0 10px; color: var(--roadmap-ink); font-size: 21px; }
+body:has(.lesson-page) .lesson-section p { margin: 0; color: #26344c; font-size: 16px; line-height: 1.72; white-space: pre-line; }
+body:has(.lesson-page) .lesson-section ul { margin: 0; padding-left: 22px; color: #26344c; font-size: 15px; line-height: 1.8; }
+body:has(.lesson-page) .lesson-section pre { min-height: 150px; margin: 0; padding: 24px; border: 0; border-radius: 14px; background: #211e4d; color: #fff; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+body:has(.lesson-page) #lesson-panel-example { position: relative; }
+body:has(.lesson-page) .lesson-copy-btn { position: absolute; top: 66px; right: 14px; min-height: 34px; padding: 0 13px; border: 1px solid #514aa1; border-radius: 9px; color: #fff; background: #39337f; font-size: 12px; font-weight: 700; cursor: pointer; }
+body:has(.lesson-page) .lesson-ai-note { margin: 10px 0 16px; color: #8793a8; font-size: 13px; }
+body:has(.lesson-page) .content-feedback-card { margin: 16px 0 12px; padding: 14px 0 0; border: 0; border-top: 1px solid #edf0f5; border-radius: 0; background: transparent; box-shadow: none; }
+body:has(.lesson-page) .content-feedback-card h2 { margin: 0; color: var(--roadmap-ink); font-size: 15px; font-weight: 500; }
+body:has(.lesson-page) .content-feedback-card .feedback-rating { border: 0; border-radius: 999px; background: #f3f5f8; }
+body:has(.lesson-page) .lesson-save-message { min-height: 0; margin: 0; padding: 0 24px; color: var(--roadmap-muted); font-size: 13px; }
+body:has(.lesson-page) .lesson-page-actions { position: sticky; bottom: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin: auto 0 0; padding: 14px 24px; border: 0; border-top: 1px solid #e2e8f0; border-radius: 0; background: rgba(255,255,255,.97); box-shadow: none; backdrop-filter: blur(8px); }
+body:has(.lesson-page) .lesson-page-actions a,
+body:has(.lesson-page) .lesson-page-actions span,
+body:has(.lesson-page) .lesson-page-actions button { min-height: 46px; }
+body:has(.lesson-page) .lesson-action-secondary { border: 1px solid #dbe3ef; color: var(--roadmap-ink); background: #fff; }
+body:has(.lesson-page) .lesson-action-group { display: flex; align-items: center; gap: 12px; }
+body:has(.lesson-page) .lesson-action-group .mark-learned-btn { width: auto; min-width: 160px; margin: 0; padding: 0 18px; border: 1px solid #16a34a; border-radius: 999px; color: #16803a; background: #fff; }
+body:has(.lesson-page) .lesson-action-group .mark-learned-btn:disabled { opacity: .72; }
+body:has(.lesson-page) .lesson-action-primary { min-width: 160px; border-color: var(--roadmap-blue); border-radius: 999px; background: var(--roadmap-blue); }
+body:has(.lesson-page) .lesson-action-primary.is-complete { border-color: #b8e5ca; background: #e8f7ee; color: #166534; cursor: default; }
+body:has(.lesson-page) .lesson-congrats { display: grid; width: min(100%, 900px); grid-template-columns: 58px minmax(0, 1fr); align-items: start; gap: 16px; margin: 20px auto 16px; padding: 28px clamp(22px, 4vw, 44px); border: 1px solid #cdebd8; border-radius: 18px; background: linear-gradient(135deg, #f0fbf4, #fff 78%); text-align: left; }
+body:has(.lesson-page) .lesson-congrats[hidden] { display: none !important; }
+body:has(.lesson-page) .lesson-congrats-icon { display: grid; width: 58px; height: 58px; place-items: center; border-radius: 17px; background: #fff2d5; color: #9a5b00; font-size: 26px; }
+body:has(.lesson-page) .lesson-congrats-copy { width: 100%; min-width: 0; }
+body:has(.lesson-page) .lesson-congrats-copy .eyebrow { margin: 0 0 4px; color: #18834b; }
+body:has(.lesson-page) .lesson-congrats-copy h2 { margin: 0 0 6px; color: #14213d; font-size: clamp(1.35rem, 2.5vw, 1.75rem); letter-spacing: -.035em; }
+body:has(.lesson-page) .lesson-congrats-copy p { max-width: 650px; margin: 0; color: #536482; line-height: 1.55; }
+body:has(.lesson-page) .lesson-page-actions[hidden] { display: none !important; }
+body:has(.lesson-page) .lesson-page-actions [hidden] { display: none !important; }
+@media (max-width: 620px) { body:has(.lesson-page) .lesson-congrats { grid-template-columns: 46px minmax(0, 1fr); gap: 12px; padding: 20px 16px; } body:has(.lesson-page) .lesson-congrats-icon { width: 46px; height: 46px; border-radius: 14px; font-size: 21px; } }
+@media (max-width: 900px) {
+    body:has(.lesson-page) .lesson-layout { grid-template-columns: 230px minmax(0, 1fr); gap: 16px; }
+}
+@media (max-width: 760px) {
+    body:has(.lesson-page) .lesson-page-container { padding: 24px 16px 36px; }
+    body:has(.lesson-page) .lesson-page-heading { margin-bottom: 18px; }
+    body:has(.lesson-page) .lesson-layout { grid-template-columns: minmax(0, 1fr); }
+    body:has(.lesson-page) .lesson-stage-sidebar { position: static; padding: 16px; }
+    body:has(.lesson-page) .lesson-stage-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body:has(.lesson-page) .lesson-stage-list a { font-size: 12px; }
+    body:has(.lesson-page) .lesson-main-panel { min-height: 60vh; }
+    body:has(.lesson-page) .lesson-page-content { padding: 0 16px 6px; }
+    body:has(.lesson-page) .lesson-tabs { padding-top: 14px; }
+    body:has(.lesson-page) .lesson-tabs button { padding: 0 14px; }
+    body:has(.lesson-page) .lesson-page-actions { position: sticky; bottom: 0; gap: 8px; padding: 10px 12px; }
+    body:has(.lesson-page) .lesson-action-group { gap: 8px; }
+    body:has(.lesson-page) .lesson-action-group .mark-learned-btn,
+    body:has(.lesson-page) .lesson-action-primary { min-width: 0; padding: 0 12px; font-size: 12px; }
+    body:has(.lesson-page) .lesson-action-secondary { min-width: 0; padding: 0 12px; font-size: 12px; }
+}
+@media (max-width: 480px) {
+    body:has(.lesson-page) .lesson-stage-list { grid-template-columns: minmax(0, 1fr); }
+    body:has(.lesson-page) .lesson-page-actions { flex-wrap: wrap; }
+    body:has(.lesson-page) .lesson-page-actions > a { flex: 1 1 100%; }
+    body:has(.lesson-page) .lesson-action-group { width: 100%; }
+    body:has(.lesson-page) .lesson-action-group > * { flex: 1; justify-content: center; }
 }

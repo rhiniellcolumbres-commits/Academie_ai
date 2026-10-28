@@ -78,17 +78,14 @@ if (!$hasExistingRoadmap) {
 <main class="assessment-wrapper">
 
         <div class="assessment-intro">
-
-            <span class="eyebrow">
-                <span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span>
-            </span>
+            <span class="eyebrow assessment-eyebrow">IT CAREER ASSESSMENT</span>
 
             <h1>
-                Let's build your learning path
+                Tell us where you want to go.
             </h1>
 
             <p>
-                Discover a technology path that fits your interests, then follow an AI-generated roadmap with clear milestones from your current level toward professional readiness.
+                Four short steps. Your answers shape every stage of your roadmap.
             </p>
 
         </div>
@@ -106,22 +103,6 @@ if (!$hasExistingRoadmap) {
             </div>
         <?php endif; ?>
 
-        <?php if ($isRetake): ?>
-            <div class="assessment-retake-notice" role="alert">
-                <span class="assessment-retake-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M12 3.5 2.9 19.2a1.5 1.5 0 0 0 1.3 2.3h15.6a1.5 1.5 0 0 0 1.3-2.3L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
-                        <path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                    </svg>
-                </span>
-                <div class="assessment-retake-copy">
-                    <h2>You're updating your assessment</h2>
-                    <p>Generating a new roadmap will replace your current roadmap and reset its stage and activity progress.</p>
-                    <span class="assessment-retake-hint">Your previous answers are filled in. Review them and change anything that has changed.</span>
-                </div>
-            </div>
-        <?php endif; ?>
-
         <form
             id="assessmentForm"
             action="actions/save-assessment.php"
@@ -130,7 +111,13 @@ if (!$hasExistingRoadmap) {
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="retake_assessment" value="<?= $isRetake ? '1' : '0' ?>">
             <div class="assessment-wizard-progress" aria-live="polite" aria-label="Assessment progress">
-                <div><span id="assessmentStepLabel">Step 1 of 4</span><span id="assessmentProgressPercent">25%</span></div>
+                <ol class="assessment-stepper" aria-label="Assessment steps">
+                    <li class="is-current" data-step-indicator><span>1</span><span>Your level</span></li>
+                    <li data-step-indicator><span>2</span><span>Learning goal</span></li>
+                    <li data-step-indicator><span>3</span><span>Best-fit path</span></li>
+                    <li data-step-indicator><span>4</span><span>Interests &amp; skills</span></li>
+                </ol>
+                <div class="assessment-stepper-mobile"><span id="assessmentStepLabel">Step 1 of 4</span><strong id="assessmentProgressPercent">25%</strong></div>
                 <div class="assessment-progress-track"><span id="assessmentProgressBar" style="width:25%"></span></div>
             </div>
             <p class="assessment-step-error" id="assessmentStepError" role="alert" hidden></p>
@@ -409,6 +396,7 @@ if (!$hasExistingRoadmap) {
                         'UIUX' => 'Easy-to-use layouts, prototypes, and user experiences',
                         'AIML' => 'An intelligent tool that learns from data or recognizes patterns',
                         'GAMEDEV' => 'A playable game with mechanics and interactive worlds',
+                        'CYBER' => 'A secure system that protects people, data, and networks',
                         'SE' => 'Reliable software that solves problems using clean code'
                     ]],
                     'q_activity' => ['Which activity sounds most satisfying?', [
@@ -418,6 +406,7 @@ if (!$hasExistingRoadmap) {
                         'UIUX' => 'Sketching screens and improving how people use a product',
                         'AIML' => 'Experimenting with data, models, and predictions',
                         'GAMEDEV' => 'Programming game controls, rules, and levels',
+                        'CYBER' => 'Testing systems safely and finding ways to prevent attacks',
                         'SE' => 'Breaking down a problem and designing a maintainable solution'
                     ]],
                     'q_strength' => ['Which kind of challenge would you prefer?', [
@@ -427,6 +416,7 @@ if (!$hasExistingRoadmap) {
                         'UIUX' => 'Finding a simple, accessible solution for users',
                         'AIML' => 'Finding patterns and testing possible solutions',
                         'GAMEDEV' => 'Making gameplay fun, balanced, and smooth',
+                        'CYBER' => 'Spotting risks and choosing ways to reduce them',
                         'SE' => 'Planning, testing, and improving software quality'
                     ]],
                     'q_interest_area' => ['Which topic are you most curious to learn?', [
@@ -436,6 +426,7 @@ if (!$hasExistingRoadmap) {
                         'UIUX' => 'Design systems, wireframes, and usability',
                         'AIML' => 'Artificial intelligence, data, and machine learning',
                         'GAMEDEV' => 'Game engines, 2D/3D worlds, and game scripting',
+                        'CYBER' => 'Networks, security principles, and ethical vulnerability testing',
                         'SE' => 'Algorithms, software design, testing, and code quality'
                     ]],
                     'q_goal' => ['What would you most like to build first?', [
@@ -445,6 +436,7 @@ if (!$hasExistingRoadmap) {
                         'UIUX' => 'A clickable prototype for an app or website',
                         'AIML' => 'A small AI or data-based prediction project',
                         'GAMEDEV' => 'A small playable 2D game',
+                        'CYBER' => 'A basic security assessment using a controlled practice lab',
                         'SE' => 'A well-tested program that solves a practical problem'
                     ]]
                 ];
@@ -519,6 +511,21 @@ if (!$hasExistingRoadmap) {
 
 </form>
 
+        <?php if ($isRetake): ?>
+            <div class="assessment-retake-notice" role="alert">
+                <span class="assessment-retake-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 3.5 2.9 19.2a1.5 1.5 0 0 0 1.3 2.3h15.6a1.5 1.5 0 0 0 1.3-2.3L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
+                        <path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                    </svg>
+                </span>
+                <div class="assessment-retake-copy">
+                    <h2>Retaking the assessment?</h2>
+                    <p>Generating a new roadmap replaces your current one and resets stage and activity progress.</p>
+                </div>
+            </div>
+        <?php endif; ?>
+
     </main>
 
 <script>
@@ -539,6 +546,7 @@ if (!$hasExistingRoadmap) {
         var stepLabel = document.getElementById('assessmentStepLabel');
         var percentLabel = document.getElementById('assessmentProgressPercent');
         var progressBar = document.getElementById('assessmentProgressBar');
+        var stepIndicators = form.querySelectorAll('[data-step-indicator]');
         var errorMessage = document.getElementById('assessmentStepError');
         var activeStep = 0;
 
@@ -592,6 +600,16 @@ if (!$hasExistingRoadmap) {
             stepLabel.textContent = 'Step ' + current + ' of ' + steps.length;
             percentLabel.textContent = percent + '%';
             progressBar.style.width = percent + '%';
+            for (var indicatorIndex = 0; indicatorIndex < stepIndicators.length; indicatorIndex++) {
+                var indicator = stepIndicators[indicatorIndex];
+                indicator.classList.toggle('is-current', indicatorIndex === activeStep);
+                indicator.classList.toggle('is-complete', indicatorIndex < activeStep);
+                if (indicatorIndex === activeStep) {
+                    indicator.setAttribute('aria-current', 'step');
+                } else {
+                    indicator.removeAttribute('aria-current');
+                }
+            }
             backButton.disabled = activeStep === 0;
             nextButton.hidden = activeStep === steps.length - 1;
             submitButton.hidden = activeStep !== steps.length - 1;

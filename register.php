@@ -18,6 +18,7 @@ if (empty($_SESSION['csrf_token'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="academie-icon.png">
     <title>Create account - Academie</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -25,12 +26,13 @@ if (empty($_SESSION['csrf_token'])) {
     <link rel="stylesheet" href="css/auth.css">
 </head>
 <body class="auth-page">
-<header class="auth-topbar">
-    <a class="auth-brand" href="./" aria-label="Academie home"><span class="auth-brand-icon"><i class="bi bi-mortarboard-fill" aria-hidden="true"></i></span><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
-    <a href="login" class="btn btn-outline-primary">Log in</a>
-</header>
+<aside class="auth-side">
+    <a class="auth-brand" href="./" aria-label="Academie home"><img class="auth-brand-icon" src="academie-icon.png" alt=""><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
+    <section class="auth-pitch"><h2>Your personal IT learning path starts here.</h2><ul><li><span class="auth-step">1</span>Create your account</li><li><span class="auth-step">2</span>Take the 5 minute assessment</li><li><span class="auth-step">3</span>Get a staged roadmap with lessons</li></ul></section>
+    <p class="auth-side-note">Student project for academic purposes.</p>
+</aside>
 <main class="auth-main"><div class="auth-card wide">
-    <span class="auth-eyebrow">GET STARTED</span>
+
     <h1>Create your account</h1>
     <p class="auth-sub">Register to get your personalized learning path.</p>
     <?php if ($error): ?><div class="alert alert-danger" role="alert"><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></div><?php endif; ?>
@@ -52,7 +54,8 @@ if (empty($_SESSION['csrf_token'])) {
                 <input class="form-control" type="password" id="password" name="password" required minlength="8" pattern="(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9]).{8,}" title="Use at least 8 characters, including an uppercase letter, a number, and a special character." autocomplete="new-password" aria-describedby="password-feedback">
                 <button class="toggle-password" type="button" data-target="password" aria-label="Show password" aria-pressed="false"><i class="bi bi-eye-slash" aria-hidden="true"></i></button>
             </div>
-            <div class="auth-hint" id="password-feedback" aria-live="polite">At least 8 characters, including an uppercase letter, a number, and a special character.</div>
+            <div class="auth-requirements" aria-label="Password requirements"><span class="auth-requirement" data-rule="length">8+ characters</span><span class="auth-requirement" data-rule="uppercase">Uppercase</span><span class="auth-requirement" data-rule="number">Number</span><span class="auth-requirement" data-rule="special">Special character</span></div>
+            <div class="auth-hint" id="password-feedback" aria-live="polite"></div>
         </div>
         <div class="mb-3">
             <label for="confirm_password" class="form-label">Confirm password</label>
@@ -63,27 +66,12 @@ if (empty($_SESSION['csrf_token'])) {
             </div>
             <div class="auth-hint" id="confirm-password-feedback" aria-live="polite"></div>
         </div>
+        <p class="auth-legal">By creating an account you agree to the <a href="terms">Terms</a> and <a href="privacy">Privacy Policy</a>.</p>
         <button class="btn btn-primary w-100 auth-submit" type="submit">Create account</button>
     </form>
     <p class="auth-alt">Already registered? <a href="login">Log in</a></p>
 </div></main>
-<footer class="site-footer">
-    <div class="site-footer-inner">
-        <aside class="site-disclaimer" aria-label="Academic project disclaimer">
-            <strong>Disclaimer:</strong>
-            StudyPath AI is developed for demonstration and academic purposes as part of a student project.
-            It is not an official educational institution or professional advisory service.
-            AI-generated learning paths and study materials are provided for educational guidance only and may require verification.
-        </aside>
-        <nav class="site-footer-links" aria-label="Footer navigation">
-            <a href="privacy">Privacy Policy</a>
-            <a href="terms">Terms</a>
-            <a href="moderation">Moderation</a>
-            <a href="copyright">Copyright</a>
-        </nav>
-        <p class="site-copyright">&copy; <?= date('Y') ?> StudyPath AI</p>
-    </div>
-</footer>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 const registrationForm = document.querySelector('form[action="actions/register.php"]');
@@ -137,6 +125,12 @@ emailInput.addEventListener('input', function () {
 function validatePasswordPattern() {
     const password = passwordInput.value;
     const missing = [];
+    const rules = { length: password.length >= 8, uppercase: /[A-Z]/.test(password), number: /[0-9]/.test(password), special: /[^A-Za-z0-9]/.test(password) };
+    document.querySelectorAll('.auth-requirement').forEach(function (chip) {
+        const met = rules[chip.dataset.rule];
+        chip.classList.toggle('is-met', met);
+        chip.classList.toggle('is-missing', password.length > 0 && !met);
+    });
 
     if (password.length < 8) missing.push('at least 8 characters');
     if (!/[A-Z]/.test(password)) missing.push('an uppercase letter');
@@ -156,6 +150,7 @@ function validatePasswordPattern() {
 }
 
 passwordInput.addEventListener('input', validatePasswordPattern);
+validatePasswordPattern();
 
 // Checks that both password fields match.
 function validatePasswordMatch() {

@@ -47,7 +47,8 @@ $specializations = [
     'BACKEND' => 'Backend Development',
     'UIUX' => 'UI/UX Design',
     'AIML' => 'AI & Machine Learning',
-    'GAMEDEV' => 'Game Development'
+    'GAMEDEV' => 'Game Development',
+    'CYBER' => 'Cybersecurity'
 ];
 
 $questionFields = ['q_interest', 'q_activity', 'q_strength', 'q_interest_area', 'q_goal'];
