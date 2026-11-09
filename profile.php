@@ -38,6 +38,20 @@ $displayName = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? '
 $initials    = strtoupper(substr((string) ($user['first_name'] ?? 'S'), 0, 1) . substr((string) ($user['last_name'] ?? ''), 0, 1));
 
 $learningTrack = trim((string) ($user['career_goal'] ?? ''));
+$assessmentData = json_decode((string) ($user['assessment_answers'] ?? ''), true);
+$domainScores = is_array($assessmentData) && ($assessmentData['type'] ?? '') === 'knowledge_pretest'
+    ? (array) ($assessmentData['domain_scores'] ?? [])
+    : [];
+$nextFocus = '';
+if ($domainScores) {
+    asort($domainScores);
+    $weakestDomain = (string) array_key_first($domainScores);
+    $nextFocus = 'Strengthen your ' . strtolower($weakestDomain) . ' foundations, then apply them in practical projects.';
+} elseif ($hasAssessment) {
+    $nextFocus = 'Follow your roadmap stages to build knowledge and apply it through practical projects.';
+} else {
+    $nextFocus = 'Take the knowledge pre-test to find a suitable starting point and roadmap.';
+}
 
 $createdAt = $user['created_at'] ?? null;
 
@@ -69,19 +83,20 @@ require_once __DIR__ . '/includes/navbar.php';
             <div class="profile-section-heading">
                 <div>
                     <span class="eyebrow">YOUR LEARNING PLAN</span>
-                    <h2 class="h4 mb-1" id="learning-profile-title">Learning Profile</h2>
-                    <p class="text-muted mb-0">Your goals and interests shape your roadmap.</p>
+                    <h2 class="h4 mb-1" id="learning-profile-title">Your Learning Snapshot</h2>
+                    <p class="text-muted mb-0">A quick summary of your recommended direction and next focus.</p>
                 </div>
-                <a class="btn btn-outline-primary btn-sm" href="assessment<?= $hasAssessment ? '?retake=1' : '' ?>"><?= $hasAssessment ? 'Update assessment' : 'Complete Assessment' ?></a>
             </div>
 
-            <dl class="learning-details-grid">
-                <div class="learning-detail"><dt>Career goal</dt><dd><?= e($user['career_goal'] ?: 'Not provided') ?></dd></div>
-                <div class="learning-detail"><dt>Current level</dt><dd><?= e($user['current_level'] ?: 'Not provided') ?></dd></div>
-                <div class="learning-detail"><dt>Improvement goal</dt><dd><?= e($user['improvement_goal'] ?: 'Not provided') ?></dd></div>
-                <div class="learning-detail"><dt>Interests</dt><dd><?= e($user['interests'] ?: 'Not provided') ?></dd></div>
-                <div class="learning-detail"><dt>Skills</dt><dd><?= e($user['skills'] ?: 'Not provided') ?></dd></div>
+            <dl class="learning-details-grid learning-snapshot-grid">
+                <div class="learning-detail"><dt>Recommended path</dt><dd><?= e($learningTrack !== '' ? $learningTrack : 'Not set yet') ?></dd></div>
+                <div class="learning-detail"><dt>Starting point</dt><dd><?= e($user['current_level'] ?: 'Not assessed yet') ?></dd></div>
+                <div class="learning-detail"><dt>Your next focus</dt><dd><?= e($nextFocus) ?></dd></div>
             </dl>
+            <div class="learning-snapshot-actions">
+                <?php if ($hasRoadmap): ?><a class="btn btn-primary btn-sm" href="roadmap">View my roadmap</a><?php endif; ?>
+                <a class="btn btn-outline-primary btn-sm" href="assessment<?= $hasAssessment ? '?retake=1' : '' ?>"><?= $hasAssessment ? 'Retake pre-test' : 'Take pre-test' ?></a>
+            </div>
         </section>
 
 <section class="panel roadmap-progress-panel" aria-labelledby="profile-roadmap-title">
@@ -110,11 +125,11 @@ require_once __DIR__ . '/includes/navbar.php';
                     <div class="achievement-icon" aria-hidden="true"><i class="bi bi-signpost-split"></i></div>
                     <div>
                         <h3>No roadmap progress yet</h3>
-                        <p>Complete your assessment to create a personalized roadmap and start tracking your progress.</p>
+                        <p>Complete the knowledge pre-test to create a personalized roadmap and start tracking your progress.</p>
                         <?php if ($hasAssessment): ?>
                             <a class="btn btn-dark btn-sm mt-2" href="roadmap">View Roadmap</a>
                         <?php else: ?>
-                            <a class="btn btn-dark btn-sm mt-2" href="assessment">Start Assessment</a>
+                            <a class="btn btn-dark btn-sm mt-2" href="assessment">Take pre-test</a>
                         <?php endif; ?>
                     </div>
                 </div>

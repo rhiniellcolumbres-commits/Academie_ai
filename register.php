@@ -28,7 +28,7 @@ if (empty($_SESSION['csrf_token'])) {
 <body class="auth-page">
 <aside class="auth-side">
     <a class="auth-brand" href="./" aria-label="Academie home"><img class="auth-brand-icon" src="academie-icon.png" alt=""><span class="brand-name"><span class="brand-acad">Acad</span><span class="brand-amie">emie</span></span></a>
-    <section class="auth-pitch"><h2>Your personal IT learning path starts here.</h2><ul><li><span class="auth-step">1</span>Create your account</li><li><span class="auth-step">2</span>Take the 5 minute assessment</li><li><span class="auth-step">3</span>Get a staged roadmap with lessons</li></ul></section>
+    <section class="auth-pitch"><h2>Your personal IT learning path starts here.</h2><ul><li><span class="auth-step">1</span>Create your account</li><li><span class="auth-step">2</span>Take the knowledge pre-test</li><li><span class="auth-step">3</span>Get a staged roadmap with lessons</li></ul></section>
     <p class="auth-side-note">Student project for academic purposes.</p>
 </aside>
 <main class="auth-main"><div class="auth-card wide">

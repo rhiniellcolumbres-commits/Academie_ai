@@ -40,22 +40,31 @@ $alternativeRecommendations = [];
 if (!empty($assessment['assessment_answers'])) {
     
     $savedAssessmentAnswers = json_decode($assessment['assessment_answers'], true);
-    $savedScores = $savedAssessmentAnswers['scores'] ?? [];
+    $savedScores = $savedAssessmentAnswers['domain_scores'] ?? $savedAssessmentAnswers['scores'] ?? [];
     
     $savedLabels = [
+        'Software Engineering / Core Developer' => 'Software Engineering / Core Developer',
+        'Full-Stack Development' => 'Full-Stack Development',
+        'Frontend Web Development' => 'Frontend Web Development',
+        'Backend Development' => 'Backend Development',
+        'UI/UX Design' => 'UI/UX Design',
+        'Game Development' => 'Game Development',
+        'Cybersecurity' => 'Cybersecurity',
         'SE' => 'Software Engineering / Core Developer',
         'FULLSTACK' => 'Full-Stack Development',
         'FRONTEND' => 'Frontend Web Development',
         'BACKEND' => 'Backend Development',
         'UIUX' => 'UI/UX Design',
-        'AIML' => 'AI & Machine Learning',
         'GAMEDEV' => 'Game Development'
     ];
     if (is_array($savedScores)) {
-        
         arsort($savedScores);
-        
+        $isPretestScores = ($savedAssessmentAnswers['type'] ?? '') === 'knowledge_pretest';
+        $highestScore = $isPretestScores && $savedScores ? reset($savedScores) : null;
         foreach ($savedScores as $code => $score) {
+            if ($isPretestScores && ((int)$highestScore === 0 || $score !== $highestScore)) {
+                break;
+            }
             if (isset($savedLabels[$code]) && $savedLabels[$code] !== ($assessment['career_goal'] ?? '')) {
                 $alternativeRecommendations[] = $savedLabels[$code];
             }
@@ -167,7 +176,7 @@ $latestAchievementIcon = trim((string)($latestAchievement['icon'] ?? '')) ?: 'bi
 
             <p>
                 Keep learning, complete your roadmap,
-                and work toward your career goal.
+                and follow your recommended technology path.
             </p>
 
         </div>
@@ -181,22 +190,8 @@ $latestAchievementIcon = trim((string)($latestAchievement['icon'] ?? '')) ?: 'bi
 
         <div class="dashboard-success">
 
-            Your learning assessment has been saved.
+            Your knowledge pre-test has been saved.
             Your personalized study path is ready!
-
-        </div>
-
-    <?php endif; ?>
-
-<?php if (
-        isset($_GET['success']) &&
-        $_GET['success'] === 'career_changed'
-    ): ?>
-
-        <div class="dashboard-success">
-
-            Your career goal has been changed.
-            Your new personalized roadmap is ready!
 
         </div>
 
@@ -204,7 +199,7 @@ $latestAchievementIcon = trim((string)($latestAchievement['icon'] ?? '')) ?: 'bi
 
     <?php if (isset($_GET['notice']) && $_GET['notice'] === 'assessment_exists'): ?>
         <div class="alert alert-info mt-3" role="alert">
-            You already have a learning roadmap. Use <strong>Retake Assessment</strong> if you want to create a new one.
+            You already have a learning roadmap. Retake the <strong>knowledge pre-test</strong> to create a new one.
         </div>
     <?php endif; ?>
 
@@ -218,12 +213,12 @@ $latestAchievementIcon = trim((string)($latestAchievement['icon'] ?? '')) ?: 'bi
             <p><?= e($currentStage['description'] ?? ('Your personalized path toward becoming a ' . $assessment['career_goal'] . '.')) ?></p>
             <div class="dashboard-learning-actions">
                 <a href="roadmap" class="dashboard-primary-btn">Continue learning <span aria-hidden="true">→</span></a>
-                <a href="assessment?retake=1" class="assessment-retake-link" onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake assessment</a>
+                <a href="assessment?retake=1" class="assessment-retake-link" onclick="return confirm('Retake the knowledge pre-test? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake pre-test</a>
             </div>
         <?php else: ?>
             <h2>Start your learning journey</h2>
-            <p>Complete your assessment to create a personalized learning roadmap.</p>
-            <div class="dashboard-learning-actions"><a href="assessment" class="dashboard-primary-btn">Take assessment <span aria-hidden="true">→</span></a></div>
+            <p>Complete the knowledge pre-test to get a personalized learning roadmap.</p>
+            <div class="dashboard-learning-actions"><a href="assessment" class="dashboard-primary-btn">Take pre-test <span aria-hidden="true">→</span></a></div>
         <?php endif; ?>
         <?php if (!empty($alternativeRecommendations)): ?>
             <p class="alternative-paths">Other paths to explore: <?= e(implode(' · ', $alternativeRecommendations)) ?></p>
@@ -266,18 +261,18 @@ $latestAchievementIcon = trim((string)($latestAchievement['icon'] ?? '')) ?: 'bi
     <?php elseif ($total > 0): ?>
         <div class="next-activities-card"><h3>Roadmap completed!</h3><p>Congratulations! You have completed your learning path.</p><a href="roadmap" class="dashboard-primary-btn">Review roadmap →</a></div>
     <?php else: ?>
-        <div class="next-activities-card"><h3>No roadmap yet</h3><p>Complete your assessment to generate a personalized study path.</p><a href="assessment" class="dashboard-primary-btn">Take assessment →</a></div>
+        <div class="next-activities-card"><h3>No roadmap yet</h3><p>Complete the knowledge pre-test to generate a personalized study path.</p><a href="assessment" class="dashboard-primary-btn">Take pre-test →</a></div>
     <?php endif; ?>
 </section>
 
 <aside class="dashboard-side-cards">
     <?php if (!empty($assessment['career_goal'])): ?>
         <section class="assessment-summary">
-            <span class="eyebrow">YOUR ASSESSMENT</span>
+            <span class="eyebrow">YOUR PRE-TEST RESULTS</span>
             <h2><?= e($assessment['career_goal']) ?></h2>
-            <div class="assessment-detail"><span>Level</span><strong><?= e($assessment['current_level'] ?? 'Not specified') ?></strong></div>
-            <div class="assessment-detail"><span>Goal</span><strong><?= e($assessment['improvement_goal'] ?? 'Not specified') ?></strong></div>
-            <a href="assessment?retake=1" class="assessment-retake-link" onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake assessment</a>
+            <div class="assessment-detail"><span>Starting point</span><strong><?= e($assessment['current_level'] ?? 'Not specified') ?></strong></div>
+            <div class="assessment-detail"><span>Learning focus</span><strong><?= e($assessment['improvement_goal'] ?? 'Not specified') ?></strong></div>
+            <a href="assessment?retake=1" class="assessment-retake-link" onclick="return confirm('Retake your knowledge pre-test? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake pre-test</a>
         </section>
     <?php endif; ?>
     <section class="latest-badge-card">

@@ -98,32 +98,30 @@ function ai_roadmap_schema()
 function ai_build_roadmap_prompt($user)
 {
     
-    $level = trim((string)($user['current_level'] ?? 'Beginner'));
-    $goal = trim((string)($user['improvement_goal'] ?? 'Improve My Skills'));
     $career = trim((string)($user['career_goal'] ?? ''));
-    $interests = trim((string)($user['interests'] ?? ''));
-    $skills = trim((string)($user['skills'] ?? ''));
+    $assessmentData = json_decode((string)($user['assessment_answers'] ?? ''), true);
+    $knowledgeProfile = is_array($assessmentData) && ($assessmentData['type'] ?? '') === 'knowledge_pretest'
+        ? 'Pre-test score: ' . (int)($assessmentData['score'] ?? 0) . '/' . (int)($assessmentData['total'] ?? 15)
+            . "\nKnowledge by domain (correct answers): " . json_encode($assessmentData['domain_scores'] ?? [], JSON_UNESCAPED_UNICODE)
+            . "\nRecommended domain: " . trim((string)($assessmentData['recommended_domain'] ?? ''))
+        : 'No knowledge pre-test data available.';
 
 return "You are Academie, an academic study-roadmap planner for college students.
 
 Create a practical and personalized learning roadmap for this student.
 
-The roadmap must match the student's current level, interests, existing skills, improvement goal, and recommended technology career path. Do not require or assume a college course or degree.
-
-The student may belong to ANY academic discipline. Do not assume the student is an IT student.
+The roadmap must match the student's assessed knowledge and recommended technology career path. Treat pre-test results as the primary evidence for the starting point. Do not require or assume a college course or degree.
 
 Student profile:
 
-Current level: {$level}
-Improvement goal: {$goal}
-Career goal: {$career}
-Interests: {$interests}
-Existing skills: {$skills}
+Recommended technology path: {$career}
+Knowledge pre-test: {$knowledgeProfile}
 
 Rules:
 
 - Generate exactly 6 ordered stages that form a clear progression toward professional readiness.
-- Start at the student's self-reported current level; do not force an advanced learner to repeat beginner material.
+- Start at the level supported by the student's pre-test score and domain results; do not force a knowledgeable learner to repeat material they have demonstrated.
+- Use weaker pre-test domains to identify foundations to strengthen, and use stronger domains to move into appropriate applied work.
 - For a complete beginner, cover foundations first; then progress through beginner practice, intermediate projects, advanced real-world work, and a professional-ready capstone.
 - Use each stage as a milestone with a clear level label in category (for example FOUNDATION, BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL).
 - Each stage must have a specific achievement title and a measurable expected_output that proves what the student can do after finishing it.
@@ -133,6 +131,7 @@ Rules:
 - Every stage must contain 5 to 7 concise topics.
 - Every stage must contain exactly 8 practical activities, ordered from a small first step to a slightly more involved application.
 - Keep each activity focused and achievable in one short learning session; split broad tasks into smaller steps instead of combining multiple skills.
+- When an activity includes an example, make it specific and descriptive: explain the situation, the task the learner should try, and what a successful result could look like. For example, instead of “Build a login form,” say “Build a login form with email and password fields, show a helpful message when either field is empty, and check that valid input reaches the next screen.” Avoid examples that only name a project or tool.
 - Include a mix of guided practice, independent practice, and a small application or reflection. Avoid filler and repeated activities.
 - Activities must be realistic things a college student can practice, complete, or produce.
 - expected_output must describe a concrete result the student can demonstrate.
@@ -440,9 +439,6 @@ function ai_activity_lesson($user, $topic, $activity)
 
 $level = trim((string)($user['current_level'] ?? 'Beginner'));
     $career = trim((string)($user['career_goal'] ?? ''));
-    $goal = trim((string)($user['improvement_goal'] ?? ''));
-    $interests = trim((string)($user['interests'] ?? ''));
-    $skills = trim((string)($user['skills'] ?? ''));
     $stageTitle = trim((string)($topic['title'] ?? ''));
     $stageTopics = trim((string)($topic['topics'] ?? ''));
     $stageDescription = trim((string)($topic['description'] ?? ''));
@@ -451,10 +447,7 @@ $prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-sp
         . "Create a complete lesson that teaches the learner the knowledge needed for this exact activity. Do not merely rephrase the activity. Never give generic filler such as 'break the task into steps' without teaching the actual subject.\n\n"
         . "LEARNER PROFILE\n"
         . "Current level: {$level}\n"
-        . "Career or learning goal: {$career}\n"
-        . "Improvement goal: {$goal}\n"
-        . "Interests: {$interests}\n"
-        . "Existing skills: {$skills}\n\n"
+        . "Recommended technology path: {$career}\n\n"
         . "LEARNING CONTEXT\n"
         . "Stage: {$stageTitle}\n"
         . "Stage description: {$stageDescription}\n"
@@ -462,7 +455,7 @@ $prompt = "You are Academie, an AI tutor that creates useful, accurate, topic-sp
         . "Exact activity: {$activity}\n\n"
         . "Return these five sections as JSON fields:\n\n"
         . "1. lesson: Write approximately 120-180 words in plain text, split into readable paragraphs. Start with a clear definition or introduction. Explain the main ideas and important terms, why the concept matters, and the key steps or reasoning the learner should follow. Include one useful tip or common mistake. Match the student's level and teach the actual topic. Do not include the Example or Practice section here.\n\n"
-        . "2. example: Give one concise, specific worked example related to the activity. For programming or technical topics, include a small correct code example and state its expected result. For other subjects, give a realistic worked example.\n\n"
+        . "2. example: Give one specific worked example related to the activity, with enough explanation for the learner to understand what it does and why it works. Write about 100-160 words total. For programming or technical topics, show a small, correct, readable code example using real line breaks; explain what the important lines do in plain language, then describe the expected result and why it occurs. Do not compress the code into one long line. For other subjects, walk through a realistic example step by step and explain the reasoning and outcome.\n\n"
         . "3. practice: Give one focused hands-on task with clear requirements and a short description of what the result should demonstrate.\n\n"
         . "4. checklist: Provide exactly 3 specific self-check questions or statements about this activity. Avoid generic checks.\n\n"
         . "5. resources: Provide 2 real, relevant resource names, preferring official documentation, educational sites, or well-known textbooks. Do not invent URLs.\n\n"
@@ -497,7 +490,7 @@ if (empty($result['success'])) {
     $resources = ai_clean_string_list($data['resources'] ?? []);
 
 if ((function_exists('mb_strlen') ? mb_strlen($lesson) : strlen($lesson)) < 400
-        || (function_exists('mb_strlen') ? mb_strlen($example) : strlen($example)) < 40
+        || (function_exists('mb_strlen') ? mb_strlen($example) : strlen($example)) < 120
         || (function_exists('mb_strlen') ? mb_strlen($practice) : strlen($practice)) < 40
         || count($checklist) < 3 || count($resources) < 2) {
         return [

@@ -39,8 +39,7 @@ function getUserById($pdo, $userId)
             a.career_goal,
             a.current_level,
             a.improvement_goal,
-            a.interests,
-            a.skills,
+            a.assessment_answers,
             a.id AS assessment_id
          FROM users u
          LEFT JOIN assessments a ON a.user_id = u.id
@@ -51,6 +50,28 @@ function getUserById($pdo, $userId)
 $stmt->execute([$userId]);
 
 return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
+// Shared source of truth for the knowledge pre-test shown to users and scored on submission.
+function getKnowledgePretestQuestions()
+{
+    return [
+        ['question' => 'What is an algorithm?', 'domain' => 'Software Engineering / Core Developer', 'correct' => 2, 'choices' => ['A programming language used only for websites', 'A computer part that stores files', 'A defined sequence of steps for solving a problem', 'A visual design for an application']],
+        ['question' => 'What is the main purpose of version control tools such as Git?', 'domain' => 'Software Engineering / Core Developer', 'correct' => 0, 'choices' => ['Track code changes and help developers collaborate', 'Automatically guarantee software has no bugs', 'Design interface colors', 'Increase a computer’s internet speed']],
+        ['question' => 'What makes an application full-stack?', 'domain' => 'Full-Stack Development', 'correct' => 3, 'choices' => ['It only runs on a mobile phone', 'It uses more than one programming language', 'It stores all information in a spreadsheet', 'It includes the user interface, server logic, and data storage']],
+        ['question' => 'In a full-stack web app, what is a common role of an API?', 'domain' => 'Full-Stack Development', 'correct' => 1, 'choices' => ['Control the page’s font size', 'Let the frontend request or send data to the backend', 'Replace the need to validate user input', 'Store images directly inside CSS']],
+        ['question' => 'What does semantic HTML primarily provide?', 'domain' => 'Frontend Web Development', 'correct' => 2, 'choices' => ['Database relationships', 'Server-side authentication', 'Meaningful structure for page content', 'A faster internet connection']],
+        ['question' => 'What do CSS media queries help a page do?', 'domain' => 'Frontend Web Development', 'correct' => 0, 'choices' => ['Adapt styles to screen or device conditions', 'Save user records to a database', 'Send requests to an API', 'Compile JavaScript into HTML']],
+        ['question' => 'What is a common purpose of a backend API endpoint?', 'domain' => 'Backend Development', 'correct' => 1, 'choices' => ['Choose the color palette for a page', 'Receive a request, process it, and return a response', 'Resize images in the browser only', 'Replace the need for application logic']],
+        ['question' => 'Why use a parameterized SQL query with user input?', 'domain' => 'Backend Development', 'correct' => 3, 'choices' => ['To make every query run without a database', 'To turn SQL into a visual design', 'To automatically create a mobile layout', 'To separate input values from query instructions and reduce injection risk']],
+        ['question' => 'What is a wireframe mainly used for?', 'domain' => 'UI/UX Design', 'correct' => 0, 'choices' => ['Planning the structure and placement of interface elements', 'Testing server performance', 'Training a machine-learning model', 'Tracking code changes']],
+        ['question' => 'What is a useful way to find usability problems?', 'domain' => 'UI/UX Design', 'correct' => 2, 'choices' => ['Add more features before observing users', 'Ask users whether they like the logo only', 'Observe users completing a task and note where they struggle', 'Hide navigation to test memory']],
+        ['question' => 'What does a game loop commonly do?', 'domain' => 'Game Development', 'correct' => 2, 'choices' => ['Run a database backup once', 'Design a website wireframe', 'Repeatedly process input, update game state, and render a frame', 'Train a model on labeled images']],
+        ['question' => 'What is collision detection used for in a game?', 'domain' => 'Game Development', 'correct' => 1, 'choices' => ['Choose a character’s color palette', 'Determine when game objects touch or overlap', 'Save source-code history', 'Compress audio files']],
+        ['question' => 'What does the security principle of least privilege mean?', 'domain' => 'Cybersecurity', 'correct' => 0, 'choices' => ['Give each account only the access needed for its tasks', 'Give every account administrator access', 'Share one password among the team', 'Disable updates to avoid changes']],
+        ['question' => 'What is a useful way to check that a program handles different situations?', 'domain' => null, 'correct' => 1, 'choices' => ['Run it once with a typical input', 'Test typical, boundary, and unexpected inputs', 'Change the code after each run without recording results', 'Assume every input will behave the same']],
+        ['question' => 'What is the safest response to a suspicious sign-in link?', 'domain' => 'Cybersecurity', 'correct' => 3, 'choices' => ['Open it in a private browser window', 'Enter a test password to inspect it', 'Forward it to coworkers to test', 'Avoid the link and verify through a trusted official channel']]
+    ];
 }
 
 // Trims text and limits its length before saving.
@@ -730,149 +751,6 @@ roadmap_stage(
 
     ];
 
-$roadmaps['Data Analyst'] = [
-
-        roadmap_stage(
-            'FOUNDATION',
-            'Data Fundamentals',
-            'Understand data, data types, spreadsheets, and basic analytical thinking.',
-            'Data Types, Excel, Google Sheets, Data Concepts',
-
-            [
-                'Learn what data is and why organizations use it.',
-                'Learn the difference between qualitative and quantitative data.',
-                'Practice organizing information in a spreadsheet.',
-                'Calculate totals, averages, percentages, and basic statistics.',
-                'Create simple tables and charts from sample data.',
-                'Complete a small spreadsheet analysis using a sample dataset.'
-            ],
-
-            'A spreadsheet demonstrating basic data analysis.',
-
-            'Microsoft Excel Training, Google Sheets Training, Data Analysis Basics'
-        ),
-
-        roadmap_stage(
-            'SQL',
-            'SQL & Databases',
-            'Learn how to retrieve, filter, and analyze data from databases.',
-            'SQL, MySQL, Queries, Joins',
-
-            [
-                'Learn database tables, rows, columns, and primary keys.',
-                'Practice SELECT statements.',
-                'Practice filtering and sorting data.',
-                'Learn GROUP BY and aggregate functions.',
-                'Learn how SQL JOIN operations work.',
-                'Write SQL queries that answer practical data questions.'
-            ],
-
-            'A collection of SQL queries that answer practical questions.',
-
-            'SQLBolt, MySQL Documentation, W3Schools SQL'
-        ),
-
-        roadmap_stage(
-            'PYTHON',
-            'Python for Data Analysis',
-            'Use Python to work with and analyze datasets.',
-            'Python, Pandas, DataFrames',
-
-            [
-                'Learn Python variables and basic data types.',
-                'Practice Python lists, dictionaries, and functions.',
-                'Learn how to install and use data analysis libraries.',
-                'Load a dataset using Pandas.',
-                'Filter and manipulate DataFrame data.',
-                'Perform a basic analysis using Python and Pandas.'
-            ],
-
-            'A Python notebook containing data analysis.',
-
-            'Python Documentation, Pandas Documentation, Kaggle Learn'
-        ),
-
-        roadmap_stage(
-            'CLEANING',
-            'Data Cleaning',
-            'Learn how to prepare datasets and handle missing or incorrect information.',
-            'Data Cleaning, Missing Data, Transformation',
-
-            [
-                'Inspect a dataset for missing information.',
-                'Identify duplicate records.',
-                'Find inconsistent values and formatting.',
-                'Practice handling missing values.',
-                'Transform data into a consistent format.',
-                'Create a cleaned dataset and document the changes made.'
-            ],
-
-            'A cleaned and documented dataset.',
-
-            'Pandas Documentation, Kaggle Learn'
-        ),
-
-        roadmap_stage(
-            'VISUALIZATION',
-            'Data Visualization',
-            'Create visualizations that communicate useful information clearly.',
-            'Charts, Dashboards, Visualization',
-
-            [
-                'Learn when to use different chart types.',
-                'Create basic charts from a dataset.',
-                'Practice labeling charts correctly.',
-                'Learn how dashboards organize information.',
-                'Create a dashboard containing useful metrics.',
-                'Present important insights using your visualizations.'
-            ],
-
-            'A data visualization dashboard.',
-
-            'Power BI Learning, Tableau Learning, Matplotlib Documentation'
-        ),
-
-        roadmap_stage(
-            'PROJECT',
-            'Data Analysis Project',
-            'Complete a real-world data analysis project and present your findings.',
-            'Dataset, Analysis, Dashboard, Presentation',
-
-            [
-                'Choose a public dataset.',
-                'Define questions that you want the data to answer.',
-                'Clean and prepare the dataset.',
-                'Analyze the dataset using SQL or Python.',
-                'Create charts or a dashboard showing your findings.',
-                'Write and present a short report explaining the results.'
-            ],
-
-            'A complete data analysis project and presentation.',
-
-            'Kaggle, Power BI, GitHub'
-        ),
-
-        roadmap_stage(
-            'CAREER',
-            'Become Job Ready',
-            'Build a data portfolio and prepare for data analyst opportunities.',
-            'Portfolio, Resume, GitHub, Interviews',
-
-            [
-                'Organize your data analysis projects.',
-                'Document your strongest projects.',
-                'Create a data analyst portfolio.',
-                'Prepare a resume focused on analytical skills.',
-                'Practice explaining your analysis and findings.',
-                'Practice common data analyst interview questions.'
-            ],
-
-            'A data analyst portfolio and professional resume.',
-
-            'GitHub, Data Analyst Resume Guide, Interview Preparation'
-        )
-    ];
-
 $roadmaps['Cybersecurity'] = [
 
         roadmap_stage(
@@ -1014,12 +892,39 @@ $careerAliases = [
         'Frontend Web Development' => 'Frontend Developer',
         'Backend Development' => 'Backend Developer',
         'UI/UX Design' => 'Frontend Developer',
-        'AI & Machine Learning' => 'Data Analyst',
         'Game Development' => 'Backend Developer'
     ];
     $roadmapKey = $careerAliases[$career] ?? $career;
     $topics = $roadmaps[$roadmapKey]
         ?? $roadmaps['Frontend Developer'];
+
+    $pretest = json_decode((string)($user['assessment_answers'] ?? ''), true);
+    if (is_array($pretest) && ($pretest['type'] ?? '') === 'knowledge_pretest') {
+        $domainScores = (array)($pretest['domain_scores'] ?? []);
+        $validDomains = [
+            'Software Engineering / Core Developer',
+            'Full-Stack Development',
+            'Frontend Web Development',
+            'Backend Development',
+            'UI/UX Design',
+            'Game Development',
+            'Cybersecurity'
+        ];
+        $domainScores = array_intersect_key($domainScores, array_flip($validDomains));
+        if ($domainScores) {
+            $lowestScore = min($domainScores);
+            $focusDomains = array_keys(array_filter($domainScores, function ($domainScore) use ($lowestScore) {
+                return (int)$domainScore === (int)$lowestScore;
+            }));
+
+            if ($lowestScore < 2) {
+                $topics[0]['description'] .= ' Your pre-test showed that ' . implode(', ', $focusDomains)
+                    . ' needs extra practice, so strengthen those foundations as you work through this stage.';
+            } else {
+                $topics[0]['description'] .= ' You answered every pre-test question correctly. Use this stage as a quick review and focus on applying the concepts in later projects.';
+            }
+        }
+    }
 
 if (
         $level === 'Complete Beginner'
@@ -1079,7 +984,7 @@ if ($level === 'Advanced') {
         unset($topic);
     }
 
-if ($goal === 'Build Real Projects') {
+if ($goal === 'Build Practical Experience') {
 
         foreach ($topics as &$topic) {
 
@@ -1096,34 +1001,6 @@ if ($goal === 'Build Real Projects') {
             unset($activity);
 
             $topic['activity'] = $activities;
-        }
-
-        unset($topic);
-    }
-
-if ($goal === 'Prepare for a Job') {
-
-        foreach ($topics as &$topic) {
-
-            if (
-                $topic['category'] === 'PROJECT'
-                || $topic['category'] === 'CAREER'
-            ) {
-
-                $activities = getActivities(
-                    $topic['activity']
-                );
-
-                foreach ($activities as &$activity) {
-
-                    $activity .=
-                        ' Make sure the result is portfolio-ready and can be discussed during an interview.';
-                }
-                        
-                unset($activity);
-
-                $topic['activity'] = $activities;
-            }
         }
 
         unset($topic);

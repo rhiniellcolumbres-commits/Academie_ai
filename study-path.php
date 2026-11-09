@@ -149,7 +149,7 @@ require_once __DIR__ . '/includes/header.php';
         <p>Finish each stage to unlock the next.</p>
     </div>
     <?php if (!empty($topics)): ?>
-        <a href="assessment?retake=1" class="roadmap-retake-btn" onclick="return confirm('Retake your assessment? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake assessment</a>
+        <a href="assessment?retake=1" class="roadmap-retake-btn" onclick="return confirm('Retake the knowledge pre-test? Generating a new roadmap will replace your current roadmap and reset its stage and activity progress. This cannot be undone.');">Retake pre-test</a>
     <?php endif; ?>
 </section>
 
@@ -166,7 +166,7 @@ require_once __DIR__ . '/includes/header.php';
                 </h2>
 
                 <p>
-                    Complete your assessment so Academie can create
+                    Complete the knowledge pre-test so Academie can create
                     your personalized learning path.
                 </p>
 
@@ -174,7 +174,7 @@ require_once __DIR__ . '/includes/header.php';
                     href="assessment"
                     class="roadmap-primary-btn"
                 >
-                    Take Assessment →
+                    Take pre-test →
                 </a>
 
             </section>

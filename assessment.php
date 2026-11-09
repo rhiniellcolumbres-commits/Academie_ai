@@ -1,675 +1,131 @@
 <?php
-
 require_once __DIR__ . '/includes/auth.php';
-
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/functions.php';
 
 $user = getUserById($pdo, $_SESSION['user_id']);
-
 if (!$user) {
     session_destroy();
     header('Location: ./');
     exit;
 }
 
-$savedLevel = $user['current_level'] ?? '';
-$savedGoal = $user['improvement_goal'] ?? '';
-
-$assessmentStmt = $pdo->prepare(
-    'SELECT * FROM assessments WHERE user_id = ? LIMIT 1'
-);
-
-$assessmentStmt->execute([(int) $_SESSION['user_id']]);
-
-$savedAssessment = $assessmentStmt->fetch(PDO::FETCH_ASSOC) ?: [];
-
-$savedAnswerData = json_decode((string) ($savedAssessment['assessment_answers'] ?? ''), true);
-
-$savedQuestionAnswers = is_array($savedAnswerData['answers'] ?? null)
-    ? $savedAnswerData['answers']
-    : [];
-
-$roadmapStmt = $pdo->prepare(
-    'SELECT id FROM study_paths WHERE user_id = ? LIMIT 1'
-);
-
+$roadmapStmt = $pdo->prepare('SELECT id FROM study_paths WHERE user_id = ? LIMIT 1');
 $roadmapStmt->execute([(int) $_SESSION['user_id']]);
-
 $hasExistingRoadmap = (bool) $roadmapStmt->fetchColumn();
-
 $isRetake = isset($_GET['retake']) && $_GET['retake'] === '1';
+$pending = $_SESSION['pending_assessment'] ?? null;
+$isChoosingPath = false;
+if (is_array($pending) && (int)($pending['user_id'] ?? 0) === (int)$_SESSION['user_id']) {
+    $isChoosingPath = true;
+}
+if ($hasExistingRoadmap && !$isRetake) redirect('dashboard?notice=assessment_exists');
+if (!$hasExistingRoadmap) $isRetake = false;
 
-if ($hasExistingRoadmap && !$isRetake) {
-    redirect('dashboard?notice=assessment_exists');
+$quiz = getKnowledgePretestQuestions();
+if (isset($_GET['error'])) {
+    $errorMessages = [
+        'csrf' => 'Your session expired. Refresh the page and try again.',
+        'save' => 'We could not save the new roadmap. Please try again.',
+        'choice' => 'Choose one of your matched paths before continuing.',
+        'invalid' => 'Please answer every pre-test question.'
+    ];
+    $error = $errorMessages[$_GET['error']] ?? 'We could not process your request. Please try again.';
 }
 
-if (!$hasExistingRoadmap) {
-    $isRetake = false;
+if ($isChoosingPath) {
+    $introEyebrow = 'YOUR PRE-TEST RESULTS';
+    $introHeading = 'Choose a matched technology path.';
+    $score = (int)($pending['assessment']['assessment_answers']['score'] ?? 0);
+    $scoreTotal = (int)($pending['assessment']['assessment_answers']['total'] ?? count($quiz));
+    $introDescription = 'You scored ' . $score . ' / ' . $scoreTotal . '. Your results match several paths equally, so choose the roadmap you want to follow.';
+    $matchedPaths = is_array($pending['top_domains'] ?? null) ? $pending['top_domains'] : [];
+    $matchedScores = is_array($pending['assessment']['assessment_answers']['domain_scores'] ?? null)
+        ? $pending['assessment']['assessment_answers']['domain_scores']
+        : [];
+} else {
+    $introEyebrow = 'KNOWLEDGE PRE-TEST';
+    $introHeading = 'Show us what you know.';
+    $introDescription = 'Answer these ' . count($quiz)
+        . ' questions. Your results help the AI choose a starting level and recommend a technology path and learning roadmap that fit your knowledge.';
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
-
-    <title>Assessment | Academie</title>
-
-    <link
-        rel="stylesheet"
-        href="css/main.css"
-    >
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Pre-test | Academie</title>
+    <link rel="stylesheet" href="css/main.css">
 </head>
-
 <body class="assessment-page">
-
 <?php require __DIR__ . '/includes/navbar.php'; ?>
-
 <main class="assessment-wrapper">
-
-        <div class="assessment-intro">
-            <span class="eyebrow assessment-eyebrow">IT CAREER ASSESSMENT</span>
-
-            <h1>
-                Tell us where you want to go.
-            </h1>
-
-            <p>
-                Four short steps. Your answers shape every stage of your roadmap.
-            </p>
-
-        </div>
-
-<?php if (isset($_GET['error'])):
-    $assessmentErrorMessage = 'Please complete all assessment questions.';
-    if ($_GET['error'] === 'csrf') {
-        $assessmentErrorMessage = 'Your session expired. Refresh the page and try again.';
-    } elseif ($_GET['error'] === 'save') {
-        $assessmentErrorMessage = 'We could not save the new roadmap. Reload the page and check your saved answers before trying again.';
-    }
-?>
-            <div class="alert alert-warning text-center mb-4">
-                <?= e($assessmentErrorMessage) ?>
+    <div class="assessment-intro">
+        <span class="eyebrow assessment-eyebrow"><?= e($introEyebrow) ?></span>
+        <h1><?= e($introHeading) ?></h1>
+        <p><?= e($introDescription) ?></p>
+    </div>
+    <?php if (isset($error)): ?>
+        <div class="alert alert-warning text-center mb-4" role="alert"><?= e($error) ?></div>
+    <?php endif; ?>
+    <?php if ($isRetake): ?>
+        <div class="assessment-retake-notice" role="alert">
+            <div class="assessment-retake-copy">
+                <h2>Retaking the pre-test?</h2>
+                <p>Generating a new roadmap replaces your current one and resets stage and activity progress.</p>
             </div>
-        <?php endif; ?>
-
-        <form
-            id="assessmentForm"
-            action="actions/save-assessment.php"
-            method="POST"
-        >
+        </div>
+    <?php endif; ?>
+    <?php if ($isChoosingPath): ?>
+        <form id="assessmentForm" action="actions/save-assessment.php" method="POST">
             <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
             <input type="hidden" name="retake_assessment" value="<?= $isRetake ? '1' : '0' ?>">
-            <div class="assessment-wizard-progress" aria-live="polite" aria-label="Assessment progress">
-                <ol class="assessment-stepper" aria-label="Assessment steps">
-                    <li class="is-current" data-step-indicator><span>1</span><span>Your level</span></li>
-                    <li data-step-indicator><span>2</span><span>Learning goal</span></li>
-                    <li data-step-indicator><span>3</span><span>Best-fit path</span></li>
-                    <li data-step-indicator><span>4</span><span>Interests &amp; skills</span></li>
-                </ol>
-                <div class="assessment-stepper-mobile"><span id="assessmentStepLabel">Step 1 of 4</span><strong id="assessmentProgressPercent">25%</strong></div>
-                <div class="assessment-progress-track"><span id="assessmentProgressBar" style="width:25%"></span></div>
-            </div>
-            <p class="assessment-step-error" id="assessmentStepError" role="alert" hidden></p>
-
-<section class="assessment-section assessment-step" data-assessment-step>
-
-                <div class="assessment-section-header">
-
-                    <span class="question-number">
-                        01
-                    </span>
-
-                    <div>
-
-                        <h2>
-                            What's your current level?
-                        </h2>
-
-                        <p>
-                            Choose your current skill level. The AI will use this to decide where your roadmap should begin.
-                        </p>
-
-                    </div>
-
+            <input type="hidden" name="choose_path" value="1">
+            <section class="assessment-section path-question">
+                <div class="path-question-heading"><h3>Your equally matched paths</h3><span class="path-single-choice">Choose one</span></div>
+                <div class="assessment-options path-choice-grid">
+                    <?php foreach ($matchedPaths as $path): ?>
+                        <label class="assessment-option path-choice">
+                            <input type="radio" name="selected_path" value="<?= e($path) ?>" required>
+                            <span class="option-content"><strong><?= e($path) ?></strong><small><?= (int)($matchedScores[$path] ?? 0) ?> of 2 topic questions correct</small></span>
+                        </label>
+                    <?php endforeach; ?>
                 </div>
-
-<div class="assessment-options">
-
-<label class="assessment-option">
-
-                        <input
-                            type="radio"
-                            name="current_level"
-                            value="Complete Beginner"
-                            required <?= $savedLevel === 'Complete Beginner' ? 'checked' : '' ?>
-                        >
-
-                        <span class="option-content">
-
-                            <strong>
-                                Complete Beginner
-                            </strong>
-
-                            <small>
-                                I'm new to technology and don't know
-                                where to start.
-                            </small>
-
-                        </span>
-
-                    </label>
-
-<label class="assessment-option">
-
-                        <input
-                            type="radio"
-                            name="current_level"
-                            value="Beginner" <?= $savedLevel === 'Beginner' ? 'checked' : '' ?>
-                        >
-
-                        <span class="option-content">
-
-                            <strong>
-                                Beginner
-                            </strong>
-
-                            <small>
-                                I know some basics but still need
-                                guidance.
-                            </small>
-
-                        </span>
-
-                    </label>
-
-<label class="assessment-option">
-
-                        <input
-                            type="radio"
-                            name="current_level"
-                            value="Intermediate" <?= $savedLevel === 'Intermediate' ? 'checked' : '' ?>
-                        >
-
-                        <span class="option-content">
-
-                            <strong>
-                                Intermediate
-                            </strong>
-
-                            <small>
-                                I understand the fundamentals and
-                                have some practical experience.
-                            </small>
-
-                        </span>
-
-                    </label>
-
-<label class="assessment-option">
-
-                        <input
-                            type="radio"
-                            name="current_level"
-                            value="Advanced" <?= $savedLevel === 'Advanced' ? 'checked' : '' ?>
-                        >
-
-                        <span class="option-content">
-
-                            <strong>
-                                Advanced
-                            </strong>
-
-                            <small>
-                                I already have strong knowledge and
-                                want to improve further.
-                            </small>
-
-                        </span>
-
-                    </label>
-
-</div>
-
             </section>
-
-<section class="assessment-section assessment-step" data-assessment-step>
-
-    <div class="assessment-section-header">
-
-        <span class="question-number">
-            02
-        </span>
-
-        <div>
-
-            <h2>
-                What do you want to improve or achieve?
-            </h2>
-
-            <p>
-                Choose the main reason you want to learn.
-            </p>
-
-        </div>
-
-    </div>
-
-<div class="assessment-options">
-
-<label class="assessment-option">
-
-            <input
-                type="radio"
-                name="improvement_goal"
-                value="Learn the Fundamentals"
-                required <?= $savedGoal === 'Learn the Fundamentals' ? 'checked' : '' ?>
-            >
-
-            <span class="option-content">
-
-                <strong>
-                    Learn the Fundamentals
-                </strong>
-
-                <small>
-                    Build a strong foundation before moving
-                    to more advanced topics.
-                </small>
-
-            </span>
-
-        </label>
-
-<label class="assessment-option">
-
-            <input
-                type="radio"
-                name="improvement_goal"
-                value="Improve My Skills" <?= $savedGoal === 'Improve My Skills' ? 'checked' : '' ?>
-            >
-
-            <span class="option-content">
-
-                <strong>
-                    Improve My Skills
-                </strong>
-
-                <small>
-                    Strengthen what I already know and develop
-                    better skills and techniques.
-                </small>
-
-            </span>
-
-        </label>
-
-<label class="assessment-option">
-
-            <input
-                type="radio"
-                name="improvement_goal"
-                value="Build Practical Experience" <?= $savedGoal === 'Build Practical Experience' ? 'checked' : '' ?>
-            >
-
-            <span class="option-content">
-
-                <strong>
-                    Build Practical Experience
-                </strong>
-
-                <small>
-                    Learn by applying knowledge to practical
-                    tasks, activities, or projects.
-                </small>
-
-            </span>
-
-        </label>
-
-<label class="assessment-option">
-
-            <input
-                type="radio"
-                name="improvement_goal"
-                value="Prepare for a Career" <?= $savedGoal === 'Prepare for a Career' ? 'checked' : '' ?>
-            >
-
-            <span class="option-content">
-
-                <strong>
-                    Prepare for a Career
-                </strong>
-
-                <small>
-                    Develop the knowledge and skills needed
-                    for my future career.
-                </small>
-
-            </span>
-
-        </label>
-
-<label class="assessment-option">
-
-            <input
-                type="radio"
-                name="improvement_goal"
-                value="Prepare for Further Studies" <?= $savedGoal === 'Prepare for Further Studies' ? 'checked' : '' ?>
-            >
-
-            <span class="option-content">
-
-                <strong>
-                    Prepare for Further Studies
-                </strong>
-
-                <small>
-                    Strengthen my knowledge for advanced
-                    study or specialization.
-                </small>
-
-            </span>
-
-        </label>
-
-</div>
-
-</section>
-
-<?php
-                $assessmentQuestions = [
-                    'q_interest' => ['What would you most enjoy creating?', [
-                        'FULLSTACK' => 'A complete website or application, from screen to database',
-                        'FRONTEND' => 'An attractive, interactive website that people use',
-                        'BACKEND' => 'The server, database, and logic behind an application',
-                        'UIUX' => 'Easy-to-use layouts, prototypes, and user experiences',
-                        'AIML' => 'An intelligent tool that learns from data or recognizes patterns',
-                        'GAMEDEV' => 'A playable game with mechanics and interactive worlds',
-                        'CYBER' => 'A secure system that protects people, data, and networks',
-                        'SE' => 'Reliable software that solves problems using clean code'
-                    ]],
-                    'q_activity' => ['Which activity sounds most satisfying?', [
-                        'FULLSTACK' => 'Connecting a user interface, API, and database',
-                        'FRONTEND' => 'Building page layouts and interactive features',
-                        'BACKEND' => 'Designing APIs, data structures, and application logic',
-                        'UIUX' => 'Sketching screens and improving how people use a product',
-                        'AIML' => 'Experimenting with data, models, and predictions',
-                        'GAMEDEV' => 'Programming game controls, rules, and levels',
-                        'CYBER' => 'Testing systems safely and finding ways to prevent attacks',
-                        'SE' => 'Breaking down a problem and designing a maintainable solution'
-                    ]],
-                    'q_strength' => ['Which kind of challenge would you prefer?', [
-                        'FULLSTACK' => 'Making all parts of an application work together',
-                        'FRONTEND' => 'Making a website responsive and visually clear',
-                        'BACKEND' => 'Making data processing secure and efficient',
-                        'UIUX' => 'Finding a simple, accessible solution for users',
-                        'AIML' => 'Finding patterns and testing possible solutions',
-                        'GAMEDEV' => 'Making gameplay fun, balanced, and smooth',
-                        'CYBER' => 'Spotting risks and choosing ways to reduce them',
-                        'SE' => 'Planning, testing, and improving software quality'
-                    ]],
-                    'q_interest_area' => ['Which topic are you most curious to learn?', [
-                        'FULLSTACK' => 'Frontend, backend, and databases together',
-                        'FRONTEND' => 'HTML, CSS, JavaScript, and web interfaces',
-                        'BACKEND' => 'Programming logic, SQL, servers, and REST APIs',
-                        'UIUX' => 'Design systems, wireframes, and usability',
-                        'AIML' => 'Artificial intelligence, data, and machine learning',
-                        'GAMEDEV' => 'Game engines, 2D/3D worlds, and game scripting',
-                        'CYBER' => 'Networks, security principles, and ethical vulnerability testing',
-                        'SE' => 'Algorithms, software design, testing, and code quality'
-                    ]],
-                    'q_goal' => ['What would you most like to build first?', [
-                        'FULLSTACK' => 'A complete web app with login and saved data',
-                        'FRONTEND' => 'A polished portfolio or interactive website',
-                        'BACKEND' => 'A secure API connected to a database',
-                        'UIUX' => 'A clickable prototype for an app or website',
-                        'AIML' => 'A small AI or data-based prediction project',
-                        'GAMEDEV' => 'A small playable 2D game',
-                        'CYBER' => 'A basic security assessment using a controlled practice lab',
-                        'SE' => 'A well-tested program that solves a practical problem'
-                    ]]
-                ];
-                ?>
-                <section class="assessment-section assessment-step path-question" data-assessment-step>
-                    <div class="assessment-section-header">
-                        <span class="question-number">03</span>
-                        <div>
-                            <h2>Discover your best-fit technology</h2>
-                            <p>Answer these five questions based on what interests you. Your choices help us recommend a technology specialization and shape your roadmap.</p>
-                        </div>
-                    </div>
-
-                    <?php
-                    $questionIndex = 0;
-                    foreach ($assessmentQuestions as $field => $question):
-                        $questionIndex++;
-                    ?>
+            <div class="assessment-actions assessment-submit-actions">
+                <button type="submit" class="assessment-start">Generate my roadmap →</button>
+            </div>
+        </form>
+    <?php else: ?>
+        <form id="assessmentForm" action="actions/save-assessment.php" method="POST">
+            <input type="hidden" name="csrf_token" value="<?= e(csrf_token()) ?>">
+            <input type="hidden" name="retake_assessment" value="<?= $isRetake ? '1' : '0' ?>">
+            <section class="assessment-section path-question">
+                <?php foreach ($quiz as $index => $item): $field = 'pretest_' . ($index + 1); ?>
                     <div class="path-question-item">
                         <div class="path-question-heading">
-                            <span class="path-question-number"><?= sprintf('%02d', $questionIndex) ?></span>
-                            <h3><?= e($question[0]) ?></h3>
+                            <span class="path-question-number"><?= sprintf('%02d', $index + 1) ?></span>
+                            <h3><?= e($item['question']) ?></h3>
                             <span class="path-single-choice">Choose one</span>
                         </div>
                         <div class="assessment-options path-choice-grid">
-                            <?php foreach ($question[1] as $code => $label): ?>
-                            <label class="assessment-option path-choice">
-                                <input type="radio" name="<?= e($field) ?>" value="<?= e($code) ?>" required <?= (($savedQuestionAnswers[$field] ?? '') === $code) ? 'checked' : '' ?>>
-                                <span class="option-content"><strong><?= e($label) ?></strong></span>
-                            </label>
+                            <?php foreach ($item['choices'] as $choice => $label): ?>
+                                <label class="assessment-option path-choice">
+                                    <input type="radio" name="<?= e($field) ?>" value="<?= $choice ?>" required>
+                                    <span class="option-content"><strong><?= e($label) ?></strong></span>
+                                </label>
                             <?php endforeach; ?>
                         </div>
                     </div>
-                    <?php endforeach; ?>
-                </section>
-
-<section class="assessment-section assessment-step" data-assessment-step>
-
-                <div class="assessment-section-header">
-
-                    <span class="question-number">
-                        04
-                    </span>
-
-                    <div>
-                        <h2>Personalize your IT roadmap</h2>
-                        <p>Share the IT topics you want to explore and the technical skills you already have. These optional details help tailor your learning steps.</p>
-                    </div>
-
-                </div>
-
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label" for="interests">IT interests</label>
-                        <textarea class="form-control" id="interests" name="interests" rows="4" placeholder="e.g. web development, cybersecurity, networking, data, or AI"><?= e($user['interests'] ?? '') ?></textarea>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label" for="skills">IT skills you already have</label>
-                        <textarea class="form-control" id="skills" name="skills" rows="4" placeholder="e.g. HTML/CSS, Python, SQL, troubleshooting, or computer hardware"><?= e($user['skills'] ?? '') ?></textarea>
-                    </div>
-                </div>
-
+                <?php endforeach; ?>
             </section>
-
-<div class="assessment-actions assessment-wizard-actions">
-                <button type="button" class="assessment-back" id="assessmentBackBtn" disabled>← Previous</button>
-                <button type="button" class="assessment-start" id="assessmentNextBtn">Next →</button>
-                <button type="submit" class="assessment-start" id="assessmentSubmitBtn" hidden>
-                    <?= $isRetake ? 'Generate New Roadmap →' : 'Generate My Roadmap →' ?>
-                </button>
+            <div class="assessment-actions assessment-submit-actions">
+                <button type="submit" class="assessment-start"><?= $isRetake ? 'Retake pre-test &amp; generate roadmap →' : 'Finish pre-test &amp; recommend my roadmap →' ?></button>
             </div>
-
-</form>
-
-        <?php if ($isRetake): ?>
-            <div class="assessment-retake-notice" role="alert">
-                <span class="assessment-retake-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M12 3.5 2.9 19.2a1.5 1.5 0 0 0 1.3 2.3h15.6a1.5 1.5 0 0 0 1.3-2.3L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" />
-                        <path d="M12 9v5m0 3h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-                    </svg>
-                </span>
-                <div class="assessment-retake-copy">
-                    <h2>Retaking the assessment?</h2>
-                    <p>Generating a new roadmap replaces your current one and resets stage and activity progress.</p>
-                </div>
-            </div>
-        <?php endif; ?>
-
-    </main>
-
-<script>
-
-    // Initializes the assessment wizard after its form elements are loaded.
-    document.addEventListener('DOMContentLoaded', function () {
-
-        var form = document.getElementById('assessmentForm');
-
-        if (!form) {
-            return;
-        }
-
-        var steps = form.querySelectorAll('[data-assessment-step]');
-        var backButton = document.getElementById('assessmentBackBtn');
-        var nextButton = document.getElementById('assessmentNextBtn');
-        var submitButton = document.getElementById('assessmentSubmitBtn');
-        var stepLabel = document.getElementById('assessmentStepLabel');
-        var percentLabel = document.getElementById('assessmentProgressPercent');
-        var progressBar = document.getElementById('assessmentProgressBar');
-        var stepIndicators = form.querySelectorAll('[data-step-indicator]');
-        var errorMessage = document.getElementById('assessmentStepError');
-        var activeStep = 0;
-
-        // Finds the first unanswered required question in a step.
-        function firstUnansweredRadio(step) {
-            var radios = step.querySelectorAll('input[type="radio"][required]');
-            var checkedGroups = {};
-
-            for (var i = 0; i < radios.length; i++) {
-                var radio = radios[i];
-
-                if (!checkedGroups[radio.name]) {
-                    checkedGroups[radio.name] = true;
-
-                    if (!step.querySelector('input[name="' + radio.name + '"]:checked')) {
-                        return radio;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        // Checks whether all required questions in a step are answered.
-        function stepIsComplete(step) {
-            return firstUnansweredRadio(step) === null;
-        }
-
-        // Returns the validation message for an assessment step.
-        function getErrorText(step) {
-            if (step.classList.contains('path-question')) {
-                return 'Please answer all five questions before continuing.';
-            }
-            return 'Choose an answer before continuing.';
-        }
-
-        // Displays the current assessment step and progress.
-        function renderStep() {
-            for (var i = 0; i < steps.length; i++) {
-                if (i === activeStep) {
-                    steps[i].hidden = false;
-                    steps[i].classList.add('active');
-                } else {
-                    steps[i].hidden = true;
-                    steps[i].classList.remove('active');
-                }
-            }
-
-            var current = activeStep + 1;
-            var percent = Math.round((current / steps.length) * 100);
-            stepLabel.textContent = 'Step ' + current + ' of ' + steps.length;
-            percentLabel.textContent = percent + '%';
-            progressBar.style.width = percent + '%';
-            for (var indicatorIndex = 0; indicatorIndex < stepIndicators.length; indicatorIndex++) {
-                var indicator = stepIndicators[indicatorIndex];
-                indicator.classList.toggle('is-current', indicatorIndex === activeStep);
-                indicator.classList.toggle('is-complete', indicatorIndex < activeStep);
-                if (indicatorIndex === activeStep) {
-                    indicator.setAttribute('aria-current', 'step');
-                } else {
-                    indicator.removeAttribute('aria-current');
-                }
-            }
-            backButton.disabled = activeStep === 0;
-            nextButton.hidden = activeStep === steps.length - 1;
-            submitButton.hidden = activeStep !== steps.length - 1;
-            errorMessage.hidden = true;
-        }
-
-        // Validates the current step before advancing to the next one.
-        nextButton.addEventListener('click', function () {
-            if (!stepIsComplete(steps[activeStep])) {
-                errorMessage.textContent = getErrorText(steps[activeStep]);
-                errorMessage.hidden = false;
-                var firstUnanswered = firstUnansweredRadio(steps[activeStep]);
-                if (firstUnanswered) firstUnanswered.focus();
-                return;
-            }
-            if (activeStep < steps.length - 1) {
-                activeStep++;
-                renderStep();
-            }
-        });
-
-        // Returns to the previous assessment step.
-        backButton.addEventListener('click', function () {
-            if (activeStep > 0) {
-                activeStep--;
-                renderStep();
-            }
-        });
-
-        // Prevents submission until all assessment steps are complete.
-        form.addEventListener('submit', function (event) {
-            var incompleteIndex = -1;
-            for (var i = 0; i < steps.length; i++) {
-                if (!stepIsComplete(steps[i])) {
-                    incompleteIndex = i;
-                    break;
-                }
-            }
-
-            if (incompleteIndex !== -1) {
-                event.preventDefault();
-                activeStep = incompleteIndex;
-                renderStep();
-                errorMessage.textContent = getErrorText(steps[incompleteIndex]);
-                errorMessage.hidden = false;
-                var firstUnanswered = firstUnansweredRadio(steps[incompleteIndex]);
-                if (firstUnanswered) firstUnanswered.focus();
-            }
-        });
-
-        for (var i = 0; i < steps.length; i++) {
-            if (!stepIsComplete(steps[i])) {
-                activeStep = i;
-                break;
-            }
-        }
-        renderStep();
-
-    });
-
-</script>
-
+        </form>
+    <?php endif; ?>
+</main>
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
+</body>
+</html>

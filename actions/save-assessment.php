@@ -1,260 +1,165 @@
 <?php
-
 require_once __DIR__ . '/../includes/bootstrap.php';
-
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/functions.php';
 require_once __DIR__ . '/../includes/audit.php';
 
-if (!isset($_SESSION['user_id'])) {
-    
-    redirect('../');
-}
-
+if (!isset($_SESSION['user_id'])) redirect('../');
 require_post();
 
-if (!csrf_valid($_POST['csrf_token'] ?? null)) {
-    redirect('../assessment?retake=1&error=csrf');
-}
-
 $userId = (int) $_SESSION['user_id'];
+$retakeRequested = ($_POST['retake_assessment'] ?? '') === '1';
+if (!csrf_valid($_POST['csrf_token'] ?? null)) {
+    redirect('../assessment?' . ($retakeRequested ? 'retake=1&' : '') . 'error=csrf');
+}
 
-$existingRoadmapStmt = $pdo->prepare(
-    'SELECT id FROM study_paths WHERE user_id = ? LIMIT 1'
-);
+$existingRoadmapStmt = $pdo->prepare('SELECT id FROM study_paths WHERE user_id = ? LIMIT 1');
 $existingRoadmapStmt->execute([$userId]);
-
 $hasExistingRoadmap = (bool) $existingRoadmapStmt->fetchColumn();
+if ($hasExistingRoadmap && !$retakeRequested) redirect('../dashboard?notice=assessment_exists');
 
-if ($hasExistingRoadmap && ($_POST['retake_assessment'] ?? '') !== '1') {
-    redirect('../dashboard?notice=assessment_exists');
-}
-
-$currentLevel = clean_text(
-    $_POST['current_level'] ?? '',
-    50
-);
-
-$improvementGoal = clean_text(
-    $_POST['improvement_goal'] ?? '',
-    150
-);
-
-$specializations = [
-    'SE' => 'Software Engineering / Core Developer',
-    'FULLSTACK' => 'Full-Stack Development',
-    'FRONTEND' => 'Frontend Web Development',
-    'BACKEND' => 'Backend Development',
-    'UIUX' => 'UI/UX Design',
-    'AIML' => 'AI & Machine Learning',
-    'GAMEDEV' => 'Game Development',
-    'CYBER' => 'Cybersecurity'
-];
-
-$questionFields = ['q_interest', 'q_activity', 'q_strength', 'q_interest_area', 'q_goal'];
-
-$scores = array_fill_keys(array_keys($specializations), 0);
-
-$answers = [];
-
-foreach ($questionFields as $field) {
-    $answer = clean_text($_POST[$field] ?? '', 20);
-    if (!array_key_exists($answer, $specializations)) {
-        redirect('../assessment?error=invalid');
+$isChoosingPath = ($_POST['choose_path'] ?? '') === '1';
+if ($isChoosingPath) {
+    $pending = $_SESSION['pending_assessment'] ?? null;
+    if (!is_array($pending) || (int)($pending['user_id'] ?? 0) !== $userId || !is_array($pending['assessment'] ?? null)) {
+        redirect('../assessment?' . ($retakeRequested ? 'retake=1&' : '') . 'error=invalid');
     }
-    $scores[$answer]++;
-    $answers[$field] = $answer;
-}
 
-arsort($scores);
+    $retakeRequested = !empty($pending['retake']);
+    if ($hasExistingRoadmap && !$retakeRequested) redirect('../dashboard?notice=assessment_exists');
 
-$topScore = reset($scores);
+    $assessmentData = $pending['assessment'];
+    $selectedPath = clean_text($_POST['selected_path'] ?? '', 150);
+    $matchedPaths = $pending['top_domains'] ?? [];
+    if (!is_array($matchedPaths) || !in_array($selectedPath, $matchedPaths, true)) {
+        redirect('../assessment?choose_path=1&' . ($retakeRequested ? 'retake=1&' : '') . 'error=choice');
+    }
 
-// Keeps the career choices tied for the highest assessment score.
-$topMatches = array_keys(array_filter($scores, function ($score) use ($topScore) {
-    return $score === $topScore;
-}));
+    $assessmentData['career_goal'] = $selectedPath;
+    $assessmentData['assessment_answers']['selected_path'] = $selectedPath;
+    $assessmentData['assessment_answers']['recommended_label'] = $selectedPath;
+} else {
+    unset($_SESSION['pending_assessment']);
+    $questions = getKnowledgePretestQuestions();
+    $answers = [];
+    $domainScores = [];
+    $score = 0;
 
-$careerCode = $answers['q_interest'];
+    foreach ($questions as $index => $question) {
+        $field = 'pretest_' . ($index + 1);
+        $answer = filter_var($_POST[$field] ?? null, FILTER_VALIDATE_INT);
+        if ($answer === false || $answer === null || !array_key_exists($answer, $question['choices'])) {
+            redirect('../assessment?' . ($retakeRequested ? 'retake=1&' : '') . 'error=invalid');
+        }
 
-if (!in_array($careerCode, $topMatches, true)) {
-    foreach ($answers as $answer) {
-        if (in_array($answer, $topMatches, true)) {
-            $careerCode = $answer;
-            break;
+        $answers[$field] = $answer;
+        $isCorrect = $answer === $question['correct'];
+        if (!empty($question['domain'])) {
+            $domainScores[$question['domain']] = ($domainScores[$question['domain']] ?? 0) + ($isCorrect ? 1 : 0);
+        }
+        $score += $isCorrect ? 1 : 0;
+    }
+
+    arsort($domainScores);
+    $highestDomainScore = max($domainScores);
+    $topDomains = [];
+    foreach ($domainScores as $domain => $domainScore) {
+        if ($domainScore === $highestDomainScore) {
+            $topDomains[] = $domain;
         }
     }
+
+    // Convert the overall score into a starting level and learning focus.
+    if ($score <= 4) {
+        $currentLevel = 'Complete Beginner';
+    } elseif ($score <= 8) {
+        $currentLevel = 'Beginner';
+    } elseif ($score <= 12) {
+        $currentLevel = 'Intermediate';
+    } else {
+        $currentLevel = 'Advanced';
+    }
+
+    if ($score <= 5) {
+        $improvementGoal = 'Learn the Fundamentals';
+    } elseif ($score <= 10) {
+        $improvementGoal = 'Improve My Skills';
+    } else {
+        $improvementGoal = 'Build Practical Experience';
+    }
+
+    $recommendedPath = count($topDomains) === 1 ? $topDomains[0] : null;
+    $assessmentData = [
+        'current_level' => $currentLevel,
+        'improvement_goal' => $improvementGoal,
+        'career_goal' => $recommendedPath ?? '',
+        'assessment_answers' => [
+            'type' => 'knowledge_pretest',
+            'answers' => $answers,
+            'score' => $score,
+            'total' => count($questions),
+            'domain_scores' => $domainScores,
+            'recommended_domain' => $recommendedPath ?? implode(', ', $topDomains),
+            'recommended_label' => $recommendedPath
+        ]
+    ];
+
+    if (count($topDomains) > 1) {
+        $_SESSION['pending_assessment'] = [
+            'user_id' => $userId,
+            'retake' => $retakeRequested,
+            'top_domains' => $topDomains,
+            'assessment' => $assessmentData
+        ];
+        redirect('../assessment?choose_path=1' . ($retakeRequested ? '&retake=1' : ''));
+    }
 }
 
-$careerGoal = $specializations[$careerCode];
-
-$assessmentAnswers = json_encode([
-    'answers' => $answers,
-    'scores' => $scores,
-    'recommended_code' => $careerCode,
-    'recommended_label' => $careerGoal
-], JSON_UNESCAPED_UNICODE);
-
-$interests = clean_text(
-    $_POST['interests'] ?? '',
-    1000
-);
-
-$skills = clean_text(
-    $_POST['skills'] ?? '',
-    1000
-);
-
-$allowedLevels = [
-    'Complete Beginner',
-    'Beginner',
-    'Intermediate',
-    'Advanced'
-];
-
-$allowedGoals = [
-    'Learn the Fundamentals',
-    'Improve My Skills',
-    'Build Practical Experience',
-    'Prepare for a Career',
-    'Prepare for Further Studies'
-];
-
-if (
-    $currentLevel === '' ||
-    $improvementGoal === '' ||
-    $careerGoal === ''
-) {
-
-redirect('../assessment?error=empty');
-
-}
-
-if (!in_array($currentLevel, $allowedLevels, true)) {
-
-redirect('../assessment?error=invalid');
-
-}
-
-if (!in_array($improvementGoal, $allowedGoals, true)) {
-
-redirect('../assessment?error=invalid');
-
-}
-
-$checkAssessment = $pdo->prepare(
-    'SELECT *
-     FROM assessments
-     WHERE user_id = ?
-     LIMIT 1'
-);
-
+$assessmentAnswers = json_encode($assessmentData['assessment_answers'], JSON_UNESCAPED_UNICODE);
+$checkAssessment = $pdo->prepare('SELECT * FROM assessments WHERE user_id = ? LIMIT 1');
 $checkAssessment->execute([$userId]);
-
 $assessment = $checkAssessment->fetch(PDO::FETCH_ASSOC);
 
 if ($assessment) {
-
-$stmt = $pdo->prepare(
-        'UPDATE assessments
-         SET current_level = ?,
-             improvement_goal = ?,
-             career_goal = ?,
-             interests = ?,
-             skills = ?,
-             assessment_answers = ?
-         WHERE user_id = ?'
-    );
-
-$stmt->execute([
-        $currentLevel,
-        $improvementGoal,
-        $careerGoal,
-        $interests !== '' ? $interests : null,
-        $skills !== '' ? $skills : null,
-        $assessmentAnswers,
-        $userId
-    ]);
-
+    $stmt = $pdo->prepare('UPDATE assessments SET current_level=?, improvement_goal=?, career_goal=?, assessment_answers=? WHERE user_id=?');
+    $stmt->execute([$assessmentData['current_level'], $assessmentData['improvement_goal'], $assessmentData['career_goal'], $assessmentAnswers, $userId]);
 } else {
-
-$stmt = $pdo->prepare(
-        'INSERT INTO assessments
-        (
-            user_id,
-            current_level,
-            improvement_goal,
-            career_goal,
-            interests,
-            skills,
-            assessment_answers
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?)'
-    );
-
-$stmt->execute([
-        $userId,
-        $currentLevel,
-        $improvementGoal,
-        $careerGoal,
-        $interests !== '' ? $interests : null,
-        $skills !== '' ? $skills : null,
-        $assessmentAnswers
-    ]);
+    $stmt = $pdo->prepare('INSERT INTO assessments (user_id,current_level,improvement_goal,career_goal,assessment_answers) VALUES (?,?,?,?,?)');
+    $stmt->execute([$userId, $assessmentData['current_level'], $assessmentData['improvement_goal'], $assessmentData['career_goal'], $assessmentAnswers]);
 }
 
-$user = getUserById(
-    $pdo,
-    $userId
-);
-
+$user = getUserById($pdo, $userId);
 if (!$user) {
-
-session_destroy();
-
+    session_destroy();
     redirect('../');
-
 }
 
 try {
-    $generation = save_generated_topics(
-        $pdo,
-        $userId,
-        $user
-    );
+    $generation = save_generated_topics($pdo, $userId, $user);
 } catch (Throwable $e) {
-    // Restore the previous assessment if replacing its roadmap failed.
     try {
         if ($assessment) {
-            $restore = $pdo->prepare(
-                'UPDATE assessments
-                 SET current_level = ?, improvement_goal = ?, career_goal = ?,
-                     interests = ?, skills = ?, assessment_answers = ?
-                 WHERE user_id = ?'
-            );
-            $restore->execute([
-                $assessment['current_level'],
-                $assessment['improvement_goal'],
-                $assessment['career_goal'],
-                $assessment['interests'],
-                $assessment['skills'],
-                $assessment['assessment_answers'],
-                $userId
-            ]);
+            $restore = $pdo->prepare('UPDATE assessments SET current_level=?, improvement_goal=?, career_goal=?, assessment_answers=? WHERE user_id=?');
+            $restore->execute([$assessment['current_level'], $assessment['improvement_goal'], $assessment['career_goal'], $assessment['assessment_answers'], $userId]);
         } else {
-            $removeAssessment = $pdo->prepare(
-                'DELETE FROM assessments WHERE user_id = ?'
-            );
-            $removeAssessment->execute([$userId]);
+            $pdo->prepare('DELETE FROM assessments WHERE user_id=?')->execute([$userId]);
         }
     } catch (Throwable $restoreError) {
         error_log('Could not restore assessment after roadmap save failed.');
     }
 
     error_log('Could not save the generated study roadmap.');
-    redirect('../assessment?retake=1&error=save');
+    $retryUrl = '../assessment?';
+    if (isset($_SESSION['pending_assessment'])) {
+        $retryUrl .= 'choose_path=1&';
+    }
+    redirect($retryUrl . ($retakeRequested ? 'retake=1&' : '') . 'error=save');
 }
 
-log_ai_usage($pdo, $userId, 'assessment_roadmap', $generation['source'] === 'gemini' ? 'success' : 'fallback', 'Roadmap source: ' . $generation['source']);
-
+unset($_SESSION['pending_assessment']);
+$usageStatus = 'fallback';
+if ($generation['source'] === 'gemini') {
+    $usageStatus = 'success';
+}
+log_ai_usage($pdo, $userId, 'assessment_roadmap', $usageStatus, 'Roadmap source: ' . $generation['source']);
 redirect('../dashboard?success=assessment&source=' . urlencode($generation['source']));

@@ -1551,7 +1551,7 @@ body:has(.lesson-page) .lesson-section[hidden] { margin: 0; padding: 20px 0 8px;
 body:has(.lesson-page) .lesson-section h2 { margin: 0 0 10px; color: var(--roadmap-ink); font-size: 21px; }
 body:has(.lesson-page) .lesson-section p { margin: 0; color: #26344c; font-size: 16px; line-height: 1.72; white-space: pre-line; }
 body:has(.lesson-page) .lesson-section ul { margin: 0; padding-left: 22px; color: #26344c; font-size: 15px; line-height: 1.8; }
-body:has(.lesson-page) .lesson-section pre { min-height: 150px; margin: 0; padding: 24px; border: 0; border-radius: 14px; background: #211e4d; color: #fff; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
+body:has(.lesson-page) .lesson-section pre { box-sizing: border-box; min-height: 150px; max-width: 100%; margin: 0; padding: 24px; overflow-x: auto; overflow-wrap: anywhere; border: 0; border-radius: 14px; background: #211e4d; color: #fff; font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
 body:has(.lesson-page) #lesson-panel-example { position: relative; }
 body:has(.lesson-page) .lesson-copy-btn { position: absolute; top: 66px; right: 14px; min-height: 34px; padding: 0 13px; border: 1px solid #514aa1; border-radius: 9px; color: #fff; background: #39337f; font-size: 12px; font-weight: 700; cursor: pointer; }
 body:has(.lesson-page) .lesson-ai-note { margin: 10px 0 16px; color: #8793a8; font-size: 13px; }

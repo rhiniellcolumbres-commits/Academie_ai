@@ -188,7 +188,8 @@ $cacheIsComplete = function_exists('mb_strlen')
                 : strlen($savedLearn) >= 400;
             
             $cacheIsComplete = $cacheIsComplete
-                && strlen($savedExample) >= 40
+                && (int)($savedLesson['example_version'] ?? 0) >= 2
+                && strlen($savedExample) >= 120
                 && strlen($savedPractice) >= 40
                 && is_array($savedChecklist) && count($savedChecklist) >= 3
                 && is_array($savedResources) && count($savedResources) >= 2;
@@ -268,6 +269,7 @@ $decoded = json_decode(
 $savedLessons[$activityIndex] = [
         'lesson' => $result['lesson'],
         'example' => $result['example'] ?? '',
+        'example_version' => 2,
         'practice' => $result['practice'] ?? '',
         'checklist' => $result['checklist'] ?? [],
         'resources' => $result['resources'] ?? []

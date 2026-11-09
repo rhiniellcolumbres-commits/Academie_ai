@@ -169,3 +169,22 @@ body.profile-shell .page-container.profile-page { width: 100%; max-width: none; 
     .learning-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .achievement-grid { grid-template-columns: 1fr; }
 }
+
+/* Keep the learning snapshot readable and balanced at every screen size. */
+.learning-snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; }
+.learning-snapshot-grid .learning-detail { min-height: 104px; padding: 18px 20px; border: 1px solid #e5ebf5; background: #f8faff; }
+.learning-snapshot-grid .learning-detail:first-child { border-color: #d9e4ff; background: linear-gradient(135deg, #f0f5ff, #f8faff); }
+.learning-snapshot-grid .learning-detail:last-child { grid-column: 1 / -1; min-height: 0; }
+.learning-snapshot-grid .learning-detail dt { margin-bottom: 8px; color: #647492; font-size: .7rem; letter-spacing: .075em; }
+.learning-snapshot-grid .learning-detail dd { color: #142444; font-size: 1rem; line-height: 1.55; }
+.learning-snapshot-grid .learning-detail:first-child dd { color: #214bd1; font-size: 1.12rem; font-weight: 700; }
+.learning-snapshot-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+.learning-snapshot-actions .btn { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; border-radius: 10px; font-weight: 650; }
+
+@media (max-width: 480px) {
+    .learning-snapshot-grid { grid-template-columns: 1fr; }
+    .learning-snapshot-grid .learning-detail:last-child { grid-column: auto; }
+    .learning-snapshot-grid .learning-detail { min-height: 0; padding: 14px 15px; }
+    .learning-snapshot-actions { display: grid; grid-template-columns: 1fr; }
+    .learning-snapshot-actions .btn { width: 100%; }
+}

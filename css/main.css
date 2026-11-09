@@ -324,132 +324,6 @@ textarea.form-control {
 
 
 
-.assessment-container {
-    width: 100%;
-    max-width: 1050px;
-
-    margin: 0 auto;
-}
-
-.assessment-progress {
-    display: grid;
-
-    grid-template-columns:
-        repeat(4, 1fr);
-
-    gap: 12px;
-
-    margin-bottom: 25px;
-}
-
-.step {
-    display: flex;
-    align-items: center;
-
-    gap: 12px;
-
-    min-height: 62px;
-
-    padding: 12px 14px;
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 12px;
-}
-
-.step span {
-    width: 34px;
-    height: 34px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex-shrink: 0;
-
-    border-radius: 50%;
-
-    background: #f3f4f6;
-
-    color: #6b7280;
-
-    font-size: 13px;
-    font-weight: 700;
-}
-
-.step div {
-    display: flex;
-    flex-direction: column;
-
-    gap: 2px;
-}
-
-.step strong {
-    color: #6b7280;
-
-    font-size: 13px;
-}
-
-.step small {
-    color: #9ca3af;
-
-    font-size: 11px;
-}
-
-.step.active {
-    border-color: #111827;
-}
-
-.step.active span {
-    background: #111827;
-    color: #ffffff;
-}
-
-.step.active strong {
-    color: #111827;
-}
-
-.assessment-step {
-    display: block;
-
-    padding: 35px;
-
-    background: #ffffff;
-
-    border: 1px solid #e5e7eb;
-
-    border-radius: 16px;
-
-    box-shadow:
-        0 4px 20px rgba(0, 0, 0, 0.04);
-}
-
-.assessment-step.active {
-    display: block;
-}
-
-.assessment-heading {
-    margin-bottom: 30px;
-}
-
-.assessment-heading h2 {
-    margin: 0 0 8px;
-
-    font-size: 27px;
-    font-weight: 700;
-}
-
-.assessment-heading p {
-    margin: 0;
-
-    color: #6b7280;
-
-    font-size: 14px;
-    line-height: 1.6;
-}
-
 .form-help {
     display: block;
 
@@ -531,22 +405,6 @@ textarea.form-control {
     box-shadow:
         0 0 0 2px #111827;
 }
-
-.assessment-navigation {
-    display: flex;
-
-    justify-content: space-between;
-    align-items: center;
-
-    margin-top: 35px;
-
-    padding-top: 24px;
-
-    border-top: 1px solid #e5e7eb;
-}
-
-
-
 
 .roadmap-wrapper {
     max-width: 1050px;
@@ -929,11 +787,6 @@ textarea.form-control {
             repeat(2, 1fr);
     }
 
-    .assessment-progress {
-        grid-template-columns:
-            repeat(2, 1fr);
-    }
-
 }
 
 @media (max-width: 768px) {
@@ -962,14 +815,6 @@ textarea.form-control {
 
     .choice-grid {
         grid-template-columns: 1fr;
-    }
-
-    .assessment-step {
-        padding: 25px 20px;
-    }
-
-    .assessment-progress {
-        grid-template-columns: 1fr 1fr;
     }
 
     .roadmap::before {
@@ -1005,28 +850,9 @@ textarea.form-control {
         padding: 22px;
     }
 
-    .assessment-navigation {
-        flex-direction: column-reverse;
-
-        align-items: stretch;
-
-        gap: 10px;
-    }
-
-    .assessment-navigation .btn,
-    .assessment-navigation button,
-    .assessment-navigation a {
-        width: 100%;
-    }
-
 }
 
 @media (max-width: 500px) {
-
-    .assessment-progress {
-        grid-template-columns: 1fr;
-    }
-
     .user-info {
         width: 100%;
     }
@@ -1330,8 +1156,6 @@ textarea.form-control {
 }
 
 
-.assessment-step[hidden],
-.assessment-wizard-actions [hidden] { display: none !important; }
 .assessment-retake-notice {
     display: flex;
     align-items: flex-start;
@@ -1358,23 +1182,7 @@ textarea.form-control {
 .assessment-retake-copy h2 { margin: 0 0 5px; color: #34270e; font-size: 16px; font-weight: 750; }
 .assessment-retake-copy p { margin: 0 0 7px; color: #59451f; font-size: 14px; line-height: 1.55; }
 .assessment-retake-hint { display: block; color: #745e35; font-size: 13px; line-height: 1.5; }
-.assessment-wizard-progress {
-    margin: 0 0 18px;
-    padding: 12px 14px;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fff;
-    color: #374151;
-    font-size: 13px;
-    font-weight: 700;
-}
-.assessment-wizard-progress > div:first-child { display: flex; justify-content: space-between; gap: 12px; }
-.assessment-progress-track { height: 6px; margin-top: 9px; overflow: hidden; border-radius: 99px; background: #e5e7eb; }
-.assessment-progress-track span { display: block; width: 12.5%; height: 100%; border-radius: inherit; background: #111827; transition: width .2s ease; }
-.assessment-step-error { margin: 0 0 12px; color: #b42318; font-size: 14px; }
-.assessment-step-error[hidden] { display: none; }
-.assessment-wizard-actions { justify-content: space-between; gap: 12px; }
-.assessment-wizard-actions #assessmentSubmitBtn { margin-left: auto; }
+.assessment-submit-actions { justify-content: flex-end; gap: 12px; }
 .path-question.assessment-section { padding-top: 22px; padding-bottom: 22px; }
 .path-question .path-question-heading { margin-bottom: 16px; }
 @media (max-width: 600px) {
@@ -1383,8 +1191,7 @@ textarea.form-control {
     .assessment-retake-copy h2 { font-size: 15px; }
     .assessment-retake-copy p { font-size: 13px; }
     .assessment-retake-hint { font-size: 12px; }
-    .assessment-wizard-progress { margin-bottom: 12px; padding: 10px 12px; }
-    .assessment-wizard-actions { margin-top: 12px; }
+    .assessment-submit-actions { margin-top: 12px; }
 }
 .course-field {
     position: relative;
@@ -1944,35 +1751,6 @@ textarea.form-control {
     margin-top: 30px;
 }
 
-.assessment-back {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    min-height: 48px;
-
-    padding: 0 22px;
-
-    border: 1px solid #d1d5db;
-    border-radius: 9px;
-
-    background: #ffffff;
-
-    color: #374151;
-
-    font-size: 14px;
-    font-weight: 700;
-
-    text-decoration: none;
-}
-
-.assessment-back:hover {
-    background: #f9fafb;
-
-    color: #111827;
-}
-
 .assessment-start {
     min-height: 48px;
 
@@ -2482,7 +2260,6 @@ textarea.form-control {
         gap: 10px;
     }
 
-    .assessment-back,
     .assessment-start {
         flex: 1;
     }
@@ -2620,7 +2397,7 @@ body{
 
 
 .dashboard-overview{gap:20px}
-.overview-main,.overview-progress,.assessment-summary>div,.dashboard-card,.panel,.resource-card,.stat-card,.profile-card,.roadmap-header,.roadmap-card,.assessment-step{
+.overview-main,.overview-progress,.assessment-summary>div,.dashboard-card,.panel,.resource-card,.stat-card,.profile-card,.roadmap-header,.roadmap-card{
     border:1px solid var(--sp-border)!important;
     box-shadow:var(--sp-shadow);
 }
@@ -3832,7 +3609,7 @@ a i {
     .assessment-option.path-choice .option-content strong { font-size: 14px; }
     .assessment-option.path-choice::after { right: 12px; width: 20px; height: 20px; }
     .assessment-actions { margin-top: 18px; }
-    .assessment-back, .assessment-start { min-height: 44px; padding: 0 14px; }
+    .assessment-start { min-height: 44px; padding: 0 14px; }
 }
 
 /* Keep dashboard cards and navigation usable on tablet and phone screens. */
@@ -4025,22 +3802,6 @@ body.assessment-page .assessment-intro { margin: 0 0 32px; text-align: left; }
 body.assessment-page .assessment-eyebrow { margin: 0 0 8px; color: var(--assessment-blue); font-size: 12px; font-weight: 800; letter-spacing: 1.5px; }
 body.assessment-page .assessment-intro h1 { margin: 0 0 8px; color: var(--assessment-ink); font-size: clamp(34px, 4vw, 42px); letter-spacing: -1.4px; }
 body.assessment-page .assessment-intro p { margin: 0; color: var(--assessment-muted); font-size: 16px; line-height: 1.5; }
-body.assessment-page .assessment-wizard-progress {
-    margin: 0 0 24px;
-    padding: 18px 22px;
-    border: 1px solid #e5ebf4;
-    border-radius: 18px;
-    background: #fff;
-    box-shadow: none;
-}
-body.assessment-page .assessment-stepper { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 0; list-style: none; }
-body.assessment-page .assessment-stepper li { display: flex; min-width: 0; align-items: center; gap: 10px; color: var(--assessment-muted); font-size: 14px; font-weight: 600; }
-body.assessment-page .assessment-stepper li > span:first-child { display: inline-flex; width: 30px; height: 30px; flex: 0 0 30px; align-items: center; justify-content: center; border: 1px solid #e5ebf4; border-radius: 50%; color: var(--assessment-muted); background: #fff; font-size: 13px; font-weight: 700; }
-body.assessment-page .assessment-stepper li.is-current { color: var(--assessment-ink); }
-body.assessment-page .assessment-stepper li.is-current > span:first-child { border: 2px solid var(--assessment-blue); color: var(--assessment-blue); }
-body.assessment-page .assessment-stepper li.is-complete > span:first-child { border-color: var(--assessment-blue); color: #fff; background: var(--assessment-blue); }
-body.assessment-page .assessment-stepper-mobile { display: none; }
-body.assessment-page .assessment-progress-track { display: none; }
 body.assessment-page #assessmentForm { display: flex; flex-direction: column; }
 body.assessment-page .assessment-section {
     margin: 0;
@@ -4063,7 +3824,7 @@ body.assessment-page .assessment-option:not(.path-choice):has(input:checked) { b
 body.assessment-page .option-content { gap: 3px; }
 body.assessment-page .option-content strong { color: var(--assessment-ink); font-size: 16px; }
 body.assessment-page .option-content small { color: var(--assessment-muted); font-size: 14px; line-height: 1.45; }
-body.assessment-page .assessment-wizard-actions {
+body.assessment-page .assessment-submit-actions {
     display: flex;
     min-height: 78px;
     align-items: center;
@@ -4074,17 +3835,13 @@ body.assessment-page .assessment-wizard-actions {
     border-radius: 0 0 18px 18px;
     background: #fff;
 }
-body.assessment-page .assessment-back,
 body.assessment-page .assessment-start { min-height: 48px; padding: 0 22px; border-radius: 11px; font-family: inherit; font-size: 14px; font-weight: 700; }
-body.assessment-page .assessment-back { border: 1px solid #e5ebf4; color: var(--assessment-ink); background: #fff; }
 body.assessment-page .assessment-start { border: 0; color: #fff; background: var(--assessment-blue); }
-body.assessment-page #assessmentSubmitBtn { margin-left: auto; }
 body.assessment-page .assessment-retake-notice { margin-top: 24px; padding: 16px 20px; border: 1px solid #f6dfaa; border-radius: 16px; background: #fff5dc; box-shadow: none; }
 body.assessment-page .assessment-retake-icon { display: none; }
 body.assessment-page .assessment-retake-copy h2 { color: #75430a; font-size: 15px; }
 body.assessment-page .assessment-retake-copy p { margin: 0; color: #845113; font-size: 14px; }
 body.assessment-page .assessment-retake-hint { display: none; }
-body.assessment-page .assessment-step-error { margin: 0 0 12px; }
 @media (max-width: 900px) {
     body.assessment-page { --assessment-sidebar-width: 0px; padding-left: 0; }
     body.assessment-page .main-navbar { position: sticky !important; inset: auto; width: 100% !important; min-height: 0; height: auto; flex-direction: row; flex-wrap: wrap; gap: 8px; padding: 12px 16px !important; border-right: 0; border-bottom: 1px solid #e8edf5; }
@@ -4097,16 +3854,10 @@ body.assessment-page .assessment-step-error { margin: 0 0 12px; }
     body.assessment-page .assessment-wrapper { max-width: none; padding: 28px 16px 48px; }
     body.assessment-page .assessment-intro { margin-bottom: 22px; }
     body.assessment-page .assessment-intro h1 { font-size: clamp(28px, 7vw, 36px); }
-    body.assessment-page .assessment-wizard-progress { margin-bottom: 16px; padding: 12px 14px; }
-    body.assessment-page .assessment-stepper { display: none; }
-    body.assessment-page .assessment-stepper-mobile { display: flex; justify-content: space-between; color: var(--assessment-muted); font-size: 13px; }
-    body.assessment-page .assessment-stepper-mobile strong { color: var(--assessment-blue); }
-    body.assessment-page .assessment-progress-track { display: block; height: 5px; margin-top: 9px; background: #e7edf6; }
-    body.assessment-page .assessment-progress-track span { background: var(--assessment-blue); }
     body.assessment-page .assessment-section { padding: 22px 18px 16px; }
     body.assessment-page .assessment-section-header h2 { font-size: 22px; }
     body.assessment-page .assessment-section-header p { font-size: 14px; }
     body.assessment-page .assessment-options { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-    body.assessment-page .assessment-wizard-actions { min-height: 68px; padding: 12px 18px 20px; }
+    body.assessment-page .assessment-submit-actions { min-height: 68px; padding: 12px 18px 20px; }
     body.assessment-page .assessment-retake-notice { margin-top: 16px; }
 }
