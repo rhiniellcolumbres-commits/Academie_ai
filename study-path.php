@@ -39,10 +39,6 @@ foreach ($topics as $topic) {
 
 $total = count($topics);
 
-$percent = $total
-    ? (int)round(($completed / $total) * 100)
-    : 0;
-
 $totalActivities = 0;
 $completedActivities = 0;
 
@@ -86,6 +82,10 @@ $topic['_activity_completed'] = 0;
     $totalActivities += count($topic['_activities']);
     $completedActivities += $topic['_activity_completed'];
 }
+
+$percent = $totalActivities > 0
+    ? (int)round(($completedActivities / $totalActivities) * 100)
+    : 0;
 
 $previousCompleted = true;
 
@@ -184,13 +184,13 @@ require_once __DIR__ . '/includes/header.php';
 <section class="roadmap-summary">
     <div class="summary-progress">
         <div class="roadmap-progress-copy">
-            <span>Stages completed</span>
-            <strong><?= $completed ?> of <?= $total ?> · <?= $percent ?>%</strong>
+            <span>Activities completed</span>
+            <strong id="roadmap-progress-value"><?= $completedActivities ?> of <?= $totalActivities ?> · <?= $percent ?>%</strong>
         </div>
-        <div class="roadmap-progress-bar" role="progressbar" aria-label="Roadmap stages completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= $percent ?>" aria-valuetext="<?= $percent ?> percent, <?= $completed ?> of <?= $total ?> stages completed">
+        <div id="roadmap-progress-bar" class="roadmap-progress-bar" role="progressbar" aria-label="Roadmap activities completed" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?= $percent ?>" aria-valuetext="<?= $percent ?> percent, <?= $completedActivities ?> of <?= $totalActivities ?> activities completed" data-completed-activities="<?= $completedActivities ?>" data-total-activities="<?= $totalActivities ?>">
             <span style="width: <?= $percent ?>%;"></span>
         </div>
-        <small><?= $completedActivities ?> of <?= $totalActivities ?> activities done</small>
+        <small><?= $completed ?> of <?= $total ?> stages completed</small>
     </div>
 </section>
 
@@ -929,6 +929,7 @@ require_once __DIR__ . '/includes/header.php';
 <script>
 // Updates the activity progress display.
 function updateActivityUI(progress, topicId) {
+    let activityWasCompleted = false;
     // Updates the matching stage's activity controls from saved progress.
     document.querySelectorAll('.activity-form').forEach(function (form) {
         const formTopicId = form.querySelector('input[name="topic_id"]');
@@ -938,6 +939,7 @@ function updateActivityUI(progress, topicId) {
         if (!formTopicId || !formActivityIndex || !item || !checkbox || formTopicId.value !== String(topicId)) return;
 
         const learned = Number(progress[Number(formActivityIndex.value)]) === 1;
+        if (learned && !item.classList.contains('activity-completed')) activityWasCompleted = true;
         item.disabled = learned;
         item.classList.toggle('activity-completed', learned);
         checkbox.textContent = learned ? '✓' : '';
@@ -955,6 +957,19 @@ function updateActivityUI(progress, topicId) {
     if (count) count.textContent = completedCount + ' / ' + progress.length;
     if (bar) bar.style.width = percent + '%';
     if (label) label.textContent = percent + '% complete';
+
+    const roadmapBar = document.getElementById('roadmap-progress-bar');
+    const roadmapValue = document.getElementById('roadmap-progress-value');
+    if (roadmapBar && activityWasCompleted) {
+        const total = Number(roadmapBar.dataset.totalActivities);
+        const completed = Math.min(total, Number(roadmapBar.dataset.completedActivities) + 1);
+        const roadmapPercent = total ? Math.round((completed / total) * 100) : 0;
+        roadmapBar.dataset.completedActivities = String(completed);
+        roadmapBar.setAttribute('aria-valuenow', String(roadmapPercent));
+        roadmapBar.setAttribute('aria-valuetext', roadmapPercent + ' percent, ' + completed + ' of ' + total + ' activities completed');
+        roadmapBar.querySelector('span').style.width = roadmapPercent + '%';
+        if (roadmapValue) roadmapValue.textContent = completed + ' of ' + total + ' · ' + roadmapPercent + '%';
+    }
 }
 
 // Attaches submit handlers to the activity progress forms after page load.

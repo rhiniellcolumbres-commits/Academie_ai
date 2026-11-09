@@ -87,8 +87,8 @@ $done                = $progress['completedStages'];
 $totalActivities     = $progress['totalActivities'];
 $completedActivities = $progress['completedActivities'];
 
-$percent = $total > 0
-    ? (int)round(($done / $total) * 100)
+$percent = $totalActivities > 0
+    ? (int)round(($completedActivities / $totalActivities) * 100)
     : 0;
 
 syncAchievements($pdo, (int)$user['id'], $progress);
